@@ -62,96 +62,137 @@ class _ProfilePageState extends State<ProfilePage> {
       return const Center(child: Text('내 정보 불러오기 실패'));
     }
     final isAdmin = _userData!['userType'] == 'admin' || _userData!['userType'] == 'developer';
+    final profileImageUrl = _userData!['profileImageUrl'] != null && _userData!['profileImageUrl'] != ''
+        ? _userData!['profileImageUrl']
+        : null;
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('내 프로필'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.edit),
-            tooltip: '프로필 수정',
-            onPressed: _editProfile,
-          ),
-        ],
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          // 내 정보
-          Row(
+      extendBodyBehindAppBar: true,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
             children: [
-              CircleAvatar(
-                radius: 36,
-                backgroundImage: _userData!['profileImageUrl'] != null && _userData!['profileImageUrl'] != ''
-                    ? NetworkImage(_userData!['profileImageUrl'])
-                    : const AssetImage('assets/images/default_profile.png') as ImageProvider,
+              // 상단 프로필 이미지 + 정보 overlay
+              Stack(
+                children: [
+                  SizedBox(
+                    width: double.infinity,
+                    height: 320,
+                    child: profileImageUrl != null
+                        ? Image.network(
+                            profileImageUrl,
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            height: 320,
+                            errorBuilder: (context, error, stackTrace) => Container(
+                              color: Colors.grey[300],
+                              width: double.infinity,
+                              height: 320,
+                              child: Icon(Icons.person, size: 80, color: Colors.grey[500]),
+                            ),
+                          )
+                        : Container(
+                            color: Colors.grey[300],
+                            width: double.infinity,
+                            height: 320,
+                            child: Icon(Icons.person, size: 80, color: Colors.grey[500]),
+                          ),
+                  ),
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 32,
+                    child: Center(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 24),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.35),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              _userData!['nickname'] ?? '',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                                shadows: [Shadow(color: Colors.black38, blurRadius: 4)],
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              '회원타입: ${_userData!['userType'] ?? ''}',
+                              style: const TextStyle(color: Colors.white, fontSize: 16),
+                            ),
+                            if ((_userData!['userType'] ?? '') == 'offline_member')
+                              Text(
+                                '요일: ${_userData!['dayOfWeek'] ?? ''}',
+                                style: const TextStyle(color: Colors.white, fontSize: 16),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 16),
-              Expanded(
+              const SizedBox(height: 16),
+              // 소제목
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
+                child: Row(
+                  children: const [
+                    Text('프로필', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  ],
+                ),
+              ),
+              // 메뉴 리스트 (프로필 수정, 로그아웃)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 0),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(_userData!['nickname'] ?? '', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                    Text('회원타입: ${_userData!['userType'] ?? ''}'),
-                    if ((_userData!['userType'] ?? '') == 'offline_member')
-                      Text('요일: ${_userData!['dayOfWeek'] ?? ''}'),
+                    ListTile(
+                      leading: const Icon(Icons.edit_outlined),
+                      title: const Text('프로필 수정', style: TextStyle(fontSize: 14)),
+                      onTap: _editProfile,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 24),
+                      visualDensity: VisualDensity.compact,
+                    ),
+                    const Divider(height: 1, thickness: 1, indent: 24, endIndent: 24),
+                    ListTile(
+                      leading: const Icon(Icons.logout),
+                      title: const Text('로그아웃', style: TextStyle(fontSize: 14)),
+                      onTap: _logout,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 24),
+                      visualDensity: VisualDensity.compact,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 32),
+              // 관리자 메뉴
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (isAdmin)
+                      Card(
+                        color: Colors.blue[50],
+                        child: ListTile(
+                          leading: const Icon(Icons.admin_panel_settings, color: Colors.blue),
+                          title: const Text('관리자 메뉴'),
+                          subtitle: const Text('공지글 관리, 회원 관리 등'),
+                          onTap: () {}, // TODO: 관리자 기능 연결
+                        ),
+                      ),
                   ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 24),
-          // 내가 쓴 글
-          const Text('내가 쓴 글', style: TextStyle(fontWeight: FontWeight.bold)),
-          const SizedBox(height: 8),
-          StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-            stream: FirebaseFirestore.instance
-                .collection('posts')
-                .where('authorId', isEqualTo: user?.uid)
-                .orderBy('createdAt', descending: true)
-                .snapshots(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              final docs = snapshot.data?.docs ?? [];
-              if (docs.isEmpty) {
-                return const Text('아직 작성한 글이 없습니다.', style: TextStyle(color: Colors.grey));
-              }
-              return ListView.separated(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: docs.length,
-                separatorBuilder: (_, __) => const Divider(height: 1),
-                itemBuilder: (context, idx) {
-                  final post = docs[idx].data();
-                  return ListTile(
-                    title: Text(post['title'] ?? ''),
-                    subtitle: Text('${post['category'] ?? ''} • ${(post['createdAt'] as Timestamp?)?.toDate().toString().substring(0, 16) ?? ''}'),
-                  );
-                },
-              );
-            },
-          ),
-          const SizedBox(height: 24),
-          // 설정/로그아웃
-          ElevatedButton.icon(
-            onPressed: _logout,
-            icon: const Icon(Icons.logout),
-            label: const Text('로그아웃'),
-          ),
-          const SizedBox(height: 24),
-          // 관리자 메뉴
-          if (isAdmin)
-            Card(
-              color: Colors.blue[50],
-              child: ListTile(
-                leading: const Icon(Icons.admin_panel_settings, color: Colors.blue),
-                title: const Text('관리자 메뉴'),
-                subtitle: const Text('공지글 관리, 회원 관리 등'),
-                onTap: () {}, // TODO: 관리자 기능 연결
-              ),
-            ),
-        ],
+        ),
       ),
     );
   }

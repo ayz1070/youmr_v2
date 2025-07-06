@@ -14,6 +14,7 @@ import 'package:shimmer/shimmer.dart';
 /// 게시글 상세 + 댓글 페이지
 class PostDetailPage extends StatefulWidget {
   final String postId;
+
   const PostDetailPage({super.key, required this.postId});
 
   @override
@@ -46,13 +47,20 @@ class _PostDetailPageState extends State<PostDetailPage> {
 
   /// Firestore에서 게시글 정보 불러오기
   Future<void> _fetchPost() async {
-    setState(() { _isLoading = true; });
+    setState(() {
+      _isLoading = true;
+    });
     try {
-      final doc = await FirebaseFirestore.instance.collection('posts').doc(widget.postId).get();
+      final doc = await FirebaseFirestore.instance
+          .collection('posts')
+          .doc(widget.postId)
+          .get();
       if (!doc.exists) throw Exception('게시글이 존재하지 않습니다.');
       final data = doc.data();
       // 유튜브 컨트롤러 초기화
-      if (data != null && data['youtubeUrl'] != null && data['youtubeUrl'] != '') {
+      if (data != null &&
+          data['youtubeUrl'] != null &&
+          data['youtubeUrl'] != '') {
         final videoId = YoutubePlayer.convertUrlToId(data['youtubeUrl']);
         if (videoId != null) {
           _ytController = YoutubePlayerController(
@@ -68,9 +76,13 @@ class _PostDetailPageState extends State<PostDetailPage> {
         _error = null;
       });
     } catch (e) {
-      setState(() { _error = '게시글을 불러오지 못했습니다.'; });
+      setState(() {
+        _error = '게시글을 불러오지 못했습니다.';
+      });
     } finally {
-      setState(() { _isLoading = false; });
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -91,24 +103,32 @@ class _PostDetailPageState extends State<PostDetailPage> {
   }
 
   /// 게시글 수정/삭제 권한 확인
-  bool _canEditOrDelete(Map<String, dynamic> post, String? uid, String? userType) {
-    return post['authorId'] == uid || (userType == 'admin' || userType == 'developer');
+  bool _canEditOrDelete(
+    Map<String, dynamic> post,
+    String? uid,
+    String? userType,
+  ) {
+    return post['authorId'] == uid ||
+        (userType == 'admin' || userType == 'developer');
   }
 
   /// 게시글 삭제
   Future<void> _deletePost() async {
     try {
-      await FirebaseFirestore.instance.collection('posts').doc(widget.postId).delete();
+      await FirebaseFirestore.instance
+          .collection('posts')
+          .doc(widget.postId)
+          .delete();
       if (mounted) {
         Navigator.of(context).pop();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('게시글이 삭제되었습니다.')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('게시글이 삭제되었습니다.')));
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('게시글 삭제에 실패했습니다.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('게시글 삭제에 실패했습니다.')));
     }
   }
 
@@ -121,16 +141,19 @@ class _PostDetailPageState extends State<PostDetailPage> {
     );
     if (result == true) {
       await _fetchPost();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('게시글이 수정되었습니다.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('게시글이 수정되었습니다.')));
     }
   }
 
   /// 게시글 공지 지정/해제
   Future<void> _toggleNotice(bool isNotice) async {
     try {
-      await FirebaseFirestore.instance.collection('posts').doc(widget.postId).update({'isNotice': !isNotice});
+      await FirebaseFirestore.instance
+          .collection('posts')
+          .doc(widget.postId)
+          .update({'isNotice': !isNotice});
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(!isNotice ? '공지로 지정되었습니다.' : '공지에서 해제되었습니다.')),
@@ -138,14 +161,16 @@ class _PostDetailPageState extends State<PostDetailPage> {
         await _fetchPost();
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('공지 변경에 실패했습니다.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('공지 변경에 실패했습니다.')));
     }
   }
 
   void _showCommentSheet(BuildContext context) async {
-    setState(() { _isCommentSheetOpen = true; });
+    setState(() {
+      _isCommentSheetOpen = true;
+    });
     await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -188,10 +213,17 @@ class _PostDetailPageState extends State<PostDetailPage> {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 8,
+                    ),
                     child: Row(
                       children: [
-                        Text('댓글 ', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                        Text(
+                          '댓글 ',
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.bold),
+                        ),
                         CommentCount(postId: widget.postId),
                       ],
                     ),
@@ -215,7 +247,12 @@ class _PostDetailPageState extends State<PostDetailPage> {
                   SafeArea(
                     top: false,
                     child: Padding(
-                      padding: const EdgeInsets.only(left: 12, right: 12, bottom: 8, top: 2),
+                      padding: const EdgeInsets.only(
+                        left: 12,
+                        right: 12,
+                        bottom: 8,
+                        top: 2,
+                      ),
                       child: CommentInput(
                         postId: widget.postId,
                         editCommentId: _editCommentId,
@@ -236,7 +273,9 @@ class _PostDetailPageState extends State<PostDetailPage> {
         );
       },
     );
-    setState(() { _isCommentSheetOpen = false; });
+    setState(() {
+      _isCommentSheetOpen = false;
+    });
   }
 
   @override
@@ -262,10 +301,13 @@ class _PostDetailPageState extends State<PostDetailPage> {
       if (url == null) return null;
       final uri = Uri.tryParse(url);
       if (uri == null || !uri.host.contains('youtu')) return null;
-      final videoId = uri.pathSegments.isNotEmpty ? uri.pathSegments.last : null;
+      final videoId = uri.pathSegments.isNotEmpty
+          ? uri.pathSegments.last
+          : null;
       if (videoId == null || videoId.length < 5) return null;
       return 'https://img.youtube.com/vi/$videoId/0.jpg';
     }
+
     final thumb = getYoutubeThumbnail(post['youtubeUrl']);
     final random = Random(widget.postId.hashCode);
     final picsumId = (random.nextInt(1000) + 1).toString();
@@ -295,22 +337,36 @@ class _PostDetailPageState extends State<PostDetailPage> {
                               fit: BoxFit.cover,
                               width: double.infinity,
                               height: 340,
-                              loadingBuilder: (context, child, progress) => progress == null ? child : Shimmer.fromColors(
-                                baseColor: Colors.grey[300]!,
-                                highlightColor: Colors.grey[100]!,
-                                child: Container(color: Colors.grey[300], width: double.infinity, height: 340),
-                              ),
+                              loadingBuilder: (context, child, progress) =>
+                                  progress == null
+                                  ? child
+                                  : Shimmer.fromColors(
+                                      baseColor: Colors.grey[300]!,
+                                      highlightColor: Colors.grey[100]!,
+                                      child: Container(
+                                        color: Colors.grey[300],
+                                        width: double.infinity,
+                                        height: 340,
+                                      ),
+                                    ),
                             )
                           : Image.network(
                               picsumUrl,
                               fit: BoxFit.cover,
                               width: double.infinity,
                               height: 340,
-                              loadingBuilder: (context, child, progress) => progress == null ? child : Shimmer.fromColors(
-                                baseColor: Colors.grey[300]!,
-                                highlightColor: Colors.grey[100]!,
-                                child: Container(color: Colors.grey[300], width: double.infinity, height: 340),
-                              ),
+                              loadingBuilder: (context, child, progress) =>
+                                  progress == null
+                                  ? child
+                                  : Shimmer.fromColors(
+                                      baseColor: Colors.grey[300]!,
+                                      highlightColor: Colors.grey[100]!,
+                                      child: Container(
+                                        color: Colors.grey[300],
+                                        width: double.infinity,
+                                        height: 340,
+                                      ),
+                                    ),
                             ),
                     ),
                   ),
@@ -322,14 +378,27 @@ class _PostDetailPageState extends State<PostDetailPage> {
                       children: [
                         CircleAvatar(
                           radius: 16,
-                          backgroundImage: post['authorProfileUrl'] != null && post['authorProfileUrl'] != ''
+                          backgroundImage:
+                              post['authorProfileUrl'] != null &&
+                                  post['authorProfileUrl'] != ''
                               ? NetworkImage(post['authorProfileUrl'])
-                              : const AssetImage('assets/images/default_profile.png') as ImageProvider,
+                              : const AssetImage(
+                                      'assets/images/default_profile.png',
+                                    )
+                                    as ImageProvider,
                         ),
                         const SizedBox(width: 8),
                         Text(
                           post['authorNickname'] ?? '',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14, shadows: [Shadow(color: Colors.black26, blurRadius: 2)]),
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                                shadows: [
+                                  Shadow(color: Colors.black26, blurRadius: 2),
+                                ],
+                              ),
                         ),
                       ],
                     ),
@@ -341,19 +410,34 @@ class _PostDetailPageState extends State<PostDetailPage> {
                     right: 16,
                     child: Row(
                       children: [
-                        Icon(Icons.favorite_border, size: 18, color: Colors.white),
+                        Icon(
+                          Icons.favorite_border,
+                          size: 18,
+                          color: Colors.white,
+                        ),
                         const SizedBox(width: 2),
-                        Text('${post['likesCount'] ?? 0}', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.white, fontSize: 13)),
+                        Text(
+                          '${post['likesCount'] ?? 0}',
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(color: Colors.white, fontSize: 13),
+                        ),
                         const SizedBox(width: 8),
-                        Icon(Icons.mode_comment_outlined, size: 18, color: Colors.white),
+                        Icon(
+                          Icons.mode_comment_outlined,
+                          size: 18,
+                          color: Colors.white,
+                        ),
                         const SizedBox(width: 2),
                         CommentCount(postId: widget.postId),
                         const SizedBox(width: 8),
                         Text(
                           post['createdAt'] != null
-                              ? _formatDate((post['createdAt'] as Timestamp).toDate())
+                              ? _formatDate(
+                                  (post['createdAt'] as Timestamp).toDate(),
+                                )
                               : '',
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.white70, fontSize: 12),
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(color: Colors.white70, fontSize: 12),
                         ),
                         const Spacer(),
                       ],
@@ -367,7 +451,14 @@ class _PostDetailPageState extends State<PostDetailPage> {
                     child: Center(
                       child: Text(
                         post['title'] ?? '',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 22, shadows: [Shadow(color: Colors.black38, blurRadius: 4)]),
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          fontSize: 22,
+                          shadows: [
+                            Shadow(color: Colors.black38, blurRadius: 4),
+                          ],
+                        ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         textAlign: TextAlign.center,
@@ -379,10 +470,15 @@ class _PostDetailPageState extends State<PostDetailPage> {
               // 본문
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 24),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 18,
+                  vertical: 24,
+                ),
                 child: Text(
                   post['content'] ?? '',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 15),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(fontSize: 15),
                 ),
               ),
             ],
@@ -398,10 +494,18 @@ class _PostDetailPageState extends State<PostDetailPage> {
                 onTap: () => _showCommentSheet(context),
                 child: Container(
                   margin: const EdgeInsets.only(left: 0, right: 0, bottom: 0),
-                  padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 10,
+                    horizontal: 16,
+                  ),
                   decoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.surfaceContainer,
-                    borderRadius: BorderRadius.circular(18),
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(18),
+                      topRight: Radius.circular(18),
+                      bottomLeft: Radius.circular(0),
+                      bottomRight: Radius.circular(0),
+                    ),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withOpacity(0.06),
@@ -412,10 +516,20 @@ class _PostDetailPageState extends State<PostDetailPage> {
                   ),
                   child: Row(
                     children: [
-                      Text('댓글 ', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                      Text(
+                        '댓글 ',
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.bold),
+                      ),
                       CommentCount(postId: widget.postId),
                       const Spacer(),
-                      Icon(_isCommentSheetOpen ? Icons.keyboard_arrow_down_rounded : Icons.keyboard_arrow_up_rounded, size: 28, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                      Icon(
+                        _isCommentSheetOpen
+                            ? Icons.keyboard_arrow_down_rounded
+                            : Icons.keyboard_arrow_up_rounded,
+                        size: 28,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                     ],
                   ),
                 ),
@@ -429,7 +543,9 @@ class _PostDetailPageState extends State<PostDetailPage> {
 
   String _formatDate(DateTime date) {
     final now = DateTime.now();
-    if (now.year == date.year && now.month == date.month && now.day == date.day) {
+    if (now.year == date.year &&
+        now.month == date.month &&
+        now.day == date.day) {
       // 오늘
       return '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
     } else {
@@ -440,7 +556,9 @@ class _PostDetailPageState extends State<PostDetailPage> {
 
 class CommentCount extends StatelessWidget {
   final String postId;
+
   const CommentCount({required this.postId});
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
@@ -449,10 +567,15 @@ class CommentCount extends StatelessWidget {
           .where('postId', isEqualTo: postId)
           .snapshots(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) return const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2));
+        if (!snapshot.hasData)
+          return const SizedBox(
+            width: 16,
+            height: 16,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          );
         final count = snapshot.data!.docs.length;
         return Text('$count', style: Theme.of(context).textTheme.bodySmall);
       },
     );
   }
-} 
+}
