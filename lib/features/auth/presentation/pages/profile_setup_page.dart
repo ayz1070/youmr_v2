@@ -1,67 +1,30 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:image_picker/image_picker.dart'; // 실제 적용 시 주석 해제
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/widgets/loading_indicator.dart';
+import '../../../../core/widgets/empty_state.dart';
+import '../controllers/auth_controller.dart';
 import '../../../main/presentation/pages/main_navigation_page.dart';
+import '../../domain/entities/user_entity.dart';
 
-/// 회원가입 시 프로필 정보 입력 화면
-class ProfileSetupPage extends StatefulWidget {
+/// 회원가입 시 프로필 정보 입력 화면 (Riverpod 기반)
+class ProfileSetupPage extends ConsumerStatefulWidget {
   const ProfileSetupPage({super.key});
 
   @override
-  State<ProfileSetupPage> createState() => _ProfileSetupPageState();
+  ConsumerState<ProfileSetupPage> createState() => _ProfileSetupPageState();
 }
 
-class _ProfileSetupPageState extends State<ProfileSetupPage> {
+class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage> {
   final _formKey = GlobalKey<FormState>();
   final _nicknameController = TextEditingController();
   String? _userType;
   String? _dayOfWeek;
-  bool _isLoading = false;
-
-  // 요일 리스트
   final List<String> _days = ['월', '화', '수', '목', '금', '토', '일'];
 
-  /// 프로필 정보 저장
-  Future<void> _saveProfile() async {
-    if (!_formKey.currentState!.validate()) return;
-    if (_userType == null) {
-      _showError('회원 타입을 선택해 주세요.');
-      return;
-    }
-    if (_userType == 'offline_member' && _dayOfWeek == null) {
-      _showError('요일을 선택해 주세요.');
-      return;
-    }
-    setState(() => _isLoading = true);
-    try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user == null) throw Exception('로그인 정보 없음');
-      
-      // 사용자 문서 생성 또는 업데이트
-      final userDoc = FirebaseFirestore.instance.collection('users').doc(user.uid);
-      await userDoc.set({
-        'uid': user.uid,
-        'email': user.email,
-        'nickname': _nicknameController.text.trim(),
-        'profileImageUrl': '', // 기본 이미지 사용
-        'userType': _userType,
-        'dayOfWeek': _userType == 'offline_member' ? _dayOfWeek : '',
-        'createdAt': FieldValue.serverTimestamp(),
-        'updatedAt': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
-      
-      if (context.mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const MainNavigationPage()),
-        );
-      }
-    } catch (e) {
-      print('프로필 저장 에러: $e');
-      _showError('프로필 저장에 실패했습니다. 다시 시도해 주세요.');
-    } finally {
-      setState(() => _isLoading = false);
-    }
+  @override
+  void dispose() {
+    _nicknameController.dispose();
+    super.dispose();
   }
 
   void _showError(String message) {
@@ -72,10 +35,30 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
 
   @override
   Widget build(BuildContext context) {
+    final authState = ref.watch(authControllerProvider);
+    final authController = ref.read(authControllerProvider.notifier);
+
+    ref.listen(authControllerProvider, (prev, next) {
+      next.whenOrNull(
+        data: (user) {
+          if (user != null && context.mounted) {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (_) => const MainNavigationPage()),
+            );
+          }
+        },
+        error: (e, st) {
+          if (context.mounted) {
+            _showError('프로필 저장 실패: ${e.toString()}');
+          }
+        },
+      );
+    });
+
     return Scaffold(
       appBar: AppBar(title: const Text('프로필 설정')),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+      body: authState.isLoading
+          ? const LoadingIndicator()
           : Padding(
               padding: const EdgeInsets.all(24.0),
               child: Form(
@@ -162,7 +145,28 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                       width: double.infinity,
                       height: 50,
                       child: ElevatedButton(
-                        onPressed: _saveProfile,
+                        onPressed: () {
+                          if (!_formKey.currentState!.validate()) return;
+                          if (_userType == null) {
+                            _showError('회원 타입을 선택해 주세요.');
+                            return;
+                          }
+                          if (_userType == 'offline_member' && _dayOfWeek == null) {
+                            _showError('요일을 선택해 주세요.');
+                            return;
+                          }
+                          final user = UserEntity(
+                            uid: '', // 실제 로그인 유저의 uid로 대체 필요
+                            email: '', // 실제 로그인 유저의 email로 대체 필요
+                            nickname: _nicknameController.text.trim(),
+                            profileImageUrl: '',
+                            userType: _userType!,
+                            dayOfWeek: _userType == 'offline_member' ? _dayOfWeek : '',
+                            createdAt: DateTime.now(),
+                            updatedAt: DateTime.now(),
+                          );
+                          authController.saveProfile(user);
+                        },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Theme.of(context).primaryColor,
                           foregroundColor: Colors.white,
@@ -178,11 +182,5 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
               ),
             ),
     );
-  }
-
-  @override
-  void dispose() {
-    _nicknameController.dispose();
-    super.dispose();
   }
 } 

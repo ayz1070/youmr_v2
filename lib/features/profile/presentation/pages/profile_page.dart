@@ -1,70 +1,26 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../controllers/profile_controller.dart';
+import '../widgets/profile_avatar.dart';
 import 'profile_edit_page.dart';
 
-/// 프로필 탭 페이지
-class ProfilePage extends StatefulWidget {
-  const ProfilePage({super.key});
+/// 프로필 페이지 (클린 아키텍처/riverpod 기반)
+class ProfilePage extends ConsumerWidget {
+  const ProfilePage({Key? key}) : super(key: key);
 
   @override
-  State<ProfilePage> createState() => _ProfilePageState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(profileControllerProvider);
+    final controller = ref.read(profileControllerProvider.notifier);
 
-class _ProfilePageState extends State<ProfilePage> {
-  Map<String, dynamic>? _userData;
-  bool _isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadUser();
-  }
-
-  /// 내 정보 불러오기
-  Future<void> _loadUser() async {
-    setState(() => _isLoading = true);
-    try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user == null) return;
-      final doc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
-      setState(() => _userData = doc.data());
-    } finally {
-      setState(() => _isLoading = false);
-    }
-  }
-
-  /// 로그아웃
-  Future<void> _logout() async {
-    await FirebaseAuth.instance.signOut();
-    if (mounted) {
-      Navigator.of(context).popUntil((route) => route.isFirst);
-    }
-  }
-
-  /// 프로필 수정 페이지로 이동
-  Future<void> _editProfile() async {
-    final result = await Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const ProfileEditPage()),
-    );
-    if (result == true) {
-      await _loadUser();
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser;
-    if (_isLoading) {
+    if (state.isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
-    if (_userData == null) {
+    final profile = state.profile;
+    if (profile == null) {
       return const Center(child: Text('내 정보 불러오기 실패'));
     }
-    final isAdmin = _userData!['userType'] == 'admin' || _userData!['userType'] == 'developer';
-    final profileImageUrl = _userData!['profileImageUrl'] != null && _userData!['profileImageUrl'] != ''
-        ? _userData!['profileImageUrl']
-        : null;
+    final isAdmin = profile.userType == 'admin' || profile.userType == 'developer';
     return Scaffold(
       extendBodyBehindAppBar: true,
       body: SafeArea(
@@ -77,25 +33,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   SizedBox(
                     width: double.infinity,
                     height: 320,
-                    child: profileImageUrl != null
-                        ? Image.network(
-                            profileImageUrl,
-                            fit: BoxFit.cover,
-                            width: double.infinity,
-                            height: 320,
-                            errorBuilder: (context, error, stackTrace) => Container(
-                              color: Colors.grey[300],
-                              width: double.infinity,
-                              height: 320,
-                              child: Icon(Icons.person, size: 80, color: Colors.grey[500]),
-                            ),
-                          )
-                        : Container(
-                            color: Colors.grey[300],
-                            width: double.infinity,
-                            height: 320,
-                            child: Icon(Icons.person, size: 80, color: Colors.grey[500]),
-                          ),
+                    child: ProfileAvatar(imageUrl: profile.profileImageUrl, radius: 80),
                   ),
                   Positioned(
                     left: 0,
@@ -112,7 +50,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
-                              _userData!['nickname'] ?? '',
+                              profile.nickname,
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 22,
@@ -122,12 +60,12 @@ class _ProfilePageState extends State<ProfilePage> {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              '회원타입: ${_userData!['userType'] ?? ''}',
+                              '회원타입: ${profile.userType}',
                               style: const TextStyle(color: Colors.white, fontSize: 16),
                             ),
-                            if ((_userData!['userType'] ?? '') == 'offline_member')
+                            if (profile.userType == 'offline_member')
                               Text(
-                                '요일: ${_userData!['dayOfWeek'] ?? ''}',
+                                '요일: ${profile.dayOfWeek ?? ''}',
                                 style: const TextStyle(color: Colors.white, fontSize: 16),
                               ),
                           ],
@@ -155,7 +93,14 @@ class _ProfilePageState extends State<ProfilePage> {
                     ListTile(
                       leading: const Icon(Icons.edit_outlined),
                       title: const Text('프로필 수정', style: TextStyle(fontSize: 14)),
-                      onTap: _editProfile,
+                      onTap: () async {
+                        final result = await Navigator.of(context).push(
+                          MaterialPageRoute(builder: (_) => const ProfileEditPage()),
+                        );
+                        if (result == true) {
+                          controller.fetchProfile();
+                        }
+                      },
                       contentPadding: const EdgeInsets.symmetric(horizontal: 24),
                       visualDensity: VisualDensity.compact,
                     ),
@@ -163,7 +108,9 @@ class _ProfilePageState extends State<ProfilePage> {
                     ListTile(
                       leading: const Icon(Icons.logout),
                       title: const Text('로그아웃', style: TextStyle(fontSize: 14)),
-                      onTap: _logout,
+                      onTap: () async {
+                        // TODO: 로그아웃 유스케이스/컨트롤러로 분리
+                      },
                       contentPadding: const EdgeInsets.symmetric(horizontal: 24),
                       visualDensity: VisualDensity.compact,
                     ),

@@ -12,7 +12,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
+  flutter_riverpod: ^2.4.0 # 상태 관리
+  riverpod_annotation: ^2.3.0
+  freezed_annotation: ^2.4.1 # 불변 데이터 클래스
+  json_annotation: ^4.8.1 # JSON 직렬화
   cupertino_icons: ^1.0.2
   firebase_core: ^3.15.0
   firebase_auth: ^5.6.1
@@ -28,7 +31,12 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
+  build_runner: ^2.4.6 # 코드 생성
+  freezed: ^2.4.5 # Freezed 코드 생성
+  riverpod_generator: ^2.3.6 # Riverpod 코드 생성
+  json_serializable: ^6.7.1 # JSON 코드 생성
+  mocktail: ^1.0.3 # 테스트용 mock
+  fake_cloud_firestore: ^3.1.0 # Firestore mock (공식 대체)
   flutter_lints: ^5.0.0
 
 
