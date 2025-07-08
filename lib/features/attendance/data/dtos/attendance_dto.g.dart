@@ -1,0 +1,29 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'attendance_dto.dart';
+
+// **************************************************************************
+// JsonSerializableGenerator
+// **************************************************************************
+
+_$AttendanceDtoImpl _$$AttendanceDtoImplFromJson(Map<String, dynamic> json) =>
+    _$AttendanceDtoImpl(
+      weekKey: json['weekKey'] as String,
+      userId: json['userId'] as String,
+      selectedDays: (json['selectedDays'] as List<dynamic>)
+          .map((e) => e as String)
+          .toList(),
+      nickname: json['nickname'] as String,
+      profileImageUrl: json['profileImageUrl'] as String,
+      lastUpdated: _fromTimestamp(json['lastUpdated']),
+    );
+
+Map<String, dynamic> _$$AttendanceDtoImplToJson(_$AttendanceDtoImpl instance) =>
+    <String, dynamic>{
+      'weekKey': instance.weekKey,
+      'userId': instance.userId,
+      'selectedDays': instance.selectedDays,
+      'nickname': instance.nickname,
+      'profileImageUrl': instance.profileImageUrl,
+      'lastUpdated': _toTimestamp(instance.lastUpdated),
+    };
