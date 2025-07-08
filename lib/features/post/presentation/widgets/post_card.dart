@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../pages/post_detail_page.dart'; // Assuming this is the correct path for PostDetailPage
+
 /// 게시글 카드 위젯 (이전 디자인 복원)
 /// 썸네일, 프로필, 랜덤 이미지, 유튜브, 좋아요, 댓글, 작성일 등 포함
 class PostCard extends StatelessWidget {
@@ -45,14 +47,20 @@ class PostCard extends StatelessWidget {
     final picsumUrl = 'https://picsum.photos/seed/$picsumId/800/420';
     return Card(
       elevation: 2,
-      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 0),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
-        onTap: () {},
+        onTap: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => PostDetailPage(postId: postId),
+            ),
+          );
+        },
         child: SizedBox(
           height: 210,
           child: Stack(

@@ -5,16 +5,17 @@ import '../widgets/post_category_tabbar.dart';
 import '../widgets/post_card.dart';
 import '../widgets/ad_banner.dart';
 import '../../domain/entities/post.dart';
+import 'write_page.dart'; // Added import for WritePage
 
 /// 홈 탭 메인 페이지 (게시글 피드 + 카테고리 + 광고)
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class PostPage extends StatefulWidget {
+  const PostPage({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<PostPage> createState() => _PostPageState();
 }
 
-class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
+class _PostPageState extends State<PostPage> with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final List<String> _categories = ['전체', '자유', '신청곡', '영상'];
   final PostFirestoreDataSource _dataSource = PostFirestoreDataSource();
@@ -111,9 +112,27 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Material(
-      color: theme.colorScheme.background,
-      child: SafeArea(
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('게시판', style: TextStyle(fontWeight: FontWeight.bold)),
+        backgroundColor: theme.colorScheme.surface,
+        elevation: 0,
+        centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.edit_outlined),
+            tooltip: '글쓰기',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => WritePage(),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+      body: SafeArea(
         bottom: false,
         child: Column(
           children: [

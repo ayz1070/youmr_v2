@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:youmr_v2/features/home/domain/entities/post.dart';
-import 'package:youmr_v2/features/home/domain/use_cases/get_posts_use_case.dart';
+
+import '../../domain/entities/post.dart';
+import '../../domain/use_cases/get_posts_use_case.dart';
 
 /// 게시글 목록 상태
 class PostListState {

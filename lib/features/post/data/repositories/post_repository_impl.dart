@@ -1,6 +1,6 @@
-import 'package:youmr_v2/features/home/data/dtos/post_dto.dart';
-import 'package:youmr_v2/features/home/domain/entities/post.dart' as domain;
-import 'package:youmr_v2/features/home/domain/repositories/post_repository.dart';
+
+import '../../domain/entities/post.dart';
+import '../../domain/repositories/post_repository.dart';
 
 /// 게시글 저장소 구현체
 /// Firestore 등 외부 데이터 소스와의 통신을 담당합니다.
@@ -10,11 +10,11 @@ class PostRepositoryImpl implements PostRepository {
 
   /// 게시글 목록 조회 (예시)
   @override
-  Future<List<domain.Post>> getPosts() async {
+  Future<List<Post>> getPosts() async {
     // TODO: Firestore 등에서 데이터 조회 후 PostDto → domain.Post 변환
     // 임시 스텁 데이터 반환
     return [
-      domain.Post(
+      Post(
         id: '1',
         authorId: 'user1',
         authorName: '홍길동',
