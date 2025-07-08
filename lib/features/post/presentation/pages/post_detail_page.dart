@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
+import '../widgets/comment_count.dart';
 import '../widgets/comment_list.dart';
 import '../widgets/comment_input.dart';
 import '../widgets/like_button.dart';
@@ -10,6 +11,9 @@ import 'package:uuid/uuid.dart';
 import '../widgets/post_card.dart';
 import 'dart:math';
 import 'package:shimmer/shimmer.dart';
+import '../widgets/post_detail_body.dart';
+import '../widgets/post_comment_section.dart';
+import '../widgets/post_comment_trigger.dart';
 
 /// 게시글 상세 + 댓글 페이지
 class PostDetailPage extends StatefulWidget {
@@ -280,38 +284,21 @@ class _PostDetailPageState extends State<PostDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    return _buildBody(context);
+  }
+
+  Widget _buildBody(BuildContext context) {
     if (_isLoading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     if (_error != null) {
       return Scaffold(
-        appBar: AppBar(),
+        appBar: AppBar(
+
+        ),
         body: Center(child: Text(_error!)),
       );
     }
-    final post = _post!.data()!;
-    final user = FirebaseAuth.instance.currentUser;
-    final uid = user?.uid;
-    final userType = null; // TODO: Provider 등에서 현재 유저 타입 받아오기
-    final canEditOrDelete = _canEditOrDelete(post, uid, userType);
-    final isAdmin = userType == 'admin' || userType == 'developer';
-    final isNotice = post['isNotice'] == true;
-    // 카드와 동일한 이미지 URL 생성
-    String? getYoutubeThumbnail(String? url) {
-      if (url == null) return null;
-      final uri = Uri.tryParse(url);
-      if (uri == null || !uri.host.contains('youtu')) return null;
-      final videoId = uri.pathSegments.isNotEmpty
-          ? uri.pathSegments.last
-          : null;
-      if (videoId == null || videoId.length < 5) return null;
-      return 'https://img.youtube.com/vi/$videoId/0.jpg';
-    }
-
-    final thumb = getYoutubeThumbnail(post['youtubeUrl']);
-    final random = Random(widget.postId.hashCode);
-    final picsumId = (random.nextInt(1000) + 1).toString();
-    final picsumUrl = 'https://picsum.photos/seed/$picsumId/800/420';
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -321,261 +308,27 @@ class _PostDetailPageState extends State<PostDetailPage> {
       ),
       body: Stack(
         children: [
-          // 상단 카드 확대본
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Stack(
-                children: [
-                  Hero(
-                    tag: 'postImage_${widget.postId}',
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.zero,
-                      child: (thumb != null)
-                          ? Image.network(
-                              thumb,
-                              fit: BoxFit.cover,
-                              width: double.infinity,
-                              height: 340,
-                              loadingBuilder: (context, child, progress) =>
-                                  progress == null
-                                  ? child
-                                  : Shimmer.fromColors(
-                                      baseColor: Colors.grey[300]!,
-                                      highlightColor: Colors.grey[100]!,
-                                      child: Container(
-                                        color: Colors.grey[300],
-                                        width: double.infinity,
-                                        height: 340,
-                                      ),
-                                    ),
-                            )
-                          : Image.network(
-                              picsumUrl,
-                              fit: BoxFit.cover,
-                              width: double.infinity,
-                              height: 340,
-                              loadingBuilder: (context, child, progress) =>
-                                  progress == null
-                                  ? child
-                                  : Shimmer.fromColors(
-                                      baseColor: Colors.grey[300]!,
-                                      highlightColor: Colors.grey[100]!,
-                                      child: Container(
-                                        color: Colors.grey[300],
-                                        width: double.infinity,
-                                        height: 340,
-                                      ),
-                                    ),
-                            ),
-                    ),
-                  ),
-                  // 프로필/닉네임/시간
-                  Positioned(
-                    left: 16,
-                    top: 16,
-                    child: Row(
-                      children: [
-                        CircleAvatar(
-                          radius: 16,
-                          backgroundImage:
-                              post['authorProfileUrl'] != null &&
-                                  post['authorProfileUrl'] != ''
-                              ? NetworkImage(post['authorProfileUrl'])
-                              : const AssetImage(
-                                      'assets/images/default_profile.png',
-                                    )
-                                    as ImageProvider,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          post['authorNickname'] ?? '',
-                          style: Theme.of(context).textTheme.bodyMedium
-                              ?.copyWith(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14,
-                                shadows: [
-                                  Shadow(color: Colors.black26, blurRadius: 2),
-                                ],
-                              ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  // 좋아요/댓글/시간
-                  Positioned(
-                    left: 16,
-                    bottom: 16,
-                    right: 16,
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.favorite_border,
-                          size: 18,
-                          color: Colors.white,
-                        ),
-                        const SizedBox(width: 2),
-                        Text(
-                          '${post['likesCount'] ?? 0}',
-                          style: Theme.of(context).textTheme.bodySmall
-                              ?.copyWith(color: Colors.white, fontSize: 13),
-                        ),
-                        const SizedBox(width: 8),
-                        Icon(
-                          Icons.mode_comment_outlined,
-                          size: 18,
-                          color: Colors.white,
-                        ),
-                        const SizedBox(width: 2),
-                        CommentCount(postId: widget.postId),
-                        const SizedBox(width: 8),
-                        Text(
-                          post['createdAt'] != null
-                              ? _formatDate(
-                                  (post['createdAt'] as Timestamp).toDate(),
-                                )
-                              : '',
-                          style: Theme.of(context).textTheme.bodySmall
-                              ?.copyWith(color: Colors.white70, fontSize: 12),
-                        ),
-                        const Spacer(),
-                      ],
-                    ),
-                  ),
-                  // 제목(이미지 하단 중앙)
-                  Positioned(
-                    left: 0,
-                    right: 0,
-                    bottom: 48,
-                    child: Center(
-                      child: Text(
-                        post['title'] ?? '',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          fontSize: 22,
-                          shadows: [
-                            Shadow(color: Colors.black38, blurRadius: 4),
-                          ],
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              // 본문
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 18,
-                  vertical: 24,
-                ),
-                child: Text(
-                  post['content'] ?? '',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyMedium?.copyWith(fontSize: 15),
-                ),
-              ),
-            ],
+          Positioned.fill(
+            child: PostDetailBody(
+              post: _post,
+              ytController: _ytController,
+              isLoading: _isLoading,
+              error: _error,
+            ),
           ),
           // 댓글 바텀시트 트리거 (하단 고정)
           Positioned(
             left: 0,
             right: 0,
             bottom: 0,
-            child: SafeArea(
-              top: false,
-              child: GestureDetector(
-                onTap: () => _showCommentSheet(context),
-                child: Container(
-                  margin: const EdgeInsets.only(left: 0, right: 0, bottom: 0),
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 10,
-                    horizontal: 16,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surfaceContainer,
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(18),
-                      topRight: Radius.circular(18),
-                      bottomLeft: Radius.circular(0),
-                      bottomRight: Radius.circular(0),
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.06),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      Text(
-                        '댓글 ',
-                        style: Theme.of(context).textTheme.titleMedium
-                            ?.copyWith(fontWeight: FontWeight.bold),
-                      ),
-                      CommentCount(postId: widget.postId),
-                      const Spacer(),
-                      Icon(
-                        _isCommentSheetOpen
-                            ? Icons.keyboard_arrow_down_rounded
-                            : Icons.keyboard_arrow_up_rounded,
-                        size: 28,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+            child: PostCommentTrigger(
+              postId: widget.postId,
+              isOpen: _isCommentSheetOpen,
+              onTap: () => _showCommentSheet(context),
             ),
           ),
         ],
       ),
-    );
-  }
-
-  String _formatDate(DateTime date) {
-    final now = DateTime.now();
-    if (now.year == date.year &&
-        now.month == date.month &&
-        now.day == date.day) {
-      // 오늘
-      return '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
-    } else {
-      return "${date.year % 100}/${date.month.toString().padLeft(2, '0')}/${date.day.toString().padLeft(2, '0')}";
-    }
-  }
-}
-
-class CommentCount extends StatelessWidget {
-  final String postId;
-
-  const CommentCount({required this.postId});
-
-  @override
-  Widget build(BuildContext context) {
-    return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance
-          .collection('comments')
-          .where('postId', isEqualTo: postId)
-          .snapshots(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData)
-          return const SizedBox(
-            width: 16,
-            height: 16,
-            child: CircularProgressIndicator(strokeWidth: 2),
-          );
-        final count = snapshot.data!.docs.length;
-        return Text('$count', style: Theme.of(context).textTheme.bodySmall);
-      },
     );
   }
 }

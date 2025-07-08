@@ -6,6 +6,11 @@ import '../widgets/post_card.dart';
 import '../widgets/ad_banner.dart';
 import '../../domain/entities/post.dart';
 import 'write_page.dart'; // Added import for WritePage
+import '../widgets/post_notice_list.dart';
+import '../widgets/post_grid_list.dart';
+import '../widgets/post_error_view.dart';
+import '../widgets/post_loading_view.dart';
+import '../widgets/post_empty_view.dart';
 
 /// 홈 탭 메인 페이지 (게시글 피드 + 카테고리 + 광고)
 class PostPage extends StatefulWidget {
@@ -157,224 +162,35 @@ class _PostPageState extends State<PostPage> with SingleTickerProviderStateMixin
               child: AnimatedSwitcher(
                 duration: const Duration(milliseconds: 300),
                 child: _error != null
-                    ? _buildErrorWidget(theme)
+                    ? PostErrorView(error: _error!, onRetry: () => _fetchPosts(reset: true), theme: theme)
                     : _isLoading && _posts.isEmpty && _notices.isEmpty
-                        ? _buildLoadingWidget(theme)
+                        ? PostLoadingView(theme: theme)
                         : _posts.isEmpty && _notices.isEmpty
-                            ? _buildEmptyWidget(theme)
-                            : _buildPostList(theme),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildErrorWidget(ThemeData theme) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.error_outline,
-              size: 64,
-              color: theme.colorScheme.error,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              _error!,
-              style: theme.textTheme.bodyLarge?.copyWith(
-                color: theme.colorScheme.error,
-                fontWeight: FontWeight.bold,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            FilledButton.icon(
-              onPressed: () => _fetchPosts(reset: true),
-              icon: const Icon(Icons.refresh),
-              label: const Text('다시 시도'),
-              style: FilledButton.styleFrom(
-                backgroundColor: theme.colorScheme.primary,
-                foregroundColor: theme.colorScheme.onPrimary,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLoadingWidget(ThemeData theme) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          CircularProgressIndicator(
-            color: theme.colorScheme.primary,
-            strokeWidth: 4,
-          ),
-          const SizedBox(height: 20),
-          Text(
-            '게시글을 불러오는 중...'
-            ,
-            style: theme.textTheme.bodyLarge?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEmptyWidget(ThemeData theme) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.forum_outlined,
-              size: 64,
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              '게시글이 없습니다.',
-              style: theme.textTheme.titleMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              '첫 번째 게시글을 작성해보세요!',
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPostList(ThemeData theme) {
-    return RefreshIndicator(
-      color: theme.colorScheme.primary,
-      backgroundColor: theme.colorScheme.surface,
-      onRefresh: () => _fetchPosts(reset: true),
-      child: CustomScrollView(
-        controller: _scrollController,
-        slivers: [
-          // 공지글은 기존대로 상단에 노출
-          if (_notices.isNotEmpty)
-            SliverToBoxAdapter(
-              child: Column(
-                children: _notices.map((noticeDoc) {
-                  final notice = noticeDoc.data();
-                  return Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    child: Card(
-                      elevation: 3,
-                      color: theme.colorScheme.primaryContainer,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(18),
-                        side: BorderSide(
-                          color: theme.colorScheme.primary.withOpacity(0.18),
-                          width: 1.2,
-                        ),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(18),
-                        child: Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
+                            ? PostEmptyView(theme: theme)
+                            : RefreshIndicator(
                                 color: theme.colorScheme.primary,
-                                borderRadius: BorderRadius.circular(10),
+                                backgroundColor: theme.colorScheme.surface,
+                                onRefresh: () => _fetchPosts(reset: true),
+                                child: CustomScrollView(
+                                  controller: _scrollController,
+                                  slivers: [
+                                    if (_notices.isNotEmpty)
+                                      SliverToBoxAdapter(
+                                        child: PostNoticeList(notices: _notices, theme: theme),
+                                      ),
+                                    // PostGridList를 SliverToBoxAdapter로 감싸지 않고 바로 추가
+                                    PostGridList(
+                                      posts: _posts,
+                                      hasMore: _hasMore,
+                                      theme: theme,
+                                    ),
+                                  ],
+                                ),
                               ),
-                              child: Icon(
-                                Icons.campaign,
-                                color: theme.colorScheme.onPrimary,
-                                size: 22,
-                              ),
-                            ),
-                            const SizedBox(width: 14),
-                            Expanded(
-                              child: PostCard(
-                                postId: noticeDoc.id,
-                                title: '[공지] ${notice['title'] ?? ''}',
-                                content: notice['content'] ?? '',
-                                author: notice['authorNickname'] ?? '',
-                                authorProfileUrl: notice['authorProfileUrl'] ?? '',
-                                createdAt: notice['createdAt'] != null ? (notice['createdAt'] as Timestamp).toDate() : null,
-                                youtubeUrl: notice['youtubeUrl'],
-                                likes: notice['likes'] ?? [],
-                                likesCount: notice['likesCount'] ?? 0,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                }).toList(),
               ),
             ),
-          // 광고 배너는 기존대로 (여기선 생략, 필요시 추가)
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-            sliver: SliverGrid(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                mainAxisSpacing: 16,
-                crossAxisSpacing: 12,
-                childAspectRatio: 0.72,
-              ),
-              delegate: SliverChildBuilderDelegate(
-                (context, idx) {
-                  if (idx >= _posts.length) {
-                    // 로딩 인디케이터(무한 스크롤)
-                    return _hasMore
-                        ? Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Center(
-                              child: CircularProgressIndicator(
-                                color: theme.colorScheme.primary,
-                              ),
-                            ),
-                          )
-                        : const SizedBox.shrink();
-                  }
-                  final postData = _posts[idx].data();
-                  return PostCard(
-                    postId: _posts[idx].id,
-                    title: postData['title'] ?? '',
-                    content: postData['content'] ?? '',
-                    author: postData['authorNickname'] ?? '',
-                    authorProfileUrl: postData['authorProfileUrl'] ?? '',
-                    createdAt: postData['createdAt'] != null ? (postData['createdAt'] as Timestamp).toDate() : null,
-                    youtubeUrl: postData['youtubeUrl'],
-                    likes: postData['likes'] ?? [],
-                    likesCount: postData['likesCount'] ?? 0,
-                  );
-                },
-                childCount: _posts.length + (_hasMore ? 1 : 0),
-              ),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

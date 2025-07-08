@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../pages/post_detail_page.dart'; // Assuming this is the correct path for PostDetailPage
+import '../pages/post_detail_page.dart';
+import 'comment_count.dart'; // Assuming this is the correct path for PostDetailPage
 
 /// 게시글 카드 위젯 (이전 디자인 복원)
 /// 썸네일, 프로필, 랜덤 이미지, 유튜브, 좋아요, 댓글, 작성일 등 포함
@@ -156,8 +157,7 @@ class PostCard extends StatelessWidget {
                           const SizedBox(width: 8),
                           Icon(Icons.mode_comment_outlined, size: 15, color: Colors.white),
                           const SizedBox(width: 2),
-                          // 댓글 수는 외부에서 별도 위젯으로 처리 가능
-                          Text('0', style: theme.textTheme.bodySmall?.copyWith(color: Colors.white, fontSize: 12)),
+                          CommentCount(postId: postId),
                           if (createdAt != null) ...[
                             const SizedBox(width: 8),
                             Text(
