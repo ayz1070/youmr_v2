@@ -4,6 +4,7 @@ import '../../data/data_sources/post_firestore_data_source.dart';
 import '../widgets/post_category_tabbar.dart';
 import '../widgets/post_card.dart';
 import '../widgets/ad_banner.dart';
+import '../../domain/entities/post.dart';
 
 /// 홈 탭 메인 페이지 (게시글 피드 + 카테고리 + 광고)
 class HomePage extends StatefulWidget {
@@ -337,17 +338,17 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                           )
                         : const SizedBox.shrink();
                   }
-                  final post = _posts[idx].data();
+                  final postData = _posts[idx].data();
                   return PostCard(
                     postId: _posts[idx].id,
-                    title: post['title'] ?? '',
-                    content: post['content'] ?? '',
-                    author: post['authorNickname'] ?? '',
-                    authorProfileUrl: post['authorProfileUrl'] ?? '',
-                    createdAt: post['createdAt'] != null ? (post['createdAt'] as Timestamp).toDate() : null,
-                    youtubeUrl: post['youtubeUrl'],
-                    likes: post['likes'] ?? [],
-                    likesCount: post['likesCount'] ?? 0,
+                    title: postData['title'] ?? '',
+                    content: postData['content'] ?? '',
+                    author: postData['authorNickname'] ?? '',
+                    authorProfileUrl: postData['authorProfileUrl'] ?? '',
+                    createdAt: postData['createdAt'] != null ? (postData['createdAt'] as Timestamp).toDate() : null,
+                    youtubeUrl: postData['youtubeUrl'],
+                    likes: postData['likes'] ?? [],
+                    likesCount: postData['likesCount'] ?? 0,
                   );
                 },
                 childCount: _posts.length + (_hasMore ? 1 : 0),

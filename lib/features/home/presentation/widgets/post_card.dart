@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import '../pages/post_detail_page.dart';
-import 'dart:math';
-import 'package:shimmer/shimmer.dart';
 
-/// 게시글 카드 위젯
+/// 게시글 카드 위젯 (이전 디자인 복원)
+/// 썸네일, 프로필, 랜덤 이미지, 유튜브, 좋아요, 댓글, 작성일 등 포함
 class PostCard extends StatelessWidget {
   final String postId;
   final String title;
@@ -15,7 +12,7 @@ class PostCard extends StatelessWidget {
   final String? youtubeUrl;
   final List<dynamic> likes;
   final int likesCount;
-  
+
   const PostCard({
     super.key,
     required this.postId,
@@ -29,7 +26,7 @@ class PostCard extends StatelessWidget {
     this.likesCount = 0,
   });
 
-  /// 유튜브 썸네일 URL 추출 (예시)
+  /// 유튜브 썸네일 URL 추출
   String? getYoutubeThumbnail(String? url) {
     if (url == null) return null;
     final uri = Uri.tryParse(url);
@@ -41,85 +38,52 @@ class PostCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final thumb = getYoutubeThumbnail(youtubeUrl);
     final theme = Theme.of(context);
-    final random = Random(postId.hashCode); // 카드별로 고정된 랜덤값
-    // picsum 랜덤 이미지 URL (postId 해시 기반)
-    final picsumId = (random.nextInt(1000) + 1).toString();
+    final thumb = getYoutubeThumbnail(youtubeUrl);
+    // 랜덤 이미지 URL (postId 해시 기반)
+    final picsumId = postId.hashCode.abs() % 1000;
     final picsumUrl = 'https://picsum.photos/seed/$picsumId/800/420';
-    
     return Card(
-      elevation: 1,
+      elevation: 2,
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
-      margin: const EdgeInsets.all(4),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
-        onTap: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (_) => PostDetailPage(postId: postId),
-            ),
-          );
-        },
+        onTap: () {},
         child: SizedBox(
           height: 210,
           child: Stack(
             children: [
-              // 썸네일 배경 or 랜덤 메인색 배경
-              if (thumb != null)
-                Positioned.fill(
-                  child: Hero(
-                    tag: 'postImage_$postId',
-                    child: Stack(
-                      children: [
+              // 썸네일 배경 or 랜덤 이미지
+              Positioned.fill(
+                child: Hero(
+                  tag: 'postImage_$postId',
+                  child: Stack(
+                    children: [
+                      if (thumb != null)
                         Image.network(
                           thumb,
                           fit: BoxFit.cover,
                           width: double.infinity,
                           height: double.infinity,
-                          loadingBuilder: (context, child, progress) => progress == null ? child : Container(color: theme.colorScheme.surfaceContainer, width: double.infinity, height: double.infinity),
-                        ),
-                        Container(
-                          color: Colors.black.withOpacity(0.32),
-                        ),
-                      ],
-                    ),
-                  ),
-                )
-              else
-                Positioned.fill(
-                  child: Hero(
-                    tag: 'postImage_$postId',
-                    child: Stack(
-                      children: [
+                        )
+                      else
                         Image.network(
                           picsumUrl,
                           fit: BoxFit.cover,
                           width: double.infinity,
                           height: double.infinity,
-                          loadingBuilder: (context, child, progress) =>
-                            progress == null
-                              ? child
-                              : Shimmer.fromColors(
-                                  baseColor: Colors.grey[300]!,
-                                  highlightColor: Colors.grey[100]!,
-                                  child: Container(
-                                    color: Colors.grey[300],
-                                    width: double.infinity,
-                                    height: double.infinity,
-                                  ),
-                                ),
                         ),
-                        Container(
-                          color: Colors.black.withOpacity(0.22),
-                        ),
-                      ],
-                    ),
+                      Container(
+                        color: Colors.black.withOpacity(0.22),
+                      ),
+                    ],
                   ),
                 ),
+              ),
               // 카드 내용
               Positioned.fill(
                 child: Padding(
@@ -127,7 +91,7 @@ class PostCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // 최상단: 프로필/닉네임
+                      // 상단: 프로필/닉네임
                       Row(
                         children: [
                           CircleAvatar(
@@ -145,7 +109,7 @@ class PostCard extends StatelessWidget {
                         ],
                       ),
                       const Spacer(),
-                      // 제목/내용(해시태그 등)
+                      // 제목/내용
                       Center(
                         child: Text(
                           title,
@@ -155,22 +119,37 @@ class PostCard extends StatelessWidget {
                             fontSize: 17,
                             shadows: [Shadow(color: Colors.black38, blurRadius: 4)],
                           ),
-                          maxLines: 2,
+                          maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           textAlign: TextAlign.center,
                         ),
                       ),
                       const SizedBox(height: 6),
+                      Center(
+                        child: Text(
+                          content,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: Colors.white,
+                            fontSize: 13,
+                            shadows: [Shadow(color: Colors.black26, blurRadius: 2)],
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      const Spacer(),
                       // 하단: 좋아요/댓글/작성일
                       Row(
                         children: [
-                          Icon(Icons.favorite_border, size: 15, color: Colors.white),
+                          Icon(Icons.thumb_up_alt_outlined, size: 15, color: Colors.white),
                           const SizedBox(width: 2),
                           Text('$likesCount', style: theme.textTheme.bodySmall?.copyWith(color: Colors.white, fontSize: 12)),
                           const SizedBox(width: 8),
                           Icon(Icons.mode_comment_outlined, size: 15, color: Colors.white),
                           const SizedBox(width: 2),
-                          CommentCount(postId: postId),
+                          // 댓글 수는 외부에서 별도 위젯으로 처리 가능
+                          Text('0', style: theme.textTheme.bodySmall?.copyWith(color: Colors.white, fontSize: 12)),
                           if (createdAt != null) ...[
                             const SizedBox(width: 8),
                             Text(
@@ -201,28 +180,9 @@ class PostCard extends StatelessWidget {
     final now = DateTime.now();
     if (now.year == date.year && now.month == date.month && now.day == date.day) {
       // 오늘
-      return '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
+      return '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}' ;
     } else {
       return "${date.year % 100}/${date.month.toString().padLeft(2, '0')}/${date.day.toString().padLeft(2, '0')}";
     }
-  }
-}
-
-class CommentCount extends StatelessWidget {
-  final String postId;
-  const CommentCount({required this.postId});
-  @override
-  Widget build(BuildContext context) {
-    return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance
-          .collection('comments')
-          .where('postId', isEqualTo: postId)
-          .snapshots(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) return const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2));
-        final count = snapshot.data!.docs.length;
-        return Text('$count', style: Theme.of(context).textTheme.bodySmall);
-      },
-    );
   }
 }

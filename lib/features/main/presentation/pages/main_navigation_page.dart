@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../attendance/presentation/pages/attendance_page.dart';
 import '../../../home/presentation/pages/home_page.dart';
 import '../../../profile/presentation/pages/profile_page.dart';
-import '../../../write/presentation/pages/write_page.dart';
+import '../../../home/presentation/pages/write_page.dart';
 
 /// 앱의 메인 네비게이션(홈/출석/글쓰기/프로필) 페이지
 class MainNavigationPage extends StatefulWidget {
