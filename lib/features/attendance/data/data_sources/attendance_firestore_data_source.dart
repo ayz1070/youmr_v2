@@ -1,17 +1,23 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-/// 출석 정보 Firestore 데이터 소스
+import '../../../../core/constants/firestore_constants.dart';
+
 class AttendanceFirestoreDataSource {
-  final FirebaseFirestore _firestore;
-  static const String attendanceCollection = 'attendance';
-  static const String usersCollection = 'users';
+  /// Firestore 인스턴스 (DI로 주입)
+  final FirebaseFirestore firestore;
 
   AttendanceFirestoreDataSource({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+      : firestore = firestore ?? FirebaseFirestore.instance;
 
   /// 내 출석 정보 불러오기
-  Future<Map<String, dynamic>?> fetchMyAttendance({required String weekKey, required String userId}) async {
-    final doc = await _firestore.collection(attendanceCollection).doc(' 24{weekKey}_ 24{userId}').get();
+  Future<Map<String, dynamic>?> fetchMyAttendance({
+    required String weekKey,
+    required String userId,
+  }) async {
+    final doc = await firestore
+        .collection(FirestoreConstants.attendancesCollection)
+        .doc('${weekKey}_$userId')
+        .get();
     return doc.data();
   }
 
@@ -21,22 +27,31 @@ class AttendanceFirestoreDataSource {
     required String userId,
     required Map<String, dynamic> data,
   }) async {
-    await _firestore.collection(attendanceCollection).doc(' 24{weekKey}_ 24{userId}').set(data);
+    await firestore
+        .collection(FirestoreConstants.attendancesCollection)
+        .doc('${weekKey}_$userId')
+        .set(data);
   }
 
-  /// 요일별 참석자 스트림
-  Stream<List<Map<String, dynamic>>> attendeesByDayStream({required String weekKey, required String day}) {
-    return _firestore
-        .collection(attendanceCollection)
-        .where('weekKey', isEqualTo: weekKey)
-        .where('selectedDays', arrayContains: day)
+  /// 요일별 참석자 스트림 반환
+  Stream<List<Map<String, dynamic>>> attendeesByDayStream({
+    required String weekKey,
+    required String day,
+  }) {
+    return firestore
+        .collection(FirestoreConstants.attendancesCollection)
+        .where(FirestoreConstants.weekKey, isEqualTo: weekKey)
+        .where(FirestoreConstants.selectedDays, arrayContains: day)
         .snapshots()
         .map((snap) => snap.docs.map((d) => d.data()).toList());
   }
 
   /// 유저 정보 불러오기
   Future<Map<String, dynamic>?> fetchUserData(String userId) async {
-    final doc = await _firestore.collection(usersCollection).doc(userId).get();
+    final doc = await firestore
+        .collection(FirestoreConstants.usersCollection)
+        .doc(userId)
+        .get();
     return doc.data();
   }
 } 

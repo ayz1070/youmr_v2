@@ -1,5 +1,5 @@
 import 'package:dartz/dartz.dart';
-import '../../core/errors/attendance_failure.dart';
+import '../../../../core/errors/attendance_failure.dart';
 import '../entities/attendance.dart';
 
 /// 출석 관련 Repository 인터페이스

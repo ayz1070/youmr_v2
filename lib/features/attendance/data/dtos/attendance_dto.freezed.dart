@@ -20,12 +20,23 @@ AttendanceDto _$AttendanceDtoFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$AttendanceDto {
+  /// 주차 키
   String get weekKey => throw _privateConstructorUsedError;
+
+  /// 유저 고유 ID
   String get userId => throw _privateConstructorUsedError;
+
+  /// 선택한 요일 리스트
   List<String> get selectedDays => throw _privateConstructorUsedError;
+
+  /// 닉네임
   String get nickname => throw _privateConstructorUsedError;
+
+  /// 프로필 이미지 URL
   String get profileImageUrl => throw _privateConstructorUsedError;
-  @JsonKey(name: 'lastUpdated', fromJson: _fromTimestamp, toJson: _toTimestamp)
+
+  /// 마지막 업데이트 시각
+  @JsonKey(name: 'last_updated', fromJson: _fromTimestamp, toJson: _toTimestamp)
   DateTime? get lastUpdated => throw _privateConstructorUsedError;
 
   /// Serializes this AttendanceDto to a JSON map.
@@ -51,7 +62,7 @@ abstract class $AttendanceDtoCopyWith<$Res> {
       String nickname,
       String profileImageUrl,
       @JsonKey(
-          name: 'lastUpdated', fromJson: _fromTimestamp, toJson: _toTimestamp)
+          name: 'last_updated', fromJson: _fromTimestamp, toJson: _toTimestamp)
       DateTime? lastUpdated});
 }
 
@@ -121,7 +132,7 @@ abstract class _$$AttendanceDtoImplCopyWith<$Res>
       String nickname,
       String profileImageUrl,
       @JsonKey(
-          name: 'lastUpdated', fromJson: _fromTimestamp, toJson: _toTimestamp)
+          name: 'last_updated', fromJson: _fromTimestamp, toJson: _toTimestamp)
       DateTime? lastUpdated});
 }
 
@@ -184,18 +195,25 @@ class _$AttendanceDtoImpl implements _AttendanceDto {
       required this.nickname,
       required this.profileImageUrl,
       @JsonKey(
-          name: 'lastUpdated', fromJson: _fromTimestamp, toJson: _toTimestamp)
+          name: 'last_updated', fromJson: _fromTimestamp, toJson: _toTimestamp)
       this.lastUpdated})
       : _selectedDays = selectedDays;
 
   factory _$AttendanceDtoImpl.fromJson(Map<String, dynamic> json) =>
       _$$AttendanceDtoImplFromJson(json);
 
+  /// 주차 키
   @override
   final String weekKey;
+
+  /// 유저 고유 ID
   @override
   final String userId;
+
+  /// 선택한 요일 리스트
   final List<String> _selectedDays;
+
+  /// 선택한 요일 리스트
   @override
   List<String> get selectedDays {
     if (_selectedDays is EqualUnmodifiableListView) return _selectedDays;
@@ -203,12 +221,17 @@ class _$AttendanceDtoImpl implements _AttendanceDto {
     return EqualUnmodifiableListView(_selectedDays);
   }
 
+  /// 닉네임
   @override
   final String nickname;
+
+  /// 프로필 이미지 URL
   @override
   final String profileImageUrl;
+
+  /// 마지막 업데이트 시각
   @override
-  @JsonKey(name: 'lastUpdated', fromJson: _fromTimestamp, toJson: _toTimestamp)
+  @JsonKey(name: 'last_updated', fromJson: _fromTimestamp, toJson: _toTimestamp)
   final DateTime? lastUpdated;
 
   @override
@@ -268,24 +291,35 @@ abstract class _AttendanceDto implements AttendanceDto {
       required final String nickname,
       required final String profileImageUrl,
       @JsonKey(
-          name: 'lastUpdated', fromJson: _fromTimestamp, toJson: _toTimestamp)
+          name: 'last_updated', fromJson: _fromTimestamp, toJson: _toTimestamp)
       final DateTime? lastUpdated}) = _$AttendanceDtoImpl;
 
   factory _AttendanceDto.fromJson(Map<String, dynamic> json) =
       _$AttendanceDtoImpl.fromJson;
 
+  /// 주차 키
   @override
   String get weekKey;
+
+  /// 유저 고유 ID
   @override
   String get userId;
+
+  /// 선택한 요일 리스트
   @override
   List<String> get selectedDays;
+
+  /// 닉네임
   @override
   String get nickname;
+
+  /// 프로필 이미지 URL
   @override
   String get profileImageUrl;
+
+  /// 마지막 업데이트 시각
   @override
-  @JsonKey(name: 'lastUpdated', fromJson: _fromTimestamp, toJson: _toTimestamp)
+  @JsonKey(name: 'last_updated', fromJson: _fromTimestamp, toJson: _toTimestamp)
   DateTime? get lastUpdated;
 
   /// Create a copy of AttendanceDto
