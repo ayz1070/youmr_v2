@@ -1,6 +1,7 @@
 import '../../domain/entities/vote.dart';
 import '../../domain/repositories/voting_repository.dart';
 import '../data_sources/voting_firestore_data_source.dart';
+import '../dtos/vote_dto.dart';
 
 /// 투표 관련 레포지토리 구현체 (DataSource 위임)
 class VotingRepositoryImpl implements VotingRepository {
@@ -10,9 +11,9 @@ class VotingRepositoryImpl implements VotingRepository {
 
   @override
   Stream<List<Vote>> getTopVotes() {
-    // Firestore 데이터 소스에서 상위 10개 곡 실시간 조회 후 Vote 엔티티로 변환
+    // Firestore 데이터 소스에서 상위 10개 곡 실시간 조회 후 VoteDto로 변환 후 도메인 모델로 변환
     return dataSource.topVotesStream().map(
-      (list) => list.map((json) => Vote.fromJson(json)).toList(),
+      (list) => list.map((json) => VoteDto.fromJson(json).toDomain()).toList(),
     );
   }
 

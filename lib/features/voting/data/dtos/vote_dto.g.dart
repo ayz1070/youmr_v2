@@ -13,7 +13,8 @@ _$VoteDtoImpl _$$VoteDtoImplFromJson(Map<String, dynamic> json) =>
       artist: json['artist'] as String,
       youtubeUrl: json['youtubeUrl'] as String?,
       voteCount: (json['voteCount'] as num).toInt(),
-      createdAt: DateTime.parse(json['createdAt'] as String),
+      createdAt: const TimestampOrDateTimeConverter()
+          .fromJson(json['createdAt'] as Object),
       createdBy: json['createdBy'] as String,
     );
 
@@ -24,6 +25,7 @@ Map<String, dynamic> _$$VoteDtoImplToJson(_$VoteDtoImpl instance) =>
       'artist': instance.artist,
       'youtubeUrl': instance.youtubeUrl,
       'voteCount': instance.voteCount,
-      'createdAt': instance.createdAt.toIso8601String(),
+      'createdAt':
+          const TimestampOrDateTimeConverter().toJson(instance.createdAt),
       'createdBy': instance.createdBy,
     };

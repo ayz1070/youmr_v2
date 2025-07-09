@@ -25,6 +25,7 @@ mixin _$VoteDto {
   String get artist => throw _privateConstructorUsedError;
   String? get youtubeUrl => throw _privateConstructorUsedError;
   int get voteCount => throw _privateConstructorUsedError;
+  @TimestampOrDateTimeConverter()
   DateTime get createdAt => throw _privateConstructorUsedError;
   String get createdBy => throw _privateConstructorUsedError;
 
@@ -48,7 +49,7 @@ abstract class $VoteDtoCopyWith<$Res> {
       String artist,
       String? youtubeUrl,
       int voteCount,
-      DateTime createdAt,
+      @TimestampOrDateTimeConverter() DateTime createdAt,
       String createdBy});
 }
 
@@ -121,7 +122,7 @@ abstract class _$$VoteDtoImplCopyWith<$Res> implements $VoteDtoCopyWith<$Res> {
       String artist,
       String? youtubeUrl,
       int voteCount,
-      DateTime createdAt,
+      @TimestampOrDateTimeConverter() DateTime createdAt,
       String createdBy});
 }
 
@@ -188,7 +189,7 @@ class _$VoteDtoImpl implements _VoteDto {
       required this.artist,
       this.youtubeUrl,
       required this.voteCount,
-      required this.createdAt,
+      @TimestampOrDateTimeConverter() required this.createdAt,
       required this.createdBy});
 
   factory _$VoteDtoImpl.fromJson(Map<String, dynamic> json) =>
@@ -205,6 +206,7 @@ class _$VoteDtoImpl implements _VoteDto {
   @override
   final int voteCount;
   @override
+  @TimestampOrDateTimeConverter()
   final DateTime createdAt;
   @override
   final String createdBy;
@@ -260,7 +262,7 @@ abstract class _VoteDto implements VoteDto {
       required final String artist,
       final String? youtubeUrl,
       required final int voteCount,
-      required final DateTime createdAt,
+      @TimestampOrDateTimeConverter() required final DateTime createdAt,
       required final String createdBy}) = _$VoteDtoImpl;
 
   factory _VoteDto.fromJson(Map<String, dynamic> json) = _$VoteDtoImpl.fromJson;
@@ -276,6 +278,7 @@ abstract class _VoteDto implements VoteDto {
   @override
   int get voteCount;
   @override
+  @TimestampOrDateTimeConverter()
   DateTime get createdAt;
   @override
   String get createdBy;
