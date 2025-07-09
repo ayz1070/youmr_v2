@@ -81,10 +81,12 @@ class AttendanceNotifier extends AsyncNotifier<Attendance?> {
     );
   }
 
-  /// 현재 주차 키 계산 (예시)
+  /// 한 주의 시작(월요일)~끝(일요일) 구간을 문자열로 반환
   String _getCurrentWeekKey() {
     final now = DateTime.now();
-    final weekStr = now.weekday.toString();
-    return '${now.year}-$weekStr';
+    final start = now.subtract(Duration(days: now.weekday - 1));
+    final end = start.add(const Duration(days: 6));
+    String format(DateTime d) => '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+    return '${format(start)}~${format(end)}';
   }
 } 

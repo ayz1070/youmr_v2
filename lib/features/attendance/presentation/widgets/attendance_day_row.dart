@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../domain/entities/attendance.dart';
 import '../providers/attendance_provider.dart';
 import 'attendee_avatar.dart';
 
@@ -32,7 +33,7 @@ class AttendanceDayRow extends ConsumerWidget {
             style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold, fontSize: 14),
           ),
         ),
-        StreamBuilder<List<dynamic>>( // 실제 타입은 Attendance
+        StreamBuilder<List<Attendance>>( // 출석자 리스트 스트림 (Attendance 타입)
           stream: attendeesStream,
           builder: (context, snapshot) {
             final attendees = snapshot.data ?? [];

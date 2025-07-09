@@ -4,7 +4,7 @@ import 'package:dartz/dartz.dart';
 import 'package:youmr_v2/features/attendance/data/repositories/attendance_repository_impl.dart';
 import 'package:youmr_v2/features/attendance/data/data_sources/attendance_firestore_data_source.dart';
 import 'package:youmr_v2/features/attendance/domain/entities/attendance.dart';
-import 'package:youmr_v2/features/attendance/core/errors/attendance_failure.dart';
+import 'package:youmr_v2/core/errors/attendance_failure.dart';
 
 class MockAttendanceFirestoreDataSource extends Mock implements AttendanceFirestoreDataSource {}
 

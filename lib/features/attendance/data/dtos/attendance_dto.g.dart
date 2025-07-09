@@ -15,7 +15,7 @@ _$AttendanceDtoImpl _$$AttendanceDtoImplFromJson(Map<String, dynamic> json) =>
           .toList(),
       nickname: json['nickname'] as String,
       profileImageUrl: json['profileImageUrl'] as String,
-      lastUpdated: _fromTimestamp(json['lastUpdated']),
+      lastUpdated: _fromTimestamp(json['last_updated']),
     );
 
 Map<String, dynamic> _$$AttendanceDtoImplToJson(_$AttendanceDtoImpl instance) =>
@@ -25,5 +25,5 @@ Map<String, dynamic> _$$AttendanceDtoImplToJson(_$AttendanceDtoImpl instance) =>
       'selectedDays': instance.selectedDays,
       'nickname': instance.nickname,
       'profileImageUrl': instance.profileImageUrl,
-      'lastUpdated': _toTimestamp(instance.lastUpdated),
+      'last_updated': _toTimestamp(instance.lastUpdated),
     };

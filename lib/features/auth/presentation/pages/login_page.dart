@@ -31,16 +31,55 @@ class LoginPage extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(title: const Text('로그인')),
-      body: Center(
-        child: authState.isLoading
-            ? const CircularProgressIndicator()
-            : ElevatedButton.icon(
-                icon: Image.asset('assets/images/google_logo.png', width: 24, height: 24),
-                label: const Text('구글로 시작하기'),
-                onPressed: () {
-                  ref.read(authProvider.notifier).signInWithGoogle();
-                },
+      body: Stack(
+        children: [
+          // 중앙에 로고나 안내 텍스트 등 필요시 추가 가능
+          const SizedBox.expand(),
+          if (authState.isLoading)
+            const Center(child: CircularProgressIndicator()),
+          // 하단 구글 로그인 버튼
+          if (!authState.isLoading)
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: SafeArea(
+                minimum: const EdgeInsets.only(left: 24, right: 24, bottom: 32),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 64,
+                  child: Material(
+                    color: const Color(0xFFF5F6F8),
+                    borderRadius: BorderRadius.circular(24),
+                    elevation: 2,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(24),
+                      onTap: () {
+                        ref.read(authProvider.notifier).signInWithGoogle();
+                      },
+                      child: Row(
+                        children: [
+                          const SizedBox(width: 24),
+                          Image.asset(
+                            'assets/images/google_logo.png',
+                            width: 32,
+                            height: 32,
+                          ),
+                          const SizedBox(width: 16),
+                          const Text(
+                            '구글로 계속하기',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w500,
+                              color: Color(0xFF222222),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
               ),
+            ),
+        ],
       ),
     );
   }

@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import '../../../attendance/presentation/pages/attendance_page.dart';
 import '../../../post/presentation/pages/post_page.dart';
 import '../../../profile/presentation/pages/profile_page.dart';
+import '../../../voting/presentation/pages/voting_page.dart';
 
-/// 앱의 메인 네비게이션(홈/출석/글쓰기/프로필) 페이지
+/// 앱의 메인 네비게이션(홈/투표/출석/프로필) 페이지
 class MainNavigationPage extends StatefulWidget {
   const MainNavigationPage({super.key});
 
@@ -14,16 +15,18 @@ class MainNavigationPage extends StatefulWidget {
 class _MainNavigationPageState extends State<MainNavigationPage> {
   int _currentIndex = 0;
 
-  // 각 탭별 페이지 위젯 리스트
+  // 각 탭별 페이지 위젯 리스트 (투표 탭 추가)
   final List<Widget> _pages = const [
     PostPage(),
+    VotingPage(),
     AttendancePage(),
     ProfilePage(),
   ];
 
-  // 탭별 제목
+  // 탭별 제목 (투표 탭 추가)
   final List<String> _titles = [
     'YouMR',
+    '투표',
     '출석',
     '프로필',
   ];
@@ -53,6 +56,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
+            // 홈 탭
             IconButton(
               icon: Icon(
                 _currentIndex == 0 ? Icons.home : Icons.home_outlined,
@@ -64,24 +68,38 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
               constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
               padding: EdgeInsets.zero,
             ),
+            // 투표 탭
             IconButton(
               icon: Icon(
-                _currentIndex == 1 ? Icons.check_circle : Icons.check_circle_outline,
-                color: _currentIndex == 1 ? Colors.black : Color(0xFFCCCCCC),
+                _currentIndex == 1 ? Icons.favorite : Icons.favorite_border,
+                color: _currentIndex == 1 ? Colors.red : Color(0xFFCCCCCC),
                 size: 32,
               ),
               onPressed: () => setState(() => _currentIndex = 1),
-              tooltip: '출석',
+              tooltip: '투표',
               constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
               padding: EdgeInsets.zero,
             ),
+            // 출석 탭
             IconButton(
               icon: Icon(
-                _currentIndex == 2 ? Icons.person : Icons.person_outline,
+                _currentIndex == 2 ? Icons.check_circle : Icons.check_circle_outline,
                 color: _currentIndex == 2 ? Colors.black : Color(0xFFCCCCCC),
                 size: 32,
               ),
               onPressed: () => setState(() => _currentIndex = 2),
+              tooltip: '출석',
+              constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+              padding: EdgeInsets.zero,
+            ),
+            // 프로필 탭
+            IconButton(
+              icon: Icon(
+                _currentIndex == 3 ? Icons.person : Icons.person_outline,
+                color: _currentIndex == 3 ? Colors.black : Color(0xFFCCCCCC),
+                size: 32,
+              ),
+              onPressed: () => setState(() => _currentIndex = 3),
               tooltip: '프로필',
               constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
               padding: EdgeInsets.zero,

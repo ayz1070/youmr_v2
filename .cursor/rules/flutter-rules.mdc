@@ -1,0 +1,136 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+---
+description: 
+globs: 
+alwaysApply: false
+---
+---
+description:
+globs:
+alwaysApply: false
+---
+
+당신은 Flutter, Dart, Riverpod, Flutter Hooks 전문가입니다. Clean Architecture와 기능 중심 구조를 선호하며, 성능과 코드 품질을 중시합니다.
+
+## 기본 원칙
+- 공식 Flutter 스타일 가이드를 준수합니다.
+- 모든 코드와 주석, 문서는 한글로 작성합니다.
+- 최신 안정화 Flutter 버전을 사용합니다.
+- SOLID 원칙을 지키고, 상속보다는 조합(Composition)을 우선합니다.
+- 모든 변수, 함수(파라미터/반환값 포함)는 타입을 명확히 선언합니다(any 사용 금지).
+- 한 파일에는 하나의 export만 허용합니다.
+- 파일명/디렉토리명은 snake_case, 클래스는 PascalCase, 변수/함수/메서드는 camelCase를 사용합니다.
+- 환경변수는 UPPERCASE로 작성합니다.
+- 매직 넘버를 피하고, 상수로 정의합니다.
+- 함수명은 동사+명사 형태로, 불리언 변수는 is/has/can 등 동사로 시작합니다.
+- 약어 대신 전체 단어를 사용하되, API, URL 등 표준 약어는 예외로 허용합니다.
+- entity, model에 사용되는 변수에 대한 간단한 설명을 추가합니다.
+
+## 프로젝트 구조
+
+### 📁 Feature-First 구조
+```
+lib/
+├── core/                          # 공통 기능
+│   ├── constants/                 # 앱 전체 상수
+│   ├── extensions/               # 확장 함수
+│   ├── theme/                    # 테마 설정
+│   ├── utils/                    # 유틸리티
+│   ├── widgets/                  # 공통 위젯
+│   ├── errors/                   # 에러 처리
+│   └── network/                  # 네트워크 설정
+├── features/                     # 기능별 모듈
+│   └── feature_name/
+│       ├── data/                 # 데이터 계층
+│       │   ├── data_sources/     # API, 로컬 DB
+│       │   ├── dtos/            # 데이터 전송 객체
+│       │   └── repositories/     # Repository 구현
+│       ├── domain/               # 도메인 계층
+│       │   ├── entities/         # 불변 도메인 모델
+│       │   ├── repositories/     # Repository 인터페이스
+│       │   └── use_cases/        # 비즈니스 로직
+│       └── presentation/         # 프레젠테이션 계층
+│           ├── controllers/      # AsyncNotifier 상태 관리
+│           ├── pages/           # 페이지 위젯
+│           └── widgets/         # 기능별 위젯
+└── main.dart
+```
+
+
+
+## Riverpod 상태관리
+- provider 생성에는 @riverpod 어노테이션을 사용합니다.
+- StateProvider, StateNotifierProvider, ChangeNotifierProvider는 사용하지 않습니다.
+- AsyncNotifierProvider, NotifierProvider를 우선 사용합니다.
+- ref.invalidate()로 provider를 수동 갱신합니다.
+- 비동기 작업은 위젯 dispose 시 적절히 취소합니다.
+
+
+## UI 및 위젯 설계
+
+- Stateless 위젯을 우선 사용하고, 상태 의존 위젯은 ConsumerWidget, HookConsumerWidget을 사용합니다.
+- 복잡한 위젯 트리는 작은 private 위젯 클래스로 분리하여 깊은 중첩을 피합니다.
+- const 생성자를 적극 활용해 리빌드를 최적화합니다.
+- ListView.builder 등 빌더 패턴으로 리스트를 최적화합니다.
+- AssetImage/cached_network_image로 이미지를 최적화합니다.
+- TextField는 textCapitalization, keyboardType, textInputAction을 명확히 지정합니다.
+- Image.network 사용 시 항상 errorBuilder를 포함합니다.
+- RefreshIndicator로 당겨서 새로고침 기능을 구현합니다.
+- LayoutBuilder, MediaQuery로 반응형 UI를 구현합니다.
+- ThemeData로 일관된 스타일을 적용하고, Theme.of(context).textTheme.titleLarge/headlineSmall 등 최신 API를 사용합니다.
+
+## 에러 처리 및 검증
+
+- 뷰에서 에러는 SnackBar 대신 SelectableText.rich(빨간색)로 표시합니다.
+- AsyncValue를 활용해 로딩/에러/빈 상태를 명확히 처리합니다.
+- Firebase, 네트워크 등 외부 연동 에러는 상세 메시지와 함께 처리하고, log로 기록합니다.
+- 도메인별 커스텀 Failure 클래스를 만들어 계층 간 에러 매핑을 명확히 합니다.
+- 사용자에게는 친화적인 에러 메시지를 제공합니다.
+
+## 모델 및 데이터베이스
+
+- DB 테이블/모델에는 createdAt, updatedAt, isDeleted 필드를 포함합니다.
+- 모델에는 @JsonSerializable(fieldRename: FieldRename.snake)를 사용합니다.
+- 읽기 전용 필드는 @JsonKey(includeFromJson: true, includeToJson: false)로 지정합니다.
+- DB로 저장되는 enum에는 @JsonValue(int)를 사용합니다.
+
+
+## 의존성 주입 및 확장성
+
+- 서비스/저장소는 싱글톤, 유스케이스는 팩토리, 컨트롤러는 lazy 싱글톤으로 등록합니다.
+- 각 feature별로 의존성 등록 파일을 분리합니다.
+- 확장 함수(extensions)로 재사용 코드를 관리합니다.
+
+## 성능 및 품질
+
+- const 위젯, 빌더 패턴, RepaintBoundary 등으로 리빌드/렌더링을 최적화합니다.
+- 불필요한 setState, 글로벌 변수, static 필드 사용을 피합니다.
+- 코드 라인은 80자 이하, 함수는 20줄 이하, 클래스는 200줄 이하로 유지합니다.
+- flutter_lints로 린트 규칙을 적용하고, dart format으로 코드 포매팅을 자동화합니다.
+- log를 사용해 디버깅합니다(print 사용 금지).
+- SOLID 원칙, 의미 있는 네이밍, null safety, value object 등 코드 품질을 유지합니다.
+
+
+## 테스트
+
+- 각 공개 함수/유스케이스/프로바이더에 단위 테스트를 작성합니다.
+- 각 feature별로 통합 테스트, 위젯 테스트를 작성합니다.
+- mockito, mocktail 등으로 의존성 Mock 처리합니다.
+- Given-When-Then, Arrange-Act-Assert 패턴을 따릅니다.
+- test/ 디렉토리는 lib/ 구조를 그대로 반영합니다.
+
+## 기타 규칙
+
+- build_runner로 Riverpod, JSON serialization 코드를 자동 생성합니다.
+- 어노테이션 클래스 수정 후 'flutter pub run build_runner build --delete-conflicting-outputs'를 실행합니다.
+- 복잡한 로직, 비직관적 결정에는 반드시 주석을 남깁니다.
+- 공식 Flutter, Riverpod 문서를 참고해 모범 사례를 따릅니다.
+- GoRouter, auto_route로 네비게이션/딥링킹을 구현합니다.
+- AppLocalizations로 다국어 지원을 구현합니다.
+- constants로 상수값을 관리합니다.
+
+이 규칙을 준수하여 유지보수 가능하고 확장성 있는 Flutter 애플리케이션을 개발하세요.
