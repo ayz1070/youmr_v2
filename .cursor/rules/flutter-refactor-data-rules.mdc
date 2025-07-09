@@ -1,0 +1,54 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+---
+description:
+globs:
+alwaysApply: false
+---
+
+# flutter-refactor-data-rules.mdc
+
+---
+설명: 이 파일은 Flutter Clean Architecture 기반 프로젝트에서 data layer(예: data_sources, dtos, repositories)에 일관되고 유지보수성 높은 리팩토링을 적용하기 위한 실무 규칙을 정의합니다. 모든 코드, 주석, 문서는 한글로 작성하며, 아래 규칙을 모든 feature의 data layer에 적용하세요.
+---
+
+## 1. 계층별 책임 분리
+- DataSource: 외부 데이터(Firestore, REST, DB 등)와의 통신만 담당, 예외 가공/로깅/Failure 변환 금지
+- DTO: @freezed, @JsonSerializable(fieldRename: FieldRename.snake) 사용, fromDomain/toDomain, fromJson/toJson 구현, 각 필드에 한글 주석
+- Repository: DataSource/DTO만 의존, 도메인 엔티티 변환, 에러/예외를 도메인 Failure로 변환, 로깅/에러 메시지/Failure 변환 책임 담당
+
+## 2. 타입 명시 및 코드 스타일
+- 모든 변수, 파라미터, 반환값에 타입 명시(null safety)
+- 80자 제한, 의미 있는 네이밍, 매직넘버/하드코딩 상수화
+- 한글 주석, SOLID 원칙, Clean Architecture 계층 분리
+
+## 3. 상수화
+- 컬렉션명, 필드명, 에러 메시지 등은 core/constants 디렉토리에서 상수로 관리
+- 각 feature에서 상수 import 후 사용
+
+## 4. 에러 처리 및 로깅
+- DataSource에서는 예외를 가공하지 않고 그대로 throw
+- Repository에서 try-catch로 예외를 잡아 도메인 Failure로 변환
+- 에러 메시지는 core/constants/error_messages.dart 등에서 상수화
+- 로깅은 AppLogger.e(...) 등 전역 싱글톤 static 메서드로 처리
+- 실제 예외(e), stackTrace(st) 모두 로깅에 포함
+
+## 5. 함수형 에러 처리
+- Repository 반환값은 Either<Failure, Result> 형태로 성공/실패를 명확히 구분
+- 성공: Right(정상 결과), 실패: Left(Failure)
+- fold/map 등 함수형 체이닝 적극 활용
+
+## 6. 테스트 용이성
+- DataSource, Repository 모두 DI(생성자 주입)로 mock/fake 주입 가능하게 설계
+- 단위 테스트에서 mock DataSource/Repository로 다양한 예외 상황 검증
+
+## 7. 주석 및 문서화
+- 모든 클래스, 함수, 파라미터, 반환값에 한글 주석 필수
+- 복잡한 로직, 비직관적 결정에는 반드시 상세 주석 남김
+
+---
+이 규칙을 모든 feature의 data layer 리팩토링에 일관되게 적용하세요.
+

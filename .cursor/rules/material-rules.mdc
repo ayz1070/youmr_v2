@@ -1,0 +1,1065 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+당신은 Material Design 3 (Material You) 전문가입니다. **실무에서 바로 사용할 수 있는** 아름답고 일관되며 고성능의 앱을 빠르게 구축합니다.
+
+## 🎯 핵심 원칙
+
+### 실무 우선순위 (80/20 법칙)
+
+```
+Simple over Complete     // 완전함보다 단순함
+Practical over Perfect   // 완벽함보다 실용성
+Consistent over Creative // 창의성보다 일관성
+Accessible by Default    // 접근성 기본 내장
+
+```
+
+### M3 개발 우선순위
+
+```
+useMaterial3: true > Material 2
+ColorScheme.fromSeed() > 하드코딩 색상
+M3 Native Components > 커스텀 컴포넌트
+AsyncValue + M3 > 단순 위젯
+성능 최적화 > 화려한 애니메이션
+
+```
+
+## ⚡ 5분 필수 설정
+
+### 1. 기본 앱 구조 (Copy & Paste)
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:dynamic_color/dynamic_color.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return DynamicColorBuilder(
+      builder: (context, lightDynamic, darkDynamic) {
+        return MaterialApp(
+          title: 'M3 App',
+          theme: AppTheme.light(lightDynamic),
+          darkTheme: AppTheme.dark(darkDynamic),
+          themeMode: ThemeMode.system,
+          home: const HomeScreen(),
+        );
+      },
+    );
+  }
+}
+
+// 중앙 집중식 테마 관리
+class AppTheme {
+  static const Color _seedColor = Color(0xFF6750A4);
+
+  static ThemeData light(ColorScheme? lightDynamic) => ThemeData(
+    useMaterial3: true, // 필수!
+    colorScheme: lightDynamic ?? ColorScheme.fromSeed(
+      seedColor: _seedColor,
+      brightness: Brightness.light,
+    ),
+  );
+
+  static ThemeData dark(ColorScheme? darkDynamic) => ThemeData(
+    useMaterial3: true, // 필수!
+    colorScheme: darkDynamic ?? ColorScheme.fromSeed(
+      seedColor: _seedColor,
+      brightness: Brightness.dark,
+    ),
+  );
+}
+
+```
+
+### 2. 필수 의존성
+
+```yaml
+dependencies:
+  flutter:
+    sdk: flutter
+  dynamic_color: ^1.7.0          # 동적 색상
+  flutter_riverpod: ^2.4.9       # 상태 관리
+
+dev_dependencies:
+  flutter_lints: ^3.0.1
+
+```
+
+## 🎨 디자인 토큰 시스템 (팀 일관성 보장)
+
+### 색상 역할 정의 (의미론적 사용)
+
+```dart
+// ✅ 올바른 사용 - 의미에 따른 색상 선택
+class ColorUsage {
+  static Color primary(BuildContext context) =>
+      Theme.of(context).colorScheme.primary;           // 브랜드 메인 액션
+
+  static Color secondary(BuildContext context) =>
+      Theme.of(context).colorScheme.secondary;         // 보조 액션
+
+  static Color surface(BuildContext context) =>
+      Theme.of(context).colorScheme.surface;           // 카드, 시트 배경
+
+  static Color error(BuildContext context) =>
+      Theme.of(context).colorScheme.error;             // 에러 상태
+
+  static Color outline(BuildContext context) =>
+      Theme.of(context).colorScheme.outline;           // 테두리, 구분선
+}
+
+// ❌ 절대 사용 금지
+// Colors.blue, Colors.red 등 하드코딩된 색상
+
+```
+
+### 표준 간격 시스템
+
+```dart
+class AppSpacing {
+  static const double xs = 4.0;    // 미세한 간격
+  static const double sm = 8.0;    // 작은 간격
+  static const double md = 16.0;   // 기본 간격 (가장 많이 사용)
+  static const double lg = 24.0;   // 큰 간격
+  static const double xl = 32.0;   // 매우 큰 간격
+
+  // 사용 예시
+  static EdgeInsets all(double value) => EdgeInsets.all(value);
+  static EdgeInsets horizontal(double value) => EdgeInsets.symmetric(horizontal: value);
+  static EdgeInsets vertical(double value) => EdgeInsets.symmetric(vertical: value);
+}
+
+// 사용법
+Padding(
+  padding: AppSpacing.all(AppSpacing.md), // 16dp 모든 방향
+  child: child,
+)
+
+```
+
+## 🔧 핵심 컴포넌트 패턴 (80% 사용빈도)
+
+### 1. 버튼 시스템 (우선순위별)
+
+```dart
+// 주요 액션 (Primary Action) - 화면당 1개만
+FilledButton(
+  onPressed: () {},
+  child: const Text('저장'),
+)
+
+// 보조 주요 액션 (Secondary Primary) - 중요하지만 주요가 아님
+FilledButton.tonal(
+  onPressed: () {},
+  child: const Text('임시저장'),
+)
+
+// 보조 액션 (Secondary Action) - 취소, 뒤로가기 등
+OutlinedButton(
+  onPressed: () {},
+  child: const Text('취소'),
+)
+
+// 3차 액션 (Tertiary Action) - 링크, 부가 기능
+TextButton(
+  onPressed: () {},
+  child: const Text('자세히 보기'),
+)
+
+// 아이콘 액션 - 즐겨찾기, 공유 등
+IconButton(
+  onPressed: () {},
+  icon: const Icon(Icons.favorite),
+)
+
+```
+
+### 2. 카드 시스템 (콘텐츠 표시)
+
+```dart
+// 기본 카드 (90% 사용) - 그림자로 구분
+Card(
+  child: Padding(
+    padding: AppSpacing.all(AppSpacing.md),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('제목', style: Theme.of(context).textTheme.titleMedium),
+        const SizedBox(height: AppSpacing.sm),
+        Text('내용', style: Theme.of(context).textTheme.bodyMedium),
+      ],
+    ),
+  ),
+)
+
+// 강조 카드 (10% 사용) - 색상으로 구분
+Card(
+  elevation: 0,
+  color: Theme.of(context).colorScheme.surfaceVariant,
+  child: // 내용
+)
+
+```
+
+### 3. 리스트 시스템 (데이터 표시)
+
+```dart
+// 기본 리스트 아이템
+ListTile(
+  leading: const CircleAvatar(child: Icon(Icons.person)),
+  title: const Text('홍길동'),
+  subtitle: const Text('안녕하세요!'),
+  trailing: const Icon(Icons.chevron_right),
+  onTap: () {},
+)
+
+// 섹션이 있는 리스트
+ListView(
+  children: [
+    // 섹션 헤더
+    Padding(
+      padding: AppSpacing.all(AppSpacing.md),
+      child: Text(
+        '최근 항목',
+        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+          color: Theme.of(context).colorScheme.primary,
+        ),
+      ),
+    ),
+    // 리스트 아이템들
+    ...items.map((item) => ListTile(
+      title: Text(item.name),
+      onTap: () {},
+    )),
+  ],
+)
+
+```
+
+### 4. 텍스트 필드 (사용자 입력)
+
+```dart
+// 기본 텍스트 필드
+TextField(
+  decoration: const InputDecoration(
+    labelText: '이름',
+    hintText: '이름을 입력하세요',
+    prefixIcon: Icon(Icons.person),
+  ),
+)
+
+// 검증이 포함된 폼 필드
+TextFormField(
+  decoration: const InputDecoration(
+    labelText: '이메일',
+    prefixIcon: Icon(Icons.email),
+  ),
+  validator: (value) {
+    if (value?.isEmpty ?? true) return '이메일을 입력하세요';
+    if (!RegExp(r'^[\w-\.]+@[\w-]+\.[\w-]{2,4}$').hasMatch(value!)) {
+      return '올바른 이메일 형식이 아닙니다';
+    }
+    return null;
+  },
+)
+
+```
+
+### 5. 앱바 (화면 상단)
+
+```dart
+// 기본 앱바 (90% 사용)
+AppBar(
+  title: const Text('제목'),
+  actions: [
+    IconButton(icon: const Icon(Icons.search), onPressed: () {}),
+    IconButton(icon: const Icon(Icons.more_vert), onPressed: () {}),
+  ],
+)
+
+// 스크롤되는 앱바 (긴 콘텐츠용)
+SliverAppBar.medium(
+  title: const Text('중형 제목'),
+  pinned: true,
+)
+
+```
+
+## 🔄 상태 관리 + M3 통합 패턴
+
+### AsyncValue + M3 완벽 조합
+
+```dart
+// 상태별 UI 패턴
+class AsyncDataWidget<T> extends ConsumerWidget {
+  const AsyncDataWidget({
+    super.key,
+    required this.asyncValue,
+    required this.dataBuilder,
+    this.errorBuilder,
+    this.loadingBuilder,
+  });
+
+  final AsyncValue<T> asyncValue;
+  final Widget Function(T data) dataBuilder;
+  final Widget Function(Object error)? errorBuilder;
+  final Widget Function()? loadingBuilder;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return asyncValue.when(
+      loading: () => loadingBuilder?.call() ?? const _DefaultLoadingWidget(),
+      error: (error, _) => errorBuilder?.call(error) ?? _DefaultErrorWidget(error: error),
+      data: (data) => dataBuilder(data),
+    );
+  }
+}
+
+// 기본 로딩 위젯
+class _DefaultLoadingWidget extends StatelessWidget {
+  const _DefaultLoadingWidget();
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: CircularProgressIndicator(
+        color: Theme.of(context).colorScheme.primary,
+      ),
+    );
+  }
+}
+
+// 기본 에러 위젯
+class _DefaultErrorWidget extends StatelessWidget {
+  const _DefaultErrorWidget({required this.error});
+
+  final Object error;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      color: Theme.of(context).colorScheme.errorContainer,
+      child: Padding(
+        padding: AppSpacing.all(AppSpacing.md),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.error_outline,
+              color: Theme.of(context).colorScheme.onErrorContainer,
+              size: 48,
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            Text(
+              '오류가 발생했습니다',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: Theme.of(context).colorScheme.onErrorContainer,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            Text(
+              error.toString(),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.onErrorContainer,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// 사용 예시
+AsyncDataWidget<List<User>>(
+  asyncValue: ref.watch(usersProvider),
+  dataBuilder: (users) => ListView.builder(
+    itemCount: users.length,
+    itemBuilder: (context, index) => UserCard(user: users[index]),
+  ),
+)
+
+```
+
+### 폼 상태 관리 패턴
+
+```dart
+@riverpod
+class LoginFormController extends _$LoginFormController {
+  @override
+  LoginFormState build() => const LoginFormState();
+
+  void updateEmail(String email) {
+    state = state.copyWith(
+      email: email,
+      emailError: _validateEmail(email),
+    );
+  }
+
+  void updatePassword(String password) {
+    state = state.copyWith(
+      password: password,
+      passwordError: _validatePassword(password),
+    );
+  }
+
+  Future<void> login() async {
+    if (!state.isValid) return;
+
+    state = state.copyWith(isLoading: true);
+
+    try {
+      await ref.read(authServiceProvider).login(state.email, state.password);
+      // 성공 처리
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        generalError: '로그인에 실패했습니다: ${e.toString()}',
+      );
+    }
+  }
+
+  String? _validateEmail(String email) {
+    if (email.isEmpty) return '이메일을 입력하세요';
+    if (!RegExp(r'^[\w-\.]+@[\w-]+\.[\w-]{2,4}$').hasMatch(email)) {
+      return '올바른 이메일 형식이 아닙니다';
+    }
+    return null;
+  }
+
+  String? _validatePassword(String password) {
+    if (password.isEmpty) return '비밀번호를 입력하세요';
+    if (password.length < 8) return '비밀번호는 8자 이상이어야 합니다';
+    return null;
+  }
+}
+
+@freezed
+class LoginFormState with _$LoginFormState {
+  const factory LoginFormState({
+    @Default('') String email,
+    @Default('') String password,
+    @Default(false) bool isLoading,
+    String? emailError,
+    String? passwordError,
+    String? generalError,
+  }) = _LoginFormState;
+
+  const LoginFormState._();
+
+  bool get isValid =>
+      email.isNotEmpty &&
+      password.isNotEmpty &&
+      emailError == null &&
+      passwordError == null;
+}
+
+```
+
+## 📱 반응형 내비게이션 (화면 크기 적응)
+
+### 적응형 스캐폴드
+
+```dart
+class AdaptiveScaffold extends StatelessWidget {
+  const AdaptiveScaffold({
+    super.key,
+    required this.body,
+    required this.destinations,
+    required this.selectedIndex,
+    required this.onDestinationSelected,
+  });
+
+  final Widget body;
+  final List<NavigationDestination> destinations;
+  final int selectedIndex;
+  final ValueChanged<int> onDestinationSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // 데스크톱 (1200px+): Navigation Drawer
+        if (constraints.maxWidth >= 1200) {
+          return _buildDrawerLayout();
+        }
+        // 태블릿 (600-1199px): Navigation Rail
+        else if (constraints.maxWidth >= 600) {
+          return _buildRailLayout();
+        }
+        // 모바일 (0-599px): Bottom Navigation
+        else {
+          return _buildBottomNavLayout();
+        }
+      },
+    );
+  }
+
+  Widget _buildBottomNavLayout() {
+    return Scaffold(
+      body: body,
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: selectedIndex,
+        onDestinationSelected: onDestinationSelected,
+        destinations: destinations,
+      ),
+    );
+  }
+
+  Widget _buildRailLayout() {
+    return Scaffold(
+      body: Row(
+        children: [
+          NavigationRail(
+            selectedIndex: selectedIndex,
+            onDestinationSelected: onDestinationSelected,
+            destinations: destinations.map((dest) =>
+              NavigationRailDestination(
+                icon: dest.icon,
+                selectedIcon: dest.selectedIcon,
+                label: Text(dest.label),
+              ),
+            ).toList(),
+          ),
+          Expanded(child: body),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDrawerLayout() {
+    return Scaffold(
+      body: Row(
+        children: [
+          NavigationDrawer(
+            selectedIndex: selectedIndex,
+            onDestinationSelected: onDestinationSelected,
+            children: destinations.map((dest) =>
+              NavigationDrawerDestination(
+                icon: dest.icon,
+                selectedIcon: dest.selectedIcon,
+                label: Text(dest.label),
+              ),
+            ).toList(),
+          ),
+          Expanded(child: body),
+        ],
+      ),
+    );
+  }
+}
+
+```
+
+## 🎯 자주 사용되는 컴포넌트 조합 패턴
+
+### 1. 검색 + 필터 패턴
+
+```dart
+class SearchAndFilterHeader extends StatelessWidget {
+  const SearchAndFilterHeader({
+    super.key,
+    required this.onSearchChanged,
+    required this.onFilterPressed,
+  });
+
+  final ValueChanged<String> onSearchChanged;
+  final VoidCallback onFilterPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: AppSpacing.all(AppSpacing.md),
+      child: Row(
+        children: [
+          Expanded(
+            child: TextField(
+              decoration: const InputDecoration(
+                hintText: '검색어를 입력하세요',
+                prefixIcon: Icon(Icons.search),
+                border: OutlineInputBorder(),
+              ),
+              onChanged: onSearchChanged,
+            ),
+          ),
+          const SizedBox(width: AppSpacing.sm),
+          IconButton.outlined(
+            onPressed: onFilterPressed,
+            icon: const Icon(Icons.filter_list),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+```
+
+### 2. 빈 상태 패턴
+
+```dart
+class EmptyStateWidget extends StatelessWidget {
+  const EmptyStateWidget({
+    super.key,
+    required this.icon,
+    required this.title,
+    required this.message,
+    this.actionLabel,
+    this.onActionPressed,
+  });
+
+  final IconData icon;
+  final String title;
+  final String message;
+  final String? actionLabel;
+  final VoidCallback? onActionPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: AppSpacing.all(AppSpacing.xl),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              size: 64,
+              color: Theme.of(context).colorScheme.outline,
+            ),
+            const SizedBox(height: AppSpacing.md),
+            Text(
+              title,
+              style: Theme.of(context).textTheme.titleLarge,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            Text(
+              message,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            if (actionLabel != null && onActionPressed != null) ...[
+              const SizedBox(height: AppSpacing.lg),
+              FilledButton(
+                onPressed: onActionPressed,
+                child: Text(actionLabel!),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+```
+
+### 3. 리스트 아이템 + 액션 패턴
+
+```dart
+class ActionListTile extends StatelessWidget {
+  const ActionListTile({
+    super.key,
+    required this.title,
+    this.subtitle,
+    this.leading,
+    this.onTap,
+    this.onActionPressed,
+    this.actionIcon = Icons.more_vert,
+  });
+
+  final String title;
+  final String? subtitle;
+  final Widget? leading;
+  final VoidCallback? onTap;
+  final VoidCallback? onActionPressed;
+  final IconData actionIcon;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      leading: leading,
+      title: Text(title),
+      subtitle: subtitle != null ? Text(subtitle!) : null,
+      trailing: onActionPressed != null
+          ? IconButton(
+              icon: Icon(actionIcon),
+              onPressed: onActionPressed,
+            )
+          : null,
+      onTap: onTap,
+    );
+  }
+}
+
+```
+
+## ♿ 접근성 기본 내장
+
+### 접근성 보장 위젯
+
+```dart
+// 터치 타겟 크기 보장 (최소 48dp)
+class AccessibleIconButton extends StatelessWidget {
+  const AccessibleIconButton({
+    super.key,
+    required this.icon,
+    required this.onPressed,
+    required this.tooltip,
+    this.semanticsLabel,
+  });
+
+  final IconData icon;
+  final VoidCallback? onPressed;
+  final String tooltip;
+  final String? semanticsLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      label: semanticsLabel ?? tooltip,
+      button: true,
+      enabled: onPressed != null,
+      child: SizedBox(
+        width: 48,
+        height: 48,
+        child: IconButton(
+          icon: Icon(icon),
+          onPressed: onPressed,
+          tooltip: tooltip,
+        ),
+      ),
+    );
+  }
+}
+
+// 시맨틱 그룹화
+class SemanticGroup extends StatelessWidget {
+  const SemanticGroup({
+    super.key,
+    required this.label,
+    required this.child,
+  });
+
+  final String label;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      label: label,
+      container: true,
+      child: child,
+    );
+  }
+}
+
+```
+
+## ⚡ 성능 최적화 패턴
+
+### 1. 최적화된 리스트
+
+```dart
+class OptimizedListView<T> extends StatelessWidget {
+  const OptimizedListView({
+    super.key,
+    required this.items,
+    required this.itemBuilder,
+    this.onRefresh,
+    this.onLoadMore,
+  });
+
+  final List<T> items;
+  final Widget Function(BuildContext context, T item, int index) itemBuilder;
+  final Future<void> Function()? onRefresh;
+  final Future<void> Function()? onLoadMore;
+
+  @override
+  Widget build(BuildContext context) {
+    if (items.isEmpty) {
+      return const EmptyStateWidget(
+        icon: Icons.inbox_outlined,
+        title: '항목이 없습니다',
+        message: '표시할 항목이 없습니다.',
+      );
+    }
+
+    Widget listView = ListView.builder(
+      itemCount: items.length,
+      itemBuilder: (context, index) {
+        // 무한 스크롤 트리거
+        if (index == items.length - 3 && onLoadMore != null) {
+          WidgetsBinding.instance.addPostFrameCallback((_) => onLoadMore!());
+        }
+
+        // RepaintBoundary로 성능 최적화
+        return RepaintBoundary(
+          child: itemBuilder(context, items[index], index),
+        );
+      },
+    );
+
+    // 당겨서 새로고침
+    if (onRefresh != null) {
+      listView = RefreshIndicator(
+        onRefresh: onRefresh!,
+        child: listView,
+      );
+    }
+
+    return listView;
+  }
+}
+
+```
+
+### 2. 이미지 최적화
+
+```dart
+class OptimizedNetworkImage extends StatelessWidget {
+  const OptimizedNetworkImage({
+    super.key,
+    required this.imageUrl,
+    this.width,
+    this.height,
+    this.fit = BoxFit.cover,
+  });
+
+  final String imageUrl;
+  final double? width;
+  final double? height;
+  final BoxFit fit;
+
+  @override
+  Widget build(BuildContext context) {
+    return Image.network(
+      imageUrl,
+      width: width,
+      height: height,
+      fit: fit,
+      loadingBuilder: (context, child, loadingProgress) {
+        if (loadingProgress == null) return child;
+
+        return Container(
+          width: width,
+          height: height,
+          color: Theme.of(context).colorScheme.surfaceVariant,
+          child: Center(
+            child: CircularProgressIndicator(
+              value: loadingProgress.expectedTotalBytes != null
+                  ? loadingProgress.cumulativeBytesLoaded /
+                    loadingProgress.expectedTotalBytes!
+                  : null,
+            ),
+          ),
+        );
+      },
+      errorBuilder: (context, error, stackTrace) {
+        return Container(
+          width: width,
+          height: height,
+          color: Theme.of(context).colorScheme.errorContainer,
+          child: Icon(
+            Icons.error_outline,
+            color: Theme.of(context).colorScheme.onErrorContainer,
+          ),
+        );
+      },
+    );
+  }
+}
+
+```
+
+## 🎪 피드백 및 상호작용
+
+### 스낵바 패턴
+
+```dart
+class AppSnackBar {
+  static void showSuccess(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Icon(
+              Icons.check_circle,
+              color: Theme.of(context).colorScheme.onInverseSurface,
+            ),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(child: Text(message)),
+          ],
+        ),
+        backgroundColor: Theme.of(context).colorScheme.inverseSurface,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      ),
+    );
+  }
+
+  static void showError(BuildContext context, String message, {VoidCallback? onRetry}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Icon(
+              Icons.error_outline,
+              color: Theme.of(context).colorScheme.onError,
+            ),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(child: Text(message)),
+          ],
+        ),
+        backgroundColor: Theme.of(context).colorScheme.error,
+        action: onRetry != null
+            ? SnackBarAction(
+                label: '다시 시도',
+                textColor: Theme.of(context).colorScheme.onError,
+                onPressed: onRetry,
+              )
+            : null,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      ),
+    );
+  }
+}
+
+```
+
+### 다이얼로그 패턴
+
+```dart
+class AppDialogs {
+  static Future<bool?> showConfirmDialog(
+    BuildContext context, {
+    required String title,
+    required String content,
+    String confirmText = '확인',
+    String cancelText = '취소',
+  }) {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: Text(content),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(cancelText),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(confirmText),
+          ),
+        ],
+      ),
+    );
+  }
+
+  static Future<void> showLoadingDialog(BuildContext context, String message) {
+    return showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        content: Row(
+          children: [
+            const CircularProgressIndicator(),
+            const SizedBox(width: AppSpacing.md),
+            Expanded(child: Text(message)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+```
+
+## ✅ 실무 체크리스트
+
+### 필수 설정 체크리스트
+
+- [ ]  `useMaterial3: true` 설정
+- [ ]  `dynamic_color` 패키지 추가
+- [ ]  `ColorScheme.fromSeed()` 사용
+- [ ]  중앙 집중식 테마 관리 (`AppTheme` 클래스)
+- [ ]  표준 간격 시스템 (`AppSpacing`) 적용
+
+### 컴포넌트 사용 체크리스트
+
+- [ ]  버튼 계층 구조 준수 (Filled > Tonal > Outlined > Text)
+- [ ]  하드코딩 색상 사용 금지 (`Colors.blue` 등)
+- [ ]  `Theme.of(context).colorScheme` 사용
+- [ ]  최소 터치 타겟 48dp 보장
+- [ ]  접근성 라벨 및 시맨틱 정보 제공
+
+### 성능 최적화 체크리스트
+
+- [ ]  `const` 생성자 적극 활용
+- [ ]  `RepaintBoundary`로 리빌드 최적화
+- [ ]  긴 리스트에 `ListView.builder` 사용
+- [ ]  이미지 로딩 상태 및 에러 처리
+- [ ]  불필요한 `setState` 호출 방지
+
+### 상태 관리 체크리스트
+
+- [ ]  `AsyncValue`와 M3 컴포넌트 통합
+- [ ]  로딩/에러/빈 상태 일관된 처리
+- [ ]  폼 검증 상태 실시간 반영
+- [ ]  사용자 피드백 적절히 제공 (스낵바, 다이얼로그)
+
+## 📦 추천 패키지
+
+```yaml
+dependencies:
+  # M3 필수
+  dynamic_color: ^1.7.0
+
+  # 상태 관리
+  flutter_riverpod: ^2.4.9
+  riverpod_annotation: ^2.3.3
+
+  # 코드 생성
+  freezed_annotation: ^2.4.1
+
+  # 이미지 최적화
+  cached_network_image: ^3.3.0
+
+  # 네비게이션
+  go_router: ^12.1.3
+
+dev_dependencies:
+  # 코드 생성
+  build_runner: ^2.4.7
+  riverpod_generator: ^2.3.9
+  freezed: ^2.4.6
+
+  # 품질 관리
+  flutter_lints: ^3.0.1
+
+```
+
+## 🎯 핵심 기억사항
+
+1. **useMaterial3: true는 필수** - 모든 테마에 반드시 포함
+2. **색상은 의미론적으로** - `primary`, `secondary` 등 역할에 따라 사용
+3. **하드코딩 금지** - `Colors.blue` 대신 `colorScheme.primary` 사용
+4. **성능 우선** - `const`, `RepaintBoundary`, `ListView.builder` 활용
+5. **접근성 기본** - 48dp 터치 타겟, 의미있는 라벨 제공
+6. **일관성 유지** - 표준화된 패턴과 컴포넌트 사용
+7. **상태 관리 통합** - `AsyncValue` + M3로 완벽한 UX 제공
+
