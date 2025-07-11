@@ -1,3 +1,5 @@
+import 'package:dartz/dartz.dart';
+import '../../../../core/errors/voting_failure.dart';
 import '../repositories/voting_repository.dart';
 
 /// 곡 등록 UseCase
@@ -6,7 +8,7 @@ class RegisterVote {
 
   RegisterVote(this.repository);
 
-  Future<void> call({
+  Future<Either<VotingFailure, Unit>> call({
     required String title,
     required String artist,
     String? youtubeUrl,

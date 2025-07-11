@@ -69,26 +69,26 @@ class VotingPage extends ConsumerWidget {
             isPickLoading: isPickLoading,
             isVoteButtonEnabled: isVoteButtonEnabled,
             onVote: () async {
-              final String error = await notifier.submitVotes(userId) ?? '';
-              if (error.isEmpty) {
+              final error = await notifier.submitVotes(userId);
+              if (error == null) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('투표가 완료되었습니다')),
                 );
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('에러: $error')),
+                  SnackBar(content: Text('에러: ${error.message}')),
                 );
               }
             },
             onGetPick: () async {
-              final String error = await notifier.getDailyPick(userId) ?? '';
-              if (error.isEmpty) {
+              final error = await notifier.getDailyPick(userId);
+              if (error == null) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('피크가 추가되었습니다')),
                 );
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('에러: $error')),
+                  SnackBar(content: Text('에러: ${error.message}')),
                 );
               }
             },

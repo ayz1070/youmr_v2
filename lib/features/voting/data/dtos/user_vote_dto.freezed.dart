@@ -20,8 +20,13 @@ UserVoteDto _$UserVoteDtoFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$UserVoteDto {
+  /// 사용자 ID
   String get userId => throw _privateConstructorUsedError;
+
+  /// 곡 ID
   String get voteId => throw _privateConstructorUsedError;
+
+  /// 투표 일시
   DateTime get votedAt => throw _privateConstructorUsedError;
 
   /// Serializes this UserVoteDto to a JSON map.
@@ -133,10 +138,15 @@ class _$UserVoteDtoImpl implements _UserVoteDto {
   factory _$UserVoteDtoImpl.fromJson(Map<String, dynamic> json) =>
       _$$UserVoteDtoImplFromJson(json);
 
+  /// 사용자 ID
   @override
   final String userId;
+
+  /// 곡 ID
   @override
   final String voteId;
+
+  /// 투표 일시
   @override
   final DateTime votedAt;
 
@@ -184,10 +194,15 @@ abstract class _UserVoteDto implements UserVoteDto {
   factory _UserVoteDto.fromJson(Map<String, dynamic> json) =
       _$UserVoteDtoImpl.fromJson;
 
+  /// 사용자 ID
   @override
   String get userId;
+
+  /// 곡 ID
   @override
   String get voteId;
+
+  /// 투표 일시
   @override
   DateTime get votedAt;
 

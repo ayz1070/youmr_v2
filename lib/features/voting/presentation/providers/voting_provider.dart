@@ -1,7 +1,9 @@
-import 'package:riverpod/riverpod.dart';
+import 'package:dartz/dartz.dart';
+import '../../../../core/errors/voting_failure.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../domain/entities/vote.dart';
 import '../../domain/repositories/voting_repository.dart';
+import 'package:riverpod/riverpod.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 /// 투표 상태 Provider (곡 목록, 피크, 선택, 투표/피크 획득 등 관리)
@@ -25,8 +27,11 @@ class VotingProvider extends Notifier<List<Vote>?> {
     _repository = ref.watch(votingRepositoryProvider);
     // 곡 목록 스트림 구독 및 상태 갱신
     _repository.getTopVotes().listen(
-      (voteList) {
-        state = voteList;
+      (either) {
+        either.fold(
+          (failure) => state = null,
+          (voteList) => state = voteList,
+        );
       },
       onError: (e) {
         state = null; // 에러 발생 시 null로 설정
@@ -45,42 +50,42 @@ class VotingProvider extends Notifier<List<Vote>?> {
     state = state == null ? null : List<Vote>.from(state!);
   }
 
-  Future<String?> submitVotes(String userId) async {
-    try {
-      await _repository.submitVotes(userId: userId, voteIds: selectedVoteIds);
-      selectedVoteIds.clear();
-      return null;
-    } catch (e) {
-      return e.toString();
-    }
+  /// 에러 발생 시 VotingFailure 객체를 반환, 성공 시 null 반환
+  Future<VotingFailure?> submitVotes(String userId) async {
+    final result = await _repository.submitVotes(userId: userId, voteIds: selectedVoteIds);
+    return result.fold(
+      (failure) => failure,
+      (_) {
+        selectedVoteIds.clear();
+        return null;
+      },
+    );
   }
 
-  Future<String?> getDailyPick(String userId) async {
-    try {
-      await _repository.getDailyPick(userId: userId);
-      return null;
-    } catch (e) {
-      return e.toString();
-    }
+  Future<VotingFailure?> getDailyPick(String userId) async {
+    final result = await _repository.getDailyPick(userId: userId);
+    return result.fold(
+      (failure) => failure,
+      (_) => null,
+    );
   }
 
-  Future<String?> registerVote({
+  Future<VotingFailure?> registerVote({
     required String title,
     required String artist,
     String? youtubeUrl,
     required String createdBy,
   }) async {
-    try {
-      await _repository.registerVote(
-        title: title,
-        artist: artist,
-        youtubeUrl: youtubeUrl,
-        createdBy: createdBy,
-      );
-      return null;
-    } catch (e) {
-      return e.toString();
-    }
+    final result = await _repository.registerVote(
+      title: title,
+      artist: artist,
+      youtubeUrl: youtubeUrl,
+      createdBy: createdBy,
+    );
+    return result.fold(
+      (failure) => failure,
+      (_) => null,
+    );
   }
 }
 
