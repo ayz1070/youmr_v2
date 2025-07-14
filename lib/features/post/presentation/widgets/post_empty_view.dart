@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 
 /// 게시판 빈 상태 위젯
+///
+/// - 공통 빈 상태 위젯(AppEmptyView 등) 사용 권장
+/// - 메시지/컬러/패딩 등은 core/constants로 상수화 권장
 class PostEmptyView extends StatelessWidget {
+  /// 테마 데이터
   final ThemeData theme;
+  /// 생성자
   const PostEmptyView({super.key, required this.theme});
 
   @override

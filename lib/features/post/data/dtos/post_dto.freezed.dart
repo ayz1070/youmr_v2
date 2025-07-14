@@ -20,16 +20,37 @@ PostDto _$PostDtoFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$PostDto {
+  /// 게시글 고유 ID
   String get id => throw _privateConstructorUsedError;
+
+  /// 작성자 ID
   String get authorId => throw _privateConstructorUsedError;
+
+  /// 작성자 이름
   String get authorName => throw _privateConstructorUsedError;
+
+  /// 제목
   String get title => throw _privateConstructorUsedError;
+
+  /// 내용
   String get content => throw _privateConstructorUsedError;
+
+  /// 카테고리
   String get category => throw _privateConstructorUsedError;
+
+  /// 생성일(ISO8601)
   String get createdAt => throw _privateConstructorUsedError;
+
+  /// 수정일(ISO8601)
   String get updatedAt => throw _privateConstructorUsedError;
+
+  /// 좋아요 수
   int get likeCount => throw _privateConstructorUsedError;
+
+  /// 댓글 수
   int get commentCount => throw _privateConstructorUsedError;
+
+  /// 이미지 URL 리스트
   List<String> get imageUrls => throw _privateConstructorUsedError;
 
   /// Serializes this PostDto to a JSON map.
@@ -251,29 +272,52 @@ class _$PostDtoImpl implements _PostDto {
   factory _$PostDtoImpl.fromJson(Map<String, dynamic> json) =>
       _$$PostDtoImplFromJson(json);
 
+  /// 게시글 고유 ID
   @override
   final String id;
+
+  /// 작성자 ID
   @override
   final String authorId;
+
+  /// 작성자 이름
   @override
   final String authorName;
+
+  /// 제목
   @override
   final String title;
+
+  /// 내용
   @override
   final String content;
+
+  /// 카테고리
   @override
   final String category;
+
+  /// 생성일(ISO8601)
   @override
   final String createdAt;
+
+  /// 수정일(ISO8601)
   @override
   final String updatedAt;
+
+  /// 좋아요 수
   @override
   @JsonKey()
   final int likeCount;
+
+  /// 댓글 수
   @override
   @JsonKey()
   final int commentCount;
+
+  /// 이미지 URL 리스트
   final List<String> _imageUrls;
+
+  /// 이미지 URL 리스트
   @override
   @JsonKey()
   List<String> get imageUrls {
@@ -361,26 +405,47 @@ abstract class _PostDto implements PostDto {
 
   factory _PostDto.fromJson(Map<String, dynamic> json) = _$PostDtoImpl.fromJson;
 
+  /// 게시글 고유 ID
   @override
   String get id;
+
+  /// 작성자 ID
   @override
   String get authorId;
+
+  /// 작성자 이름
   @override
   String get authorName;
+
+  /// 제목
   @override
   String get title;
+
+  /// 내용
   @override
   String get content;
+
+  /// 카테고리
   @override
   String get category;
+
+  /// 생성일(ISO8601)
   @override
   String get createdAt;
+
+  /// 수정일(ISO8601)
   @override
   String get updatedAt;
+
+  /// 좋아요 수
   @override
   int get likeCount;
+
+  /// 댓글 수
   @override
   int get commentCount;
+
+  /// 이미지 URL 리스트
   @override
   List<String> get imageUrls;
 

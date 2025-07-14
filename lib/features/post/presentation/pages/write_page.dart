@@ -6,7 +6,12 @@ import 'dart:math';
 import '../../../main/presentation/pages/main_navigation_page.dart';
 
 /// 글쓰기(게시글 작성) 페이지
+///
+/// - 상태/로직은 Provider로 분리 권장(현재는 StatefulWidget)
+/// - 공통 위젯(AppLoadingView, AppErrorView 등) 사용 권장
+/// - 컬러/문구/패딩 등은 core/constants로 상수화 권장
 class WritePage extends StatefulWidget {
+  /// 생성자
   const WritePage({super.key});
 
   @override
@@ -14,10 +19,10 @@ class WritePage extends StatefulWidget {
 }
 
 class _WritePageState extends State<WritePage> {
-  final _formKey = GlobalKey<FormState>();
-  final _titleController = TextEditingController();
-  final _contentController = TextEditingController();
-  final _youtubeController = TextEditingController();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _contentController = TextEditingController();
+  final TextEditingController _youtubeController = TextEditingController();
   String _category = '자유';
   bool _isLoading = false;
 
@@ -25,8 +30,8 @@ class _WritePageState extends State<WritePage> {
 
   // 썸네일 동적 반영용
   String? _youtubeThumb;
-  final _random = Random();
-  late String _picsumUrl;
+  final Random _random = Random();
+  late final String _picsumUrl;
 
   @override
   void initState() {
@@ -45,30 +50,34 @@ class _WritePageState extends State<WritePage> {
     super.dispose();
   }
 
+  /// 유튜브 썸네일 동적 반영
   void _updateYoutubeThumb() {
     setState(() {
       _youtubeThumb = getYoutubeThumbnail(_youtubeController.text.trim());
     });
   }
 
+  /// 유튜브 썸네일 URL 추출
+  /// [url] : 유튜브 URL
+  /// return : 썸네일 이미지 URL
   String? getYoutubeThumbnail(String? url) {
     if (url == null) return null;
-    final uri = Uri.tryParse(url);
+    final Uri? uri = Uri.tryParse(url);
     if (uri == null || !uri.host.contains('youtu')) return null;
-    final videoId = uri.pathSegments.isNotEmpty ? uri.pathSegments.last : null;
+    final String? videoId = uri.pathSegments.isNotEmpty ? uri.pathSegments.last : null;
     if (videoId == null || videoId.length < 5) return null;
     return 'https://img.youtube.com/vi/$videoId/0.jpg';
   }
 
+  /// 게시글 등록
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isLoading = true);
     try {
-      final user = FirebaseAuth.instance.currentUser;
-
+      final User? user = FirebaseAuth.instance.currentUser;
       if (user == null) throw Exception('로그인 필요');
-      final userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
-      final userData = userDoc.data() ?? {};
+      final DocumentSnapshot<Map<String, dynamic>> userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+      final Map<String, dynamic> userData = userDoc.data() ?? {};
       await FirebaseFirestore.instance.collection('posts').add({
         'title': _titleController.text.trim(),
         'content': _contentController.text.trim(),
@@ -103,7 +112,7 @@ class _WritePageState extends State<WritePage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final ThemeData theme = Theme.of(context);
     return Scaffold(
       extendBodyBehindAppBar: true,
       body: _isLoading

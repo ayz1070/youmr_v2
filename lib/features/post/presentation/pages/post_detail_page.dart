@@ -16,9 +16,15 @@ import '../widgets/post_comment_section.dart';
 import '../widgets/post_comment_trigger.dart';
 
 /// 게시글 상세 + 댓글 페이지
+///
+/// - 상태/로직은 Provider로 분리 권장(현재는 StatefulWidget)
+/// - 공통 위젯(AppLoadingView, AppErrorView 등) 사용 권장
+/// - 컬러/문구/패딩 등은 core/constants로 상수화 권장
 class PostDetailPage extends StatefulWidget {
+  /// 상세 조회할 게시글 ID
   final String postId;
 
+  /// 생성자
   const PostDetailPage({super.key, required this.postId});
 
   @override
@@ -55,17 +61,15 @@ class _PostDetailPageState extends State<PostDetailPage> {
       _isLoading = true;
     });
     try {
-      final doc = await FirebaseFirestore.instance
+      final DocumentSnapshot<Map<String, dynamic>> doc = await FirebaseFirestore.instance
           .collection('posts')
           .doc(widget.postId)
           .get();
       if (!doc.exists) throw Exception('게시글이 존재하지 않습니다.');
-      final data = doc.data();
+      final Map<String, dynamic>? data = doc.data();
       // 유튜브 컨트롤러 초기화
-      if (data != null &&
-          data['youtubeUrl'] != null &&
-          data['youtubeUrl'] != '') {
-        final videoId = YoutubePlayer.convertUrlToId(data['youtubeUrl']);
+      if (data != null && data['youtubeUrl'] != null && data['youtubeUrl'] != '') {
+        final String? videoId = YoutubePlayer.convertUrlToId(data['youtubeUrl']);
         if (videoId != null) {
           _ytController = YoutubePlayerController(
             initialVideoId: videoId,
@@ -91,6 +95,8 @@ class _PostDetailPageState extends State<PostDetailPage> {
   }
 
   /// 댓글 수정 클릭 시 호출
+  /// [commentId] : 수정할 댓글 ID
+  /// [content] : 기존 댓글 내용
   void _onEditComment(String commentId, String content) {
     setState(() {
       _editCommentId = commentId;
@@ -107,6 +113,10 @@ class _PostDetailPageState extends State<PostDetailPage> {
   }
 
   /// 게시글 수정/삭제 권한 확인
+  /// [post] : 게시글 데이터
+  /// [uid] : 현재 유저 UID
+  /// [userType] : 유저 타입(admin/developer 등)
+  /// return : 수정/삭제 가능 여부
   bool _canEditOrDelete(
     Map<String, dynamic> post,
     String? uid,
@@ -138,7 +148,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
 
   /// 게시글 수정 페이지로 이동 후, 수정 완료 시 상세 정보 갱신
   Future<void> _editPost() async {
-    final result = await Navigator.of(context).push(
+    final dynamic result = await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => PostEditPage(isEdit: true, postId: widget.postId),
       ),
@@ -152,6 +162,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
   }
 
   /// 게시글 공지 지정/해제
+  /// [isNotice] : 현재 공지 여부
   Future<void> _toggleNotice(bool isNotice) async {
     try {
       await FirebaseFirestore.instance
@@ -171,6 +182,8 @@ class _PostDetailPageState extends State<PostDetailPage> {
     }
   }
 
+  /// 댓글 입력 바텀시트 표시
+  /// [context] : 빌드 컨텍스트
   void _showCommentSheet(BuildContext context) async {
     setState(() {
       _isCommentSheetOpen = true;

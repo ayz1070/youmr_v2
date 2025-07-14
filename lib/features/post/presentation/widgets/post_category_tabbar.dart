@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 
 /// 게시글 카테고리 탭바 위젯
+///
+/// - 탭/카테고리명 등은 core/constants로 상수화 권장
+/// - 접근성(semantic label 등) 고려 권장
 class PostCategoryTabBar extends StatelessWidget {
+  /// 탭 컨트롤러
   final TabController tabController;
+  /// 카테고리 목록
   final List<String> categories;
-  
+  /// 생성자
   const PostCategoryTabBar({
     super.key,
     required this.tabController,
@@ -13,8 +18,7 @@ class PostCategoryTabBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    
+    final ThemeData theme = Theme.of(context);
     return Material(
       color: theme.colorScheme.surface,
       child: TabBar(

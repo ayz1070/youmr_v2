@@ -3,9 +3,16 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:math';
 
 /// 게시글 작성/수정 공통 폼 페이지
+///
+/// - 상태/로직은 Provider로 분리 권장(현재는 StatefulWidget)
+/// - 공통 위젯(AppLoadingView, AppErrorView 등) 사용 권장
+/// - 컬러/문구/패딩 등은 core/constants로 상수화 권장
 class PostEditPage extends StatefulWidget {
+  /// 수정 모드 여부
   final bool isEdit;
+  /// 수정할 게시글 ID (수정 모드일 때만 사용)
   final String? postId;
+  /// 생성자
   const PostEditPage({super.key, this.isEdit = false, this.postId});
 
   @override
@@ -13,10 +20,10 @@ class PostEditPage extends StatefulWidget {
 }
 
 class _PostEditPageState extends State<PostEditPage> {
-  final _formKey = GlobalKey<FormState>();
-  final _titleController = TextEditingController();
-  final _contentController = TextEditingController();
-  final _youtubeController = TextEditingController();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _contentController = TextEditingController();
+  final TextEditingController _youtubeController = TextEditingController();
   String _category = '자유';
   bool _isLoading = false;
 
@@ -24,8 +31,8 @@ class _PostEditPageState extends State<PostEditPage> {
 
   // 썸네일 동적 반영용
   String? _youtubeThumb;
-  final _random = Random();
-  late String _picsumUrl;
+  final Random _random = Random();
+  late final String _picsumUrl;
 
   @override
   void initState() {
@@ -48,27 +55,31 @@ class _PostEditPageState extends State<PostEditPage> {
     super.dispose();
   }
 
+  /// 유튜브 썸네일 동적 반영
   void _updateYoutubeThumb() {
     setState(() {
       _youtubeThumb = getYoutubeThumbnail(_youtubeController.text.trim());
     });
   }
 
+  /// 유튜브 썸네일 URL 추출
+  /// [url] : 유튜브 URL
+  /// return : 썸네일 이미지 URL
   String? getYoutubeThumbnail(String? url) {
     if (url == null) return null;
-    final uri = Uri.tryParse(url);
+    final Uri? uri = Uri.tryParse(url);
     if (uri == null || !uri.host.contains('youtu')) return null;
-    final videoId = uri.pathSegments.isNotEmpty ? uri.pathSegments.last : null;
+    final String? videoId = uri.pathSegments.isNotEmpty ? uri.pathSegments.last : null;
     if (videoId == null || videoId.length < 5) return null;
     return 'https://img.youtube.com/vi/$videoId/0.jpg';
   }
 
-  /// 기존 게시글 데이터 불러오기
+  /// 기존 게시글 데이터 불러오기 (수정 모드)
   Future<void> _loadPost() async {
     setState(() => _isLoading = true);
     try {
-      final doc = await FirebaseFirestore.instance.collection('posts').doc(widget.postId).get();
-      final data = doc.data();
+      final DocumentSnapshot<Map<String, dynamic>> doc = await FirebaseFirestore.instance.collection('posts').doc(widget.postId).get();
+      final Map<String, dynamic>? data = doc.data();
       if (data != null) {
         _titleController.text = data['title'] ?? '';
         _contentController.text = data['content'] ?? '';
@@ -90,7 +101,7 @@ class _PostEditPageState extends State<PostEditPage> {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isLoading = true);
     try {
-      final data = {
+      final Map<String, dynamic> data = {
         'title': _titleController.text.trim(),
         'content': _contentController.text.trim(),
         'youtubeUrl': _youtubeController.text.trim(),
