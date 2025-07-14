@@ -8,6 +8,8 @@ class FirestoreConstants {
   static const String nickname = 'nickname';
   static const String profileImageUrl = 'profileImageUrl';
   static const String lastUpdated = 'lastUpdated';
+  static const String userType = 'userType';
+  static const String createdAt = 'createdAt';
 
   /// 투표 곡 컬렉션명
   static const String votesCollection = 'votes';
