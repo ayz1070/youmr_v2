@@ -3,16 +3,22 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'post_card.dart';
 
 /// 공지 리스트 위젯
+///
+/// - 공지 데이터는 Firestore에서 QueryDocumentSnapshot 형태로 전달
+/// - 컬러/문구/패딩 등은 core/constants로 상수화 권장
 class PostNoticeList extends StatelessWidget {
+  /// 공지 리스트
   final List<QueryDocumentSnapshot<Map<String, dynamic>>> notices;
+  /// 테마 데이터
   final ThemeData theme;
+  /// 생성자
   const PostNoticeList({super.key, required this.notices, required this.theme});
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: notices.map((noticeDoc) {
-        final notice = noticeDoc.data();
+        final Map<String, dynamic> notice = noticeDoc.data();
         return Container(
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Card(

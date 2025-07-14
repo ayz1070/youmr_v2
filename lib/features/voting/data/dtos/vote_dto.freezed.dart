@@ -20,13 +20,26 @@ VoteDto _$VoteDtoFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$VoteDto {
+  /// 곡 문서 ID
   String get id => throw _privateConstructorUsedError;
+
+  /// 곡 제목
   String get title => throw _privateConstructorUsedError;
+
+  /// 아티스트
   String get artist => throw _privateConstructorUsedError;
+
+  /// 유튜브 URL
   String? get youtubeUrl => throw _privateConstructorUsedError;
+
+  /// 득표수
   int get voteCount => throw _privateConstructorUsedError;
+
+  /// 생성일
   @TimestampOrDateTimeConverter()
   DateTime get createdAt => throw _privateConstructorUsedError;
+
+  /// 등록자 ID
   String get createdBy => throw _privateConstructorUsedError;
 
   /// Serializes this VoteDto to a JSON map.
@@ -195,19 +208,32 @@ class _$VoteDtoImpl implements _VoteDto {
   factory _$VoteDtoImpl.fromJson(Map<String, dynamic> json) =>
       _$$VoteDtoImplFromJson(json);
 
+  /// 곡 문서 ID
   @override
   final String id;
+
+  /// 곡 제목
   @override
   final String title;
+
+  /// 아티스트
   @override
   final String artist;
+
+  /// 유튜브 URL
   @override
   final String? youtubeUrl;
+
+  /// 득표수
   @override
   final int voteCount;
+
+  /// 생성일
   @override
   @TimestampOrDateTimeConverter()
   final DateTime createdAt;
+
+  /// 등록자 ID
   @override
   final String createdBy;
 
@@ -267,19 +293,32 @@ abstract class _VoteDto implements VoteDto {
 
   factory _VoteDto.fromJson(Map<String, dynamic> json) = _$VoteDtoImpl.fromJson;
 
+  /// 곡 문서 ID
   @override
   String get id;
+
+  /// 곡 제목
   @override
   String get title;
+
+  /// 아티스트
   @override
   String get artist;
+
+  /// 유튜브 URL
   @override
   String? get youtubeUrl;
+
+  /// 득표수
   @override
   int get voteCount;
+
+  /// 생성일
   @override
   @TimestampOrDateTimeConverter()
   DateTime get createdAt;
+
+  /// 등록자 ID
   @override
   String get createdBy;
 

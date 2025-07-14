@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:youmr_v2/features/voting/presentation/widgets/voting_item.dart';
 import '../../domain/entities/vote.dart';
 
 /// 투표 곡 리스트 위젯
@@ -21,19 +22,12 @@ class VotingList extends StatelessWidget {
       itemBuilder: (BuildContext context, int index) {
         final Vote vote = votes[index];
         final bool selected = selectedVoteIds.contains(vote.id);
-        return ListTile(
-          leading: Text('${index + 1}'),
-          title: Text('${vote.title} - ${vote.artist}'),
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Text('${vote.voteCount}표'),
-              Checkbox(
-                value: selected,
-                onChanged: (_) => onToggle(vote.id),
-              ),
-            ],
-          ),
+        // 커스텀 VotingItem 위젯으로 교체
+        return VotingItem(
+          vote: vote,
+          rank: index + 1,
+          selected: selected,
+          onToggle: onToggle,
         );
       },
     );

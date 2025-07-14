@@ -3,11 +3,20 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 /// 댓글 입력창 위젯 (수정 모드 지원)
+///
+/// - Firestore에 댓글 등록/수정
+/// - Provider/DI 구조로 개선 권장
+/// - 컬러/문구/패딩 등은 core/constants로 상수화 권장
 class CommentInput extends StatefulWidget {
+  /// 게시글 ID
   final String postId;
+  /// 수정할 댓글 ID(수정 모드)
   final String? editCommentId;
+  /// 수정할 댓글 내용(수정 모드)
   final String? editContent;
+  /// 수정 완료/취소 콜백
   final VoidCallback? onEditDone;
+  /// 생성자
   const CommentInput({
     super.key,
     required this.postId,
@@ -21,7 +30,7 @@ class CommentInput extends StatefulWidget {
 }
 
 class _CommentInputState extends State<CommentInput> {
-  final _controller = TextEditingController();
+  final TextEditingController _controller = TextEditingController();
   bool _isLoading = false;
 
   @override
@@ -37,15 +46,16 @@ class _CommentInputState extends State<CommentInput> {
     }
   }
 
+  /// 댓글 등록/수정 처리
   Future<void> _submit() async {
-    final text = _controller.text.trim();
+    final String text = _controller.text.trim();
     if (text.isEmpty) return;
     setState(() => _isLoading = true);
     try {
-      final user = FirebaseAuth.instance.currentUser;
+      final User? user = FirebaseAuth.instance.currentUser;
       if (user == null) throw Exception('로그인 필요');
-      final userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
-      final userData = userDoc.data() ?? {};
+      final DocumentSnapshot<Map<String, dynamic>> userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+      final Map<String, dynamic> userData = userDoc.data() ?? {};
       if (widget.editCommentId != null) {
         // 댓글 수정
         await FirebaseFirestore.instance.collection('comments').doc(widget.editCommentId).update({
@@ -69,7 +79,7 @@ class _CommentInputState extends State<CommentInput> {
       _controller.clear();
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('댓글 등록/수정에 실패했습니다. 다시 시도해 주세요.')),
+        const SnackBar(content: Text('댓글 등록/수정에 실패했습니다. 다시 시도해 주세요.')),
       );
     } finally {
       setState(() => _isLoading = false);
@@ -78,8 +88,8 @@ class _CommentInputState extends State<CommentInput> {
 
   @override
   Widget build(BuildContext context) {
-    final isEdit = widget.editCommentId != null;
-    final theme = Theme.of(context);
+    final bool isEdit = widget.editCommentId != null;
+    final ThemeData theme = Theme.of(context);
     return SafeArea(
       child: Container(
         color: theme.colorScheme.surfaceContainerLowest,

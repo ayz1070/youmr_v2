@@ -3,11 +3,20 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 /// 게시글/댓글 좋아요 버튼 위젯
+///
+/// - Firestore에 좋아요/취소 트랜잭션 처리
+/// - Provider/DI 구조로 개선 권장
+/// - 컬러/문구/패딩 등은 core/constants로 상수화 권장
 class LikeButton extends StatefulWidget {
+  /// 게시글/댓글 ID
   final String postId;
+  /// 좋아요 UID 리스트
   final List<dynamic> likes;
+  /// 좋아요 수
   final int likesCount;
-  final bool isComment; // true면 댓글, false면 게시글
+  /// 댓글 여부(true면 댓글, false면 게시글)
+  final bool isComment;
+  /// 생성자
   const LikeButton({
     super.key,
     required this.postId,
@@ -27,15 +36,16 @@ class _LikeButtonState extends State<LikeButton> {
   @override
   void initState() {
     super.initState();
-    final uid = FirebaseAuth.instance.currentUser?.uid;
+    final String? uid = FirebaseAuth.instance.currentUser?.uid;
     _liked = widget.likes.contains(uid);
     _count = widget.likesCount;
   }
 
+  /// 좋아요/취소 트랜잭션 처리
   Future<void> _toggleLike() async {
-    final uid = FirebaseAuth.instance.currentUser?.uid;
+    final String? uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return;
-    final ref = FirebaseFirestore.instance
+    final DocumentReference ref = FirebaseFirestore.instance
         .collection(widget.isComment ? 'comments' : 'posts')
         .doc(widget.postId);
     setState(() {
@@ -50,8 +60,8 @@ class _LikeButtonState extends State<LikeButton> {
     try {
       await FirebaseFirestore.instance.runTransaction((tx) async {
         final snap = await tx.get(ref);
-        final likes = List<String>.from(snap['likes'] ?? []);
-        final likesCount = snap['likesCount'] ?? 0;
+        final List<String> likes = List<String>.from(snap['likes'] ?? []);
+        final int likesCount = snap['likesCount'] ?? 0;
         if (likes.contains(uid)) {
           likes.remove(uid);
           tx.update(ref, {'likes': likes, 'likesCount': likesCount - 1});
@@ -72,7 +82,7 @@ class _LikeButtonState extends State<LikeButton> {
         }
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('좋아요 처리에 실패했습니다.')),
+        const SnackBar(content: Text('좋아요 처리에 실패했습니다.')),
       );
     }
   }

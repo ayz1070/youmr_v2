@@ -1,3 +1,5 @@
+import 'package:dartz/dartz.dart';
+import '../../../../core/errors/voting_failure.dart';
 import '../entities/vote.dart';
 import '../repositories/voting_repository.dart';
 
@@ -7,5 +9,5 @@ class GetTopVotes {
 
   GetTopVotes(this.repository);
 
-  Stream<List<Vote>> call() => repository.getTopVotes();
+  Stream<Either<VotingFailure, List<Vote>>> call() => repository.getTopVotes();
 } 

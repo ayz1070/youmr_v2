@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import '../../domain/entities/auth_user.dart';
 import '../../domain/use_cases/sign_in_with_google.dart';
 import '../../domain/use_cases/sign_out.dart';
@@ -9,10 +10,13 @@ import '../../data/repositories/auth_repository_impl.dart';
 import '../../data/data_sources/auth_firebase_data_source.dart';
 
 /// 인증 상태 관리 Provider (AsyncNotifier)
+/// - 실제 앱에서는 ProviderScope override로 DI/Mock 주입 구조 권장
 final authProvider = AsyncNotifierProvider<AuthNotifier, AuthUser?>(
   AuthNotifier.new,
 );
 
+/// 인증 상태 관리 Notifier
+/// - 인증 관련 상태 및 액션 관리
 class AuthNotifier extends AsyncNotifier<AuthUser?> {
   late final SignInWithGoogle _signInWithGoogle;
   late final SignOut _signOut;
@@ -21,9 +25,10 @@ class AuthNotifier extends AsyncNotifier<AuthUser?> {
 
   @override
   FutureOr<AuthUser?> build() async {
-    // DI: 실제 구현체 주입
+    // DI: 실제 구현체 주입 (실제 앱에서는 외부에서 주입 권장)
     final repository = AuthRepositoryImpl(
       dataSource: AuthFirebaseDataSource(),
+      googleSignIn: GoogleSignIn(),
     );
     _signInWithGoogle = SignInWithGoogle(repository);
     _signOut = SignOut(repository);
@@ -39,6 +44,7 @@ class AuthNotifier extends AsyncNotifier<AuthUser?> {
   }
 
   /// 구글 로그인
+  /// 반환: Future<void>
   Future<void> signInWithGoogle() async {
     state = const AsyncValue.loading();
     final result = await _signInWithGoogle();
@@ -49,6 +55,7 @@ class AuthNotifier extends AsyncNotifier<AuthUser?> {
   }
 
   /// 로그아웃
+  /// 반환: Future<void>
   Future<void> signOut() async {
     state = const AsyncValue.loading();
     final result = await _signOut();
@@ -59,6 +66,8 @@ class AuthNotifier extends AsyncNotifier<AuthUser?> {
   }
 
   /// 프로필 저장
+  /// [user]: 저장할 유저 정보
+  /// 반환: Future<void>
   Future<void> saveProfile(AuthUser user) async {
     state = const AsyncValue.loading();
     final result = await _saveProfile(user: user);

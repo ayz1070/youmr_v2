@@ -20,14 +20,31 @@ AuthUser _$AuthUserFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$AuthUser {
+  /// 유저 고유 ID
   String get uid => throw _privateConstructorUsedError;
+
+  /// 이메일
   String get email => throw _privateConstructorUsedError;
+
+  /// 닉네임
   String get nickname => throw _privateConstructorUsedError;
+
+  /// 프로필 이미지 URL (nullable)
   String? get profileImageUrl => throw _privateConstructorUsedError;
+
+  /// 유저 타입(관리자/일반 등, nullable)
   String? get userType => throw _privateConstructorUsedError;
+
+  /// 요일 정보(nullable)
   String? get dayOfWeek => throw _privateConstructorUsedError;
+
+  /// FCM 토큰(푸시용, nullable)
   String? get fcmToken => throw _privateConstructorUsedError;
+
+  /// 생성일(nullable)
   DateTime? get createdAt => throw _privateConstructorUsedError;
+
+  /// 수정일(nullable)
   DateTime? get updatedAt => throw _privateConstructorUsedError;
 
   /// Serializes this AuthUser to a JSON map.
@@ -224,22 +241,39 @@ class _$AuthUserImpl implements _AuthUser {
   factory _$AuthUserImpl.fromJson(Map<String, dynamic> json) =>
       _$$AuthUserImplFromJson(json);
 
+  /// 유저 고유 ID
   @override
   final String uid;
+
+  /// 이메일
   @override
   final String email;
+
+  /// 닉네임
   @override
   final String nickname;
+
+  /// 프로필 이미지 URL (nullable)
   @override
   final String? profileImageUrl;
+
+  /// 유저 타입(관리자/일반 등, nullable)
   @override
   final String? userType;
+
+  /// 요일 정보(nullable)
   @override
   final String? dayOfWeek;
+
+  /// FCM 토큰(푸시용, nullable)
   @override
   final String? fcmToken;
+
+  /// 생성일(nullable)
   @override
   final DateTime? createdAt;
+
+  /// 수정일(nullable)
   @override
   final DateTime? updatedAt;
 
@@ -307,22 +341,39 @@ abstract class _AuthUser implements AuthUser {
   factory _AuthUser.fromJson(Map<String, dynamic> json) =
       _$AuthUserImpl.fromJson;
 
+  /// 유저 고유 ID
   @override
   String get uid;
+
+  /// 이메일
   @override
   String get email;
+
+  /// 닉네임
   @override
   String get nickname;
+
+  /// 프로필 이미지 URL (nullable)
   @override
   String? get profileImageUrl;
+
+  /// 유저 타입(관리자/일반 등, nullable)
   @override
   String? get userType;
+
+  /// 요일 정보(nullable)
   @override
   String? get dayOfWeek;
+
+  /// FCM 토큰(푸시용, nullable)
   @override
   String? get fcmToken;
+
+  /// 생성일(nullable)
   @override
   DateTime? get createdAt;
+
+  /// 수정일(nullable)
   @override
   DateTime? get updatedAt;
 

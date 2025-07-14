@@ -6,6 +6,7 @@ part of 'user_vote_dto.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
+// 중복 선언 제거: 아래 함수가 한 번만 존재해야 함
 _$UserVoteDtoImpl _$$UserVoteDtoImplFromJson(Map<String, dynamic> json) =>
     _$UserVoteDtoImpl(
       userId: json['userId'] as String,

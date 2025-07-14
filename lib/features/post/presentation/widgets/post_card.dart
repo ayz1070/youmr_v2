@@ -1,21 +1,34 @@
 import 'package:flutter/material.dart';
 
 import '../pages/post_detail_page.dart';
-import 'comment_count.dart'; // Assuming this is the correct path for PostDetailPage
+import 'comment_count.dart';
 
 /// 게시글 카드 위젯 (이전 디자인 복원)
-/// 썸네일, 프로필, 랜덤 이미지, 유튜브, 좋아요, 댓글, 작성일 등 포함
+///
+/// - 썸네일, 프로필, 랜덤 이미지, 유튜브, 좋아요, 댓글, 작성일 등 포함
+/// - 컬러/문구/패딩 등은 core/constants로 상수화 권장
+/// - 접근성(semantic label 등) 고려 권장
 class PostCard extends StatelessWidget {
+  /// 게시글 ID
   final String postId;
+  /// 게시글 제목
   final String title;
+  /// 게시글 내용
   final String content;
+  /// 작성자 닉네임
   final String author;
+  /// 작성자 프로필 이미지 URL
   final String? authorProfileUrl;
+  /// 작성일
   final DateTime? createdAt;
+  /// 유튜브 URL
   final String? youtubeUrl;
+  /// 좋아요 UID 리스트
   final List<dynamic> likes;
+  /// 좋아요 수
   final int likesCount;
 
+  /// 생성자
   const PostCard({
     super.key,
     required this.postId,
@@ -30,22 +43,24 @@ class PostCard extends StatelessWidget {
   });
 
   /// 유튜브 썸네일 URL 추출
+  /// [url] : 유튜브 URL
+  /// return : 썸네일 이미지 URL
   String? getYoutubeThumbnail(String? url) {
     if (url == null) return null;
-    final uri = Uri.tryParse(url);
+    final Uri? uri = Uri.tryParse(url);
     if (uri == null || !uri.host.contains('youtu')) return null;
-    final videoId = uri.pathSegments.isNotEmpty ? uri.pathSegments.last : null;
+    final String? videoId = uri.pathSegments.isNotEmpty ? uri.pathSegments.last : null;
     if (videoId == null || videoId.length < 5) return null;
     return 'https://img.youtube.com/vi/$videoId/0.jpg';
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final thumb = getYoutubeThumbnail(youtubeUrl);
+    final ThemeData theme = Theme.of(context);
+    final String? thumb = getYoutubeThumbnail(youtubeUrl);
     // 랜덤 이미지 URL (postId 해시 기반)
-    final picsumId = postId.hashCode.abs() % 1000;
-    final picsumUrl = 'https://picsum.photos/seed/$picsumId/800/420';
+    final int picsumId = postId.hashCode.abs() % 1000;
+    final String picsumUrl = 'https://picsum.photos/seed/$picsumId/800/420';
     return Card(
       elevation: 2,
       margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 0),
@@ -184,8 +199,11 @@ class PostCard extends StatelessWidget {
     );
   }
 
+  /// 작성일 포맷 변환
+  /// [date] : 작성일
+  /// return : 포맷된 날짜 문자열
   String _formatDate(DateTime date) {
-    final now = DateTime.now();
+    final DateTime now = DateTime.now();
     if (now.year == date.year && now.month == date.month && now.day == date.day) {
       // 오늘
       return '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}' ;

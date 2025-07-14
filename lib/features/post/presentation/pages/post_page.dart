@@ -1,18 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:youmr_v2/core/widgets/primary_app_bar.dart';
 import '../../data/data_sources/post_firestore_data_source.dart';
 import '../widgets/post_category_tabbar.dart';
 import '../widgets/post_card.dart';
 import '../widgets/ad_banner.dart';
 import '../../domain/entities/post.dart';
-import 'write_page.dart'; // Added import for WritePage
+import 'write_page.dart'; // 글쓰기 페이지 import
 import '../widgets/post_notice_list.dart';
 import '../widgets/post_grid_list.dart';
 import '../widgets/post_error_view.dart';
 import '../widgets/post_loading_view.dart';
 import '../widgets/post_empty_view.dart';
 
-/// 홈 탭 메인 페이지 (게시글 피드 + 카테고리 + 광고)
+/// 게시글 피드 + 카테고리 + 광고를 보여주는 홈 탭 메인 페이지
+///
+/// - 상태/로직은 Provider로 분리 권장(현재는 StatefulWidget)
+/// - 공통 위젯(AppLoadingView, AppErrorView 등) 사용 권장
+/// - 컬러/문구/패딩 등은 core/constants로 상수화 권장
 class PostPage extends StatefulWidget {
   const PostPage({super.key});
 
@@ -21,11 +26,11 @@ class PostPage extends StatefulWidget {
 }
 
 class _PostPageState extends State<PostPage> with SingleTickerProviderStateMixin {
-  late TabController _tabController;
-  final List<String> _categories = ['전체', '자유', '신청곡', '영상'];
+  late final TabController _tabController;
+  final List<String> _categories = ['전체', '자유', '밴드', '영상'];
   final PostFirestoreDataSource _dataSource = PostFirestoreDataSource();
 
-  // 상태 변수
+  // 게시글/공지글 상태 변수
   List<QueryDocumentSnapshot<Map<String, dynamic>>> _posts = [];
   List<QueryDocumentSnapshot<Map<String, dynamic>>> _notices = [];
   bool _isLoading = false;
@@ -76,26 +81,28 @@ class _PostPageState extends State<PostPage> with SingleTickerProviderStateMixin
   }
 
   /// Firestore에서 게시글/공지글 불러오기
+  ///
+  /// [reset]이 true면 목록 초기화 후 새로 불러옴
   Future<void> _fetchPosts({bool reset = false}) async {
     if (_isLoading) return;
     setState(() => _isLoading = true);
     try {
       // 공지글 먼저 불러오기 (isNotice==true, 최신순, 최대 3개)
-      final noticeSnap = await FirebaseFirestore.instance
+      final QuerySnapshot<Map<String, dynamic>> noticeSnap = await FirebaseFirestore.instance
           .collection('posts')
           .where('isNotice', isEqualTo: true)
           .orderBy('createdAt', descending: true)
           .limit(3)
           .get();
-      final notices = noticeSnap.docs;
+      final List<QueryDocumentSnapshot<Map<String, dynamic>>> notices = noticeSnap.docs;
       // 일반 게시글 불러오기
-      final docs = await _dataSource.fetchPosts(
+      final List<QueryDocumentSnapshot<Map<String, dynamic>>> docs = await _dataSource.fetchPosts(
         category: _currentCategory,
         startAfter: reset ? null : _lastDoc,
         limit: 20,
       );
       // 공지글은 일반글에서 제외
-      final filteredDocs = docs.where((d) => d['isNotice'] != true).toList();
+      final List<QueryDocumentSnapshot<Map<String, dynamic>>> filteredDocs = docs.where((d) => d['isNotice'] != true).toList();
       setState(() {
         if (reset) {
           _notices = notices;
@@ -116,27 +123,21 @@ class _PostPageState extends State<PostPage> with SingleTickerProviderStateMixin
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final ThemeData theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('게시판', style: TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: theme.colorScheme.surface,
-        elevation: 0,
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.edit_outlined),
-            tooltip: '글쓰기',
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => WritePage(),
-                ),
-              );
-            },
-          ),
-        ],
-      ),
+      appBar:PrimaryAppBar(title: "게시판",actions: [
+        IconButton(
+          icon: const Icon(Icons.add_box_outlined),
+          tooltip: '글쓰기',
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => const WritePage(),
+              ),
+            );
+          },
+        ),
+      ],),
       body: SafeArea(
         bottom: false,
         child: Column(

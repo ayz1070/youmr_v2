@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
 
 /// 게시판 에러 상태 위젯
+///
+/// - 공통 에러 위젯(AppErrorView 등) 사용 권장
+/// - 에러 메시지, 버튼 텍스트 등은 core/constants로 상수화 권장
 class PostErrorView extends StatelessWidget {
+  /// 에러 메시지
   final String error;
+  /// 재시도 콜백
   final VoidCallback onRetry;
+  /// 테마 데이터
   final ThemeData theme;
+  /// 생성자
   const PostErrorView({super.key, required this.error, required this.onRetry, required this.theme});
 
   @override

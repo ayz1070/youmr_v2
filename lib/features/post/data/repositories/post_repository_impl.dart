@@ -1,18 +1,27 @@
 
 import '../../domain/entities/post.dart';
 import '../../domain/repositories/post_repository.dart';
+import '../data_sources/post_firestore_data_source.dart';
+import '../dtos/post_dto.dart';
 
 /// 게시글 저장소 구현체
-/// Firestore 등 외부 데이터 소스와의 통신을 담당합니다.
+/// - DataSource/DTO만 의존, 도메인 변환/예외 처리 담당
 class PostRepositoryImpl implements PostRepository {
-  /// 생성자
-  PostRepositoryImpl();
+  final PostFirestoreDataSource dataSource;
 
-  /// 게시글 목록 조회 (예시)
+  /// [dataSource]: 게시글 데이터 소스(DI)
+  PostRepositoryImpl({required this.dataSource});
+
+  /// 게시글 목록 조회
+  /// 반환: [Post] 리스트
   @override
   Future<List<Post>> getPosts() async {
     // TODO: Firestore 등에서 데이터 조회 후 PostDto → domain.Post 변환
-    // 임시 스텁 데이터 반환
+    // 임시 스텁 데이터 반환(실제 Firestore 연동 시 아래 코드로 대체)
+    /*
+    final docs = await dataSource.fetchPosts();
+    return docs.map((doc) => PostDto.fromJson(doc.data()).toDomain()).toList();
+    */
     return [
       Post(
         id: '1',

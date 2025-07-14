@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 
 /// 게시판 로딩 상태 위젯
+///
+/// - 공통 로딩 위젯(AppLoadingView 등) 사용 권장
+/// - 컬러/문구/패딩 등은 core/constants로 상수화 권장
 class PostLoadingView extends StatelessWidget {
+  /// 테마 데이터
   final ThemeData theme;
+  /// 생성자
   const PostLoadingView({super.key, required this.theme});
 
   @override

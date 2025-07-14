@@ -7,12 +7,14 @@ import '../../../main/presentation/pages/main_navigation_page.dart';
 
 /// 앱 실행 시 최초로 보여지는 스플래시 화면
 class SplashPage extends StatefulWidget {
+  /// [key]: 위젯 고유 키
   const SplashPage({super.key});
 
   @override
   State<SplashPage> createState() => _SplashPageState();
 }
 
+/// 스플래시 페이지 상태 클래스
 class _SplashPageState extends State<SplashPage> {
   @override
   void initState() {
@@ -21,6 +23,7 @@ class _SplashPageState extends State<SplashPage> {
   }
 
   /// 로그인 상태 및 프로필 정보 확인 후 분기
+  /// Firestore/FirebaseAuth 직접 접근 → 추후 Provider 구조로 개선 권장
   Future<void> _checkAuth() async {
     await Future.delayed(const Duration(seconds: 1)); // 스플래시 연출용
     final user = FirebaseAuth.instance.currentUser;
@@ -33,7 +36,6 @@ class _SplashPageState extends State<SplashPage> {
       }
       return;
     }
-    
     try {
       // Firestore에서 프로필 정보 확인
       final userDoc = FirebaseFirestore.instance.collection('users').doc(user.uid);
@@ -70,9 +72,10 @@ class _SplashPageState extends State<SplashPage> {
 
   @override
   Widget build(BuildContext context) {
+    // 실제 앱에서는 AppLoadingView 등 core/widgets 공통 위젯 사용 권장
     return const Scaffold(
       body: Center(
-        child: Text('YouMR', style: TextStyle(fontSize: 32)),
+        child: Text('YouMR', style: TextStyle(fontSize: 32)), // 문구 상수화 권장
       ),
     );
   }
