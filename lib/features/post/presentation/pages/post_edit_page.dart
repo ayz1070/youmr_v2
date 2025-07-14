@@ -27,7 +27,7 @@ class _PostEditPageState extends State<PostEditPage> {
   String _category = '자유';
   bool _isLoading = false;
 
-  final List<String> _categories = ['자유', '신청곡', '영상'];
+  final List<String> _categories = ['자유', '밴드', '영상'];
 
   // 썸네일 동적 반영용
   String? _youtubeThumb;

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:youmr_v2/core/widgets/primary_app_bar.dart';
 import '../../data/data_sources/post_firestore_data_source.dart';
 import '../widgets/post_category_tabbar.dart';
 import '../widgets/post_card.dart';
@@ -26,7 +27,7 @@ class PostPage extends StatefulWidget {
 
 class _PostPageState extends State<PostPage> with SingleTickerProviderStateMixin {
   late final TabController _tabController;
-  final List<String> _categories = ['전체', '자유', '신청곡', '영상'];
+  final List<String> _categories = ['전체', '자유', '밴드', '영상'];
   final PostFirestoreDataSource _dataSource = PostFirestoreDataSource();
 
   // 게시글/공지글 상태 변수
@@ -124,25 +125,19 @@ class _PostPageState extends State<PostPage> with SingleTickerProviderStateMixin
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('게시판', style: TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: theme.colorScheme.surface,
-        elevation: 0,
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.edit_outlined),
-            tooltip: '글쓰기',
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => const WritePage(),
-                ),
-              );
-            },
-          ),
-        ],
-      ),
+      appBar:PrimaryAppBar(title: "게시판",actions: [
+        IconButton(
+          icon: const Icon(Icons.add_box_outlined),
+          tooltip: '글쓰기',
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => const WritePage(),
+              ),
+            );
+          },
+        ),
+      ],),
       body: SafeArea(
         bottom: false,
         child: Column(

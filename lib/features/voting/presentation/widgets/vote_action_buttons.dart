@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:youmr_v2/core/widgets/app_button.dart';
+import 'package:youmr_v2/core/widgets/app_button_row.dart';
 
 /// 투표/피크 버튼 및 안내 메시지 위젯
 class VoteActionButtons extends StatelessWidget {
@@ -35,15 +37,17 @@ class VoteActionButtons extends StatelessWidget {
                 style: const TextStyle(color: Colors.red, fontSize: 14),
               ),
             ),
-          ElevatedButton(
-            onPressed: isVoteButtonEnabled ? onVote : null,
-            child: const Text('투표하기'),
+
+          // 가로 2개 버튼(AppButtonRow)으로 배치
+          AppButtonRow(
+            leftLabel: '피크얻기',
+            onLeftPressed: userId.isNotEmpty ? onGetPick : null,
+            leftEnabled: userId.isNotEmpty,
+            rightLabel: '투표하기',
+            onRightPressed: isVoteButtonEnabled ? onVote : null,
+            rightEnabled: isVoteButtonEnabled,
           ),
-          const SizedBox(height: 8),
-          OutlinedButton(
-            onPressed: userId.isNotEmpty ? onGetPick : null,
-            child: const Text('피크얻기'),
-          ),
+
         ],
       ),
     );

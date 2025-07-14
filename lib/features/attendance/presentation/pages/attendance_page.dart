@@ -28,23 +28,12 @@ class AttendancePage extends ConsumerWidget {
     return Scaffold(
       appBar: PrimaryAppBar(
         // 기존 텍스트 위젯을 그대로 title로 전달
-        title: Text(
-          " ${AppDateUtils.formatWeekKey(weekKey)} 출석",
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-          ),
-        ),
+        title: "출석",
       ),
       body: attendanceAsync.when(
         data: (attendance) {
-          // attendance가 null이거나 출석 데이터가 없을 때 빈 상태 처리
-          if (attendance == null || attendance.selectedDays.isEmpty) {
-            return const AppEmptyView(
-              message: ErrorMessages.emptyAttendance,
-            );
-          }
-          // 불필요한 중복 제거 및 const 최적화
+          // 출석 데이터가 없어도 항상 출석 체크 UI를 노출
+          // attendance가 null이거나 selectedDays가 비어 있어도 체크 UI가 보임
           return ListView(
             padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 0),
             children: [
@@ -55,10 +44,11 @@ class AttendancePage extends ConsumerWidget {
                   ),
                   child: AttendanceDayRow(
                     day: day,
-                    mySelectedDays: attendance.selectedDays,
+                    // null 안전 처리: 출석 데이터가 없으면 빈 리스트 전달
+                    mySelectedDays: attendance?.selectedDays ?? [],
                     isLoading: isLoading,
                     onAttendanceToggle: (selectedDay, checked) async {
-                      final newDays = List<String>.from(attendance.selectedDays);
+                      final newDays = List<String>.from(attendance?.selectedDays ?? []);
                       if (checked) {
                         newDays.add(selectedDay);
                       } else {
@@ -67,7 +57,14 @@ class AttendancePage extends ConsumerWidget {
                       // 현재 로그인 유저 정보로 nickname, profileImageUrl을 항상 반영
                       final user = FirebaseAuth.instance.currentUser;
                       await notifier.saveAttendance(
-                        attendance.copyWith(
+                        (attendance ?? Attendance(
+                          weekKey: weekKey,
+                          userId: user?.uid ?? '',
+                          selectedDays: [],
+                          nickname: user?.displayName ?? '이름없음',
+                          profileImageUrl: user?.photoURL ?? '',
+                          lastUpdated: null,
+                        )).copyWith(
                           selectedDays: newDays,
                           nickname: user?.displayName ?? '이름없음',
                           profileImageUrl: user?.photoURL ?? '',

@@ -71,12 +71,12 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
             // 투표 탭
             IconButton(
               icon: Icon(
-                _currentIndex == 1 ? Icons.favorite : Icons.favorite_border,
-                color: _currentIndex == 1 ? Colors.red : Color(0xFFCCCCCC),
+                _currentIndex == 1 ? Icons.how_to_vote : Icons.how_to_vote_outlined,
+                color: _currentIndex == 1 ? Colors.black : Color(0xFFCCCCCC),
                 size: 32,
               ),
               onPressed: () => setState(() => _currentIndex = 1),
-              tooltip: '투표',
+              tooltip: '신청곡',
               constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
               padding: EdgeInsets.zero,
             ),

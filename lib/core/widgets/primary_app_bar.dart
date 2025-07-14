@@ -7,13 +7,17 @@ import 'package:flutter/material.dart';
 /// - backgroundColor, elevation 등 스타일 확장성
 class PrimaryAppBar extends StatelessWidget implements PreferredSizeWidget {
   /// AppBar 타이틀(필수, Widget)
-  final Widget title;
+  final String title;
+
   /// 오른쪽 액션 위젯 리스트(선택)
   final List<Widget>? actions;
+
   /// 왼쪽 leading 위젯(선택)
   final Widget? leading;
+
   /// AppBar 배경색(선택)
   final Color? backgroundColor;
+
   /// AppBar 그림자 높이(선택)
   final double? elevation;
 
@@ -32,7 +36,13 @@ class PrimaryAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      title: title,
+      title: Text(
+        title,
+        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+          fontWeight: FontWeight.bold,
+          fontSize: 18,
+        ),
+      ),
       centerTitle: true,
       actions: actions,
       leading: leading,
@@ -40,4 +50,4 @@ class PrimaryAppBar extends StatelessWidget implements PreferredSizeWidget {
       elevation: elevation,
     );
   }
-} 
+}
