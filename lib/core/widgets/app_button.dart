@@ -15,8 +15,8 @@ class AppButton extends StatelessWidget {
     required this.label,
     required this.onPressed,
     this.enabled = true,
-    this.height = 44,
-    this.fontSize = 12,
+    this.height = 48,
+    this.fontSize = 14,
   });
 
   @override
