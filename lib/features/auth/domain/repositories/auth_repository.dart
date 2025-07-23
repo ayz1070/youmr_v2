@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:dartz/dartz.dart';
 import '../entities/auth_user.dart';
 import '../../core/errors/auth_failure.dart';
@@ -21,4 +22,23 @@ abstract class AuthRepository {
   /// [user]: 저장할 유저 정보
   /// 반환: 성공 시 void, 실패 시 [AuthFailure]
   Future<Either<AuthFailure, void>> saveProfile({required AuthUser user});
+
+  /// 프로필 이미지 업로드
+  /// [uid]: 유저 고유 ID
+  /// [imageFile]: 업로드할 이미지 파일
+  /// 반환: 성공 시 이미지 URL, 실패 시 [AuthFailure]
+  Future<Either<AuthFailure, String>> uploadProfileImage({
+    required String uid,
+    required File imageFile,
+  });
+
+  /// 프로필 이미지 삭제
+  /// [imageUrl]: 삭제할 이미지 URL
+  /// 반환: 성공 시 void, 실패 시 [AuthFailure]
+  Future<Either<AuthFailure, void>> deleteProfileImage({required String imageUrl});
+
+  /// 유저의 모든 프로필 이미지 삭제
+  /// [uid]: 유저 고유 ID
+  /// 반환: 성공 시 void, 실패 시 [AuthFailure]
+  Future<Either<AuthFailure, void>> deleteAllProfileImages({required String uid});
 } 

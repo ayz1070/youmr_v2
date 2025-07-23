@@ -1,7 +1,13 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/auth_provider.dart';
+import '../widgets/profile_image_picker.dart';
+import '../widgets/profile_form.dart';
+import '../../../../core/constants/profile_setup_constants.dart';
+import '../../../../core/utils/profile_setup_utils.dart';
 import '../../../main/presentation/pages/main_navigation_page.dart';
+import '../../../../core/widgets/app_button.dart';
 
 /// 회원가입 시 프로필 정보 입력 화면 (Provider 기반)
 class ProfileSetupPage extends ConsumerStatefulWidget {
@@ -18,46 +24,118 @@ class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage> {
   final TextEditingController _nicknameController = TextEditingController();
   String? _userType;
   String? _dayOfWeek;
+  File? _selectedImageFile;
+  String? _currentImageUrl;
+  bool _isImageUploading = false;
 
-  // 요일 리스트
-  final List<String> _days = ['월', '화', '수', '목', '금', '토', '일'];
+  @override
+  void initState() {
+    super.initState();
+    _loadCurrentUser();
+  }
 
-  /// 에러 메시지 스낵바 표시 (실제 앱에서는 AppErrorView 등 공통 위젯 사용 권장)
-  /// [message]: 에러 메시지
-  void _showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)), // 문구 상수화 권장
-    );
+  /// 현재 유저 정보 로드
+  void _loadCurrentUser() {
+    final authState = ref.read(authProvider);
+    if (authState.value != null) {
+      _nicknameController.text = authState.value!.nickname;
+      _currentImageUrl = authState.value!.profileImageUrl;
+    }
+  }
+
+  /// 이미지 선택 콜백
+  void _onImageSelected(File imageFile) {
+    setState(() {
+      _selectedImageFile = imageFile;
+    });
+  }
+
+  /// 이미지 선택 에러 콜백
+  void _onImageError(String error) {
+    ProfileSetupUtils.showError(context, error);
+  }
+
+  /// 회원 타입 변경 콜백
+  void _onUserTypeChanged(String? userType) {
+    setState(() {
+      _userType = userType;
+      // 오프라인 회원이 아닌 경우 요일 초기화
+      if (userType != ProfileSetupConstants.offlineMember) {
+        _dayOfWeek = null;
+      }
+    });
+  }
+
+  /// 요일 변경 콜백
+  void _onDayOfWeekChanged(String? dayOfWeek) {
+    setState(() {
+      _dayOfWeek = dayOfWeek;
+    });
   }
 
   /// 프로필 저장 요청
-  void _onSaveProfile() {
-    if (!_formKey.currentState!.validate()) return;
-    if (_userType == null) {
-      _showError('회원 타입을 선택해 주세요.'); // 문구 상수화 권장
+  Future<void> _onSaveProfile() async {
+    // 폼 유효성 검사
+    if (!ProfileSetupUtils.validateForm(_formKey, _userType, _dayOfWeek, context)) {
       return;
     }
-    if (_userType == 'offline_member' && _dayOfWeek == null) {
-      _showError('요일을 선택해 주세요.'); // 문구 상수화 권장
-      return;
-    }
+
     final user = ref.read(authProvider).value;
     if (user == null) {
-      _showError('로그인 정보가 없습니다.'); // 문구 상수화 권장
+      ProfileSetupUtils.showError(context, ProfileSetupConstants.loginInfoNotFound);
       return;
     }
+
+    // 이미지 업로드 처리
+    String? finalImageUrl = await _uploadImageIfNeeded();
+    if (finalImageUrl == null && _selectedImageFile != null) {
+      return; // 이미지 업로드 실패
+    }
+
+    // 프로필 정보 업데이트
     final updatedUser = user.copyWith(
       nickname: _nicknameController.text.trim(),
       userType: _userType,
-      dayOfWeek: _userType == 'offline_member' ? _dayOfWeek : '',
+      dayOfWeek: _userType == ProfileSetupConstants.offlineMember ? _dayOfWeek : '',
+      profileImageUrl: finalImageUrl ?? _currentImageUrl,
     );
+
     ref.read(authProvider.notifier).saveProfile(updatedUser);
+  }
+
+  /// 이미지 업로드 처리 (필요한 경우)
+  /// 반환: 업로드된 이미지 URL 또는 null
+  Future<String?> _uploadImageIfNeeded() async {
+    if (_selectedImageFile == null) return null;
+
+    setState(() {
+      _isImageUploading = true;
+    });
+
+    try {
+      final uploadedImageUrl = await ref.read(authProvider.notifier).uploadProfileImage(_selectedImageFile!);
+      if (uploadedImageUrl != null) {
+        ProfileSetupUtils.showSuccess(context, ProfileSetupConstants.imageUploadSuccess);
+        return uploadedImageUrl;
+      } else {
+        ProfileSetupUtils.showError(context, ProfileSetupConstants.imageUploadFailed);
+        return null;
+      }
+    } catch (e) {
+      ProfileSetupUtils.showError(context, '${ProfileSetupConstants.imageUploadError}$e');
+      return null;
+    } finally {
+      setState(() {
+        _isImageUploading = false;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     // 인증 상태 구독
     final authState = ref.watch(authProvider);
+    
     // 상태 변화 리스너: 저장 성공/실패 분기
     ref.listen(authProvider, (previous, next) {
       // 저장 성공 시 메인 페이지로 이동
@@ -66,117 +144,44 @@ class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage> {
           MaterialPageRoute(builder: (_) => const MainNavigationPage()),
         );
       }
-      // 에러 발생 시 스낵바 표시 (실제 앱에서는 AppErrorView 등 공통 위젯 사용 권장)
+      // 에러 발생 시 스낵바 표시
       if (next is AsyncError) {
         final error = next.error;
-        _showError('프로필 저장 실패: ${error.toString()}'); // 문구 상수화 권장
+        ProfileSetupUtils.showError(context, '${ProfileSetupConstants.profileSaveFailed}${error.toString()}');
       }
     });
 
     return Scaffold(
-      appBar: AppBar(title: const Text('프로필 설정')), // 문구 상수화 권장
-      body: authState.isLoading
-          // 로딩 상태: CircularProgressIndicator 대신 AppLoadingView 등 공통 위젯 사용 권장
+      appBar: AppBar(title: const Text(ProfileSetupConstants.pageTitle)),
+      body: authState.isLoading || _isImageUploading
           ? const Center(child: CircularProgressIndicator())
           : Padding(
               padding: const EdgeInsets.all(24.0),
-              child: Form(
-                key: _formKey,
-                child: ListView(
-                  children: [
-                    // 프로필 사진 (기본 이미지만 사용)
-                    Center(
-                      child: CircleAvatar(
-                        radius: 40,
-                        backgroundImage: const AssetImage('assets/images/default_profile.png'),
-                        child: Align(
-                          alignment: Alignment.bottomRight,
-                          child: Container(
-                            decoration: const BoxDecoration(
-                              color: Colors.grey,
-                              shape: BoxShape.circle,
-                            ),
-                            padding: const EdgeInsets.all(4),
-                            child: const Icon(Icons.person, size: 20, color: Colors.white),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    const Center(
-                      child: Text(
-                        '기본 프로필 이미지', // 문구 상수화 권장
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    // 닉네임 입력
-                    TextFormField(
-                      controller: _nicknameController,
-                      decoration: const InputDecoration(
-                        labelText: '닉네임', // 문구 상수화 권장
-                        border: OutlineInputBorder(),
-                        hintText: '사용할 닉네임을 입력하세요', // 문구 상수화 권장
-                      ),
-                      validator: (v) => v == null || v.trim().isEmpty ? '닉네임을 입력해 주세요.' : null, // 문구 상수화 권장
-                    ),
-                    const SizedBox(height: 24),
-                    // 회원 타입 선택
-                    DropdownButtonFormField<String>(
-                      value: _userType,
-                      decoration: const InputDecoration(
-                        labelText: '회원 타입', // 문구 상수화 권장
-                        border: OutlineInputBorder(),
-                        hintText: '회원 타입을 선택하세요', // 문구 상수화 권장
-                      ),
-                      items: const [
-                        DropdownMenuItem(value: 'admin', child: Text('관리자')),
-                        DropdownMenuItem(value: 'developer', child: Text('개발자')),
-                        DropdownMenuItem(value: 'offline_member', child: Text('오프라인 회원')),
-                        DropdownMenuItem(value: 'member', child: Text('일반 회원')),
-                      ],
-                      onChanged: (v) => setState(() => _userType = v),
-                      validator: (v) => v == null ? '회원 타입을 선택해 주세요.' : null, // 문구 상수화 권장
-                    ),
-                    const SizedBox(height: 24),
-                    // 요일 선택 (offline_member만)
-                    if (_userType == 'offline_member') ...[
-                      DropdownButtonFormField<String>(
-                        value: _dayOfWeek,
-                        decoration: const InputDecoration(
-                          labelText: '요일 선택', // 문구 상수화 권장
-                          border: OutlineInputBorder(),
-                          hintText: '참여하는 요일을 선택하세요', // 문구 상수화 권장
-                        ),
-                        items: _days
-                            .map((d) => DropdownMenuItem(value: d, child: Text(d)))
-                            .toList(),
-                        onChanged: (v) => setState(() => _dayOfWeek = v),
-                        validator: (v) => v == null ? '요일을 선택해 주세요.' : null, // 문구 상수화 권장
-                      ),
-                      const SizedBox(height: 24),
-                    ],
-                    // 저장 버튼
-                    SizedBox(
-                      width: double.infinity,
-                      height: 50,
-                      child: ElevatedButton(
-                        onPressed: authState.isLoading ? null : _onSaveProfile,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Theme.of(context).primaryColor,
-                          foregroundColor: Colors.white,
-                        ),
-                        child: const Text(
-                          '프로필 저장', // 문구 상수화 권장
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+              child: ListView(
+                children: [
+                  // 프로필 이미지 선택 위젯
+                  ProfileImagePicker(
+                    selectedImageFile: _selectedImageFile,
+                    currentImageUrl: _currentImageUrl,
+                    onImageSelected: _onImageSelected,
+                    onError: _onImageError,
+                  ),
+                  const SizedBox(height: 24),
+                  // 프로필 폼 위젯
+                  ProfileForm(
+                    formKey: _formKey,
+                    nicknameController: _nicknameController,
+                    userType: _userType,
+                    dayOfWeek: _dayOfWeek,
+                    onUserTypeChanged: _onUserTypeChanged,
+                    onDayOfWeekChanged: _onDayOfWeekChanged,
+                  ),
+                  // 저장 버튼
+                  AppButton(
+                    label: ProfileSetupConstants.confirmButton,
+                    onPressed: authState.isLoading || _isImageUploading ? null : _onSaveProfile,
+                  ),
+                ],
               ),
             ),
     );
@@ -187,4 +192,4 @@ class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage> {
     _nicknameController.dispose();
     super.dispose();
   }
-} 
+}

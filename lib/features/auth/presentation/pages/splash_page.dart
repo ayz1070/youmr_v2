@@ -31,6 +31,7 @@ class _SplashPageState extends State<SplashPage> {
       // 로그인 X → 로그인 페이지로 이동
       if (context.mounted) {
         Navigator.of(context).pushReplacement(
+          // MaterialPageRoute(builder: (_) => const ProfileSetupPage()),
           MaterialPageRoute(builder: (_) => const LoginPage()),
         );
       }

@@ -33,9 +33,19 @@ class LoginPage extends ConsumerWidget {
     });
 
     return Scaffold(
-      appBar: AppBar(title: const Text('로그인')), // 문구 상수화 권장
       body: Stack(
         children: [
+          // 배경 이미지
+          Container(
+            width: double.infinity,
+            height: double.infinity,
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/images/bg_login.png'),
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
           // 중앙에 로고나 안내 텍스트 등 필요시 추가 가능
           const SizedBox.expand(),
           // 로딩 상태: CircularProgressIndicator 대신 AppLoadingView 등 공통 위젯 사용 권장
@@ -49,37 +59,38 @@ class LoginPage extends ConsumerWidget {
                 minimum: const EdgeInsets.only(left: 24, right: 24, bottom: 32),
                 child: SizedBox(
                   width: double.infinity,
-                  height: 64,
+                  height: 56,
                   child: Material(
                     color: const Color(0xFFF5F6F8),
-                    borderRadius: BorderRadius.circular(24),
                     elevation: 2,
                     child: InkWell(
-                      borderRadius: BorderRadius.circular(24),
                       onTap: () {
                         // 구글 로그인 액션
                         ref.read(authProvider.notifier).signInWithGoogle();
                       },
-                      child: Row(
-                        children: [
-                          const SizedBox(width: 24),
-                          // 구글 로고 이미지
-                          Image.asset(
-                            'assets/images/google_logo.png',
-                            width: 32,
-                            height: 32,
-                          ),
-                          const SizedBox(width: 16),
-                          // 버튼 텍스트 (상수화 권장)
-                          const Text(
-                            '구글로 계속하기',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w500,
-                              color: Color(0xFF222222),
+                      child: Container(
+                        color: Colors.white,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            // 구글 로고 이미지
+                            Image.asset(
+                              'assets/images/google_logo.png',
+                              width: 28,
+                              height: 28,
                             ),
-                          ),
-                        ],
+                            const SizedBox(width: 24),
+                            // 버튼 텍스트 (상수화 권장)
+                            const Text(
+                              'Google로 로그인',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                color: Color(0xFF222222),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
