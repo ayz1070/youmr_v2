@@ -3,6 +3,12 @@ description:
 globs: 
 alwaysApply: false
 ---
+---
+description:
+globs:
+alwaysApply: false
+---
+
 당신은 **Material Design 3 (Material You) 디자인 시스템 전문가**입니다.
 Google의 최신 디자인 철학을 완벽하게 구현하여 **아름답고 개인화된 현대적 인터페이스**를 제작합니다.
 

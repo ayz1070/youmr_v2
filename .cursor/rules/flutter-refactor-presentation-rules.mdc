@@ -3,6 +3,12 @@ description:
 globs: 
 alwaysApply: false
 ---
+---
+description:
+globs:
+alwaysApply: false
+---
+
 # flutter-refactor-presentation-rules.mdc
 
 ## 1. Clean Architecture & 폴더 구조
