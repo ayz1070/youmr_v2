@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/profile_provider.dart';
 import '../../domain/entities/profile.dart';
+import '../../../../core/widgets/app_text_field.dart';
+import '../../../../core/widgets/app_dropdown.dart';
 
 /// 프로필 수정 페이지 (Provider 기반)
 class ProfileEditPage extends ConsumerStatefulWidget {
@@ -123,43 +125,37 @@ class _ProfileEditPageState extends ConsumerState<ProfileEditPage> {
                     ),
                     const SizedBox(height: 24),
                     // 닉네임 입력
-                    TextFormField(
+                    AppTextField(
                       controller: _nicknameController,
-                      decoration: const InputDecoration(
-                        labelText: '닉네임',
-                        border: OutlineInputBorder(),
-                      ),
+                      labelText: '닉네임',
                       validator: (v) => v == null || v.trim().isEmpty ? '닉네임을 입력해 주세요.' : null,
                     ),
                     const SizedBox(height: 24),
                     // 회원 타입 선택
-                    DropdownButtonFormField<String>(
+                    AppDropdown<String>(
                       value: _userType,
-                      decoration: const InputDecoration(
-                        labelText: '회원 타입',
-                        border: OutlineInputBorder(),
-                      ),
-                      items: const [
-                        DropdownMenuItem(value: 'admin', child: Text('관리자')),
-                        DropdownMenuItem(value: 'developer', child: Text('개발자')),
-                        DropdownMenuItem(value: 'offline_member', child: Text('오프라인 회원')),
-                        DropdownMenuItem(value: 'member', child: Text('일반 회원')),
-                      ],
+                      items: const ['admin', 'developer', 'offline_member', 'member'],
+                      labelText: '회원 타입',
+                      itemTextBuilder: (type) {
+                        switch (type) {
+                          case 'admin': return '관리자';
+                          case 'developer': return '개발자';
+                          case 'offline_member': return '오프라인 회원';
+                          case 'member': return '일반 회원';
+                          default: return type;
+                        }
+                      },
                       onChanged: (v) => setState(() => _userType = v),
                       validator: (v) => v == null ? '회원 타입을 선택해 주세요.' : null,
                     ),
                     const SizedBox(height: 24),
                     // 요일 선택 (offline_member만)
                     if (_userType == 'offline_member')
-                      DropdownButtonFormField<String>(
+                      AppDropdown<String>(
                         value: _dayOfWeek,
-                        decoration: const InputDecoration(
-                          labelText: '요일 선택',
-                          border: OutlineInputBorder(),
-                        ),
-                        items: _days
-                            .map((d) => DropdownMenuItem(value: d, child: Text(d)))
-                            .toList(),
+                        items: _days,
+                        labelText: '요일 선택',
+                        itemTextBuilder: (day) => day,
                         onChanged: (v) => setState(() => _dayOfWeek = v),
                         validator: (v) => v == null ? '요일을 선택해 주세요.' : null,
                       ),

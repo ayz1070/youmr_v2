@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/constants/firestore_constants.dart';
 import '../../domain/entities/attendance.dart';
 import '../../domain/use_cases/get_my_attendance.dart';
 import '../../domain/use_cases/save_my_attendance.dart';
@@ -7,6 +8,7 @@ import '../../domain/use_cases/get_attendees_by_day.dart';
 import '../../data/repositories/attendance_repository_impl.dart';
 import '../../data/data_sources/attendance_firestore_data_source.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 /// 출석 상태 관리 Provider (AsyncNotifier)
 final attendanceProvider = AsyncNotifierProvider<AttendanceNotifier, Attendance?>(
@@ -31,6 +33,28 @@ class AttendanceNotifier extends AsyncNotifier<Attendance?> {
     // 현재 로그인 유저 정보로 출석 정보 불러오기
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return null;
+    
+    // 사용자 테이블에서 프로필 정보 가져오기
+    String userNickname = user.displayName ?? '이름없음';
+    String userProfileImageUrl = '';
+    
+    try {
+      final userDoc = await FirebaseFirestore.instance
+          .collection(FirestoreConstants.usersCollection)
+          .doc(user.uid)
+          .get();
+      
+      if (userDoc.exists) {
+        final userData = userDoc.data()!;
+        userNickname = userData[FirestoreConstants.nickname] ?? user.displayName ?? '이름없음';
+        userProfileImageUrl = userData[FirestoreConstants.profileImageUrl] ?? '';
+      }
+    } catch (e) {
+      // 사용자 정보 조회 실패 시 기본값 사용
+      userNickname = user.displayName ?? '이름없음';
+      userProfileImageUrl = '';
+    }
+    
     final weekKey = _getCurrentWeekKey();
     final result = await _getMyAttendance(weekKey: weekKey, userId: user.uid);
     return result.fold(
@@ -42,8 +66,8 @@ class AttendanceNotifier extends AsyncNotifier<Attendance?> {
             weekKey: weekKey,
             userId: user.uid,
             selectedDays: <String>[],
-            nickname: user.displayName ?? '이름없음',
-            profileImageUrl: user.photoURL ?? '',
+            nickname: userNickname,
+            profileImageUrl: userProfileImageUrl,
             lastUpdated: null,
           );
         }
