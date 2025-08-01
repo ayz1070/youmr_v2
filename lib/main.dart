@@ -8,14 +8,20 @@ import 'core/constants/app_constants.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/presentation/pages/splash_page.dart';
 import 'features/voting/presentation/pages/voting_write_page.dart';
+import 'core/services/admob_service.dart';
 
 void main() async {
   // Flutter 위젯 바인딩 초기화
   WidgetsFlutterBinding.ensureInitialized();
+  
   // Firebase 초기화
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  
+  // AdMob 초기화
+  await AdMobService().initialize();
+  
   runApp(
     const ProviderScope(
       child: YouMRApp(),
