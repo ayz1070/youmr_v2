@@ -98,7 +98,7 @@ class AuthNotifier extends AsyncNotifier<AuthUser?> {
     final currentUser = state.value;
     if (currentUser == null) return null;
 
-    final result = await _uploadProfileImage(uid: currentUser.uid, imageFile: imageFile);
+    final result = await _uploadProfileImage(uid: currentUser.email, imageFile: imageFile);
     return result.fold(
       (failure) {
         // 에러 발생 시 스낵바 표시

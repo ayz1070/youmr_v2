@@ -28,4 +28,9 @@ class VotingAlreadyRegisteredFailure extends VotingFailure {
 /// 알 수 없는 오류
 class VotingUnknownFailure extends VotingFailure {
   const VotingUnknownFailure() : super('알 수 없는 오류가 발생했습니다.');
+}
+
+/// 권한 오류
+class VotingPermissionFailure extends VotingFailure {
+  const VotingPermissionFailure() : super('삭제 권한이 없습니다.');
 } 

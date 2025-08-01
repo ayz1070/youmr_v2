@@ -14,6 +14,8 @@ _$VoteImpl _$$VoteImplFromJson(Map<String, dynamic> json) => _$VoteImpl(
       voteCount: (json['voteCount'] as num).toInt(),
       createdAt: DateTime.parse(json['createdAt'] as String),
       createdBy: json['createdBy'] as String,
+      authorNickname: json['authorNickname'] as String?,
+      authorProfileUrl: json['authorProfileUrl'] as String?,
     );
 
 Map<String, dynamic> _$$VoteImplToJson(_$VoteImpl instance) =>
@@ -25,4 +27,6 @@ Map<String, dynamic> _$$VoteImplToJson(_$VoteImpl instance) =>
       'voteCount': instance.voteCount,
       'createdAt': instance.createdAt.toIso8601String(),
       'createdBy': instance.createdBy,
+      'authorNickname': instance.authorNickname,
+      'authorProfileUrl': instance.authorProfileUrl,
     };

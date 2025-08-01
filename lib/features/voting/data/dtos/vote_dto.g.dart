@@ -6,7 +6,6 @@ part of 'vote_dto.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-// 중복 선언 제거: 아래 함수가 한 번만 존재해야 함
 _$VoteDtoImpl _$$VoteDtoImplFromJson(Map<String, dynamic> json) =>
     _$VoteDtoImpl(
       id: json['id'] as String,
@@ -17,6 +16,8 @@ _$VoteDtoImpl _$$VoteDtoImplFromJson(Map<String, dynamic> json) =>
       createdAt: const TimestampOrDateTimeConverter()
           .fromJson(json['createdAt'] as Object),
       createdBy: json['createdBy'] as String,
+      authorNickname: json['authorNickname'] as String?,
+      authorProfileUrl: json['authorProfileUrl'] as String?,
     );
 
 Map<String, dynamic> _$$VoteDtoImplToJson(_$VoteDtoImpl instance) =>
@@ -29,4 +30,6 @@ Map<String, dynamic> _$$VoteDtoImplToJson(_$VoteDtoImpl instance) =>
       'createdAt':
           const TimestampOrDateTimeConverter().toJson(instance.createdAt),
       'createdBy': instance.createdBy,
+      'authorNickname': instance.authorNickname,
+      'authorProfileUrl': instance.authorProfileUrl,
     };

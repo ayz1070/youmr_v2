@@ -30,9 +30,14 @@ class ProfileNotifier extends AsyncNotifier<Profile?> {
     // 현재 로그인 유저 정보로 프로필 불러오기
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return null;
+    
     final result = await _getMyProfile(uid: user.uid);
     return result.fold(
-      (failure) => throw AsyncError(failure, StackTrace.current),
+      (failure) {
+        // 프로필이 없는 경우 null 반환 (예외 발생하지 않음)
+        debugPrint('프로필 정보 조회 실패: $failure');
+        return null;
+      },
       (profile) => profile,
     );
   }

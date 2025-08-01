@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:youmr_v2/core/constants/firestore_constants.dart';
 import 'package:youmr_v2/core/constants/error_messages.dart';
+import 'package:youmr_v2/core/constants/app_logger.dart';
 
 /// 투표 관련 Firestore 데이터 소스
 class VotingFirestoreDataSource {
@@ -109,6 +110,14 @@ class VotingFirestoreDataSource {
     if (query.docs.isNotEmpty) {
       throw Exception(ErrorMessages.votingAlreadyRegisteredError);
     }
+    
+    // 사용자 정보 가져오기
+    final userDoc = await _firestore
+        .collection(FirestoreConstants.usersCollection)
+        .doc(createdBy)
+        .get();
+    final userData = userDoc.data() ?? {};
+    
     await _firestore.collection(FirestoreConstants.votesCollection).add({
       FirestoreConstants.voteTitle: title,
       FirestoreConstants.voteArtist: artist,
@@ -116,6 +125,75 @@ class VotingFirestoreDataSource {
       FirestoreConstants.voteCount: 0,
       FirestoreConstants.voteCreatedAt: Timestamp.now(),
       FirestoreConstants.voteCreatedBy: createdBy,
+      'authorNickname': userData['nickname'] ?? '',
+      'authorProfileUrl': userData['profileImageUrl'] ?? '',
     });
+  }
+
+  /// 페이징된 상위 곡 조회
+  /// @param limit 조회할 개수
+  /// @param lastDocumentId 마지막 문서 ID (페이징용)
+  /// @return 곡 문서 리스트(Map)
+  Future<List<Map<String, dynamic>>> getTopVotesPaginated({
+    required int limit,
+    String? lastDocumentId,
+  }) async {
+    try {
+      AppLogger.d('getTopVotesPaginated 시작: limit=$limit, lastDocumentId=$lastDocumentId');
+      
+      Query<Map<String, dynamic>> query = _firestore
+          .collection(FirestoreConstants.votesCollection)
+          .orderBy(FirestoreConstants.voteCount, descending: true)
+          .limit(limit);
+
+      if (lastDocumentId != null) {
+        final lastDoc = await _firestore
+            .collection(FirestoreConstants.votesCollection)
+            .doc(lastDocumentId)
+            .get();
+        query = query.startAfterDocument(lastDoc);
+      }
+
+      final QuerySnapshot<Map<String, dynamic>> snapshot = await query.get();
+      final result = snapshot.docs
+          .map((QueryDocumentSnapshot<Map<String, dynamic>> doc) =>
+              {...doc.data(), 'id': doc.id})
+          .toList();
+      
+      AppLogger.d('getTopVotesPaginated 성공: ${result.length}개 문서 조회됨');
+      return result;
+    } catch (e) {
+      AppLogger.e('getTopVotesPaginated 실패', error: e);
+      rethrow;
+    }
+  }
+
+  /// 곡 삭제 (작성자만 가능)
+  /// @param voteId 삭제할 곡 ID
+  /// @param userId 삭제 요청한 사용자 ID
+  Future<void> deleteVote({
+    required String voteId,
+    required String userId,
+  }) async {
+    final DocumentSnapshot<Map<String, dynamic>> voteDoc = await _firestore
+        .collection(FirestoreConstants.votesCollection)
+        .doc(voteId)
+        .get();
+
+    if (!voteDoc.exists) {
+      throw Exception('곡을 찾을 수 없습니다.');
+    }
+
+    final voteData = voteDoc.data()!;
+    final String createdBy = voteData[FirestoreConstants.voteCreatedBy];
+
+    if (createdBy != userId) {
+      throw Exception('삭제 권한이 없습니다.');
+    }
+
+    await _firestore
+        .collection(FirestoreConstants.votesCollection)
+        .doc(voteId)
+        .delete();
   }
 } 

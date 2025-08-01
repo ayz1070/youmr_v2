@@ -35,44 +35,51 @@ class AttendancePage extends ConsumerWidget {
           // 출석 데이터가 없어도 항상 출석 체크 UI를 노출
           // attendance가 null이거나 selectedDays가 비어 있어도 체크 UI가 보임
           return ListView(
-            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 0),
+            padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 0),
             children: [
-              ...AppConstants.days.map(
-                (day) => Padding(
-                  padding: const EdgeInsets.only(
-                    bottom: 16, left: 16, right: 16,
-                  ),
-                  child: AttendanceDayRow(
-                    day: day,
-                    // null 안전 처리: 출석 데이터가 없으면 빈 리스트 전달
-                    mySelectedDays: attendance?.selectedDays ?? [],
-                    isLoading: isLoading,
-                    onAttendanceToggle: (selectedDay, checked) async {
-                      final newDays = List<String>.from(attendance?.selectedDays ?? []);
-                      if (checked) {
-                        newDays.add(selectedDay);
-                      } else {
-                        newDays.remove(selectedDay);
-                      }
-                      // 현재 로그인 유저 정보로 nickname, profileImageUrl을 항상 반영
-                      final user = FirebaseAuth.instance.currentUser;
-                      await notifier.saveAttendance(
-                        (attendance ?? Attendance(
-                          weekKey: weekKey,
-                          userId: user?.uid ?? '',
-                          selectedDays: [],
-                          nickname: user?.displayName ?? '이름없음',
-                          profileImageUrl: user?.photoURL ?? '',
-                          lastUpdated: null,
-                        )).copyWith(
-                          selectedDays: newDays,
-                          nickname: user?.displayName ?? '이름없음',
-                          profileImageUrl: user?.photoURL ?? '',
-                        ),
-                      );
-                    },
-                  ),
-                ),
+              ...AppConstants.days.asMap().entries.map(
+                (entry) {
+                  final index = entry.key;
+                  final day = entry.value;
+                  final isLastDay = index == AppConstants.days.length - 1;
+                  
+                  return Padding(
+                    padding: const EdgeInsets.only(
+                      bottom: 16, left: 16, right: 16,
+                    ),
+                    child: AttendanceDayRow(
+                      day: day,
+                      // null 안전 처리: 출석 데이터가 없으면 빈 리스트 전달
+                      mySelectedDays: attendance?.selectedDays ?? [],
+                      isLoading: isLoading,
+                      showDivider: !isLastDay, // 마지막 요일에는 divider 표시하지 않음
+                      onAttendanceToggle: (selectedDay, checked) async {
+                        final newDays = List<String>.from(attendance?.selectedDays ?? []);
+                        if (checked) {
+                          newDays.add(selectedDay);
+                        } else {
+                          newDays.remove(selectedDay);
+                        }
+                        // 현재 로그인 유저 정보로 nickname, profileImageUrl을 항상 반영
+                        final user = FirebaseAuth.instance.currentUser;
+                        await notifier.saveAttendance(
+                          (attendance ?? Attendance(
+                            weekKey: weekKey,
+                            userId: user?.uid ?? '',
+                            selectedDays: [],
+                            nickname: user?.displayName ?? '이름없음',
+                            profileImageUrl: user?.photoURL ?? '',
+                            lastUpdated: null,
+                          )).copyWith(
+                            selectedDays: newDays,
+                            nickname: user?.displayName ?? '이름없음',
+                            profileImageUrl: user?.photoURL ?? '',
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                },
               ),
             ],
           );

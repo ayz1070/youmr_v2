@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:youmr_v2/core/widgets/app_button.dart';
 import 'package:youmr_v2/core/widgets/app_button_row.dart';
 
 /// 투표/피크 버튼 및 안내 메시지 위젯
@@ -46,6 +45,7 @@ class VoteActionButtons extends StatelessWidget {
             rightLabel: '투표하기',
             onRightPressed: isVoteButtonEnabled ? onVote : null,
             rightEnabled: isVoteButtonEnabled,
+
           ),
 
         ],

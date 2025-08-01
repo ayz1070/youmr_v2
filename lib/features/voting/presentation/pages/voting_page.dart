@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/widgets/primary_app_bar.dart';
+import '../../../../core/widgets/app_dialog.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
+import '../providers/voting_pagination_provider.dart';
 import '../providers/voting_provider.dart';
 import 'voting_write_page.dart';
 import '../widgets/pick_display.dart';
@@ -15,29 +17,33 @@ class VotingPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final votes = ref.watch(votingProvider);
-    final notifier = ref.read(votingProvider.notifier);
+    final paginationState = ref.watch(votingPaginationProvider);
+    final paginationNotifier = ref.read(votingPaginationProvider.notifier);
     final pickAsync = ref.watch(pickProvider);
     final authUser = ref.watch(authProvider).value;
     final String userId = authUser?.uid ?? '';
 
-    if (votes == null) {
-      // 로딩 또는 에러 상태
-      return const Center(child: CircularProgressIndicator());
+    // 선택된 투표는 paginationState에서 가져옴
+    final selectedVoteIds = paginationState.selectedVoteIds;
+
+    if (paginationState.isLoading && paginationState.votes.isEmpty) {
+      // 초기 로딩 상태
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
     }
     
     // 데이터가 없을 때도 AppBar와 Scaffold를 보여줌
-    if (votes.isEmpty) {
+    if (paginationState.votes.isEmpty && !paginationState.isLoading) {
       return const NoVoteView();
     }
 
     // 피크 상태 처리
     final int pick = pickAsync.hasValue ? pickAsync.value ?? 0 : 0;
     final bool isPickLoading = pickAsync.isLoading;
-    final int selectedCount = notifier.selectedVoteIds.length;
+    final int selectedCount = selectedVoteIds.length;
     final bool isVoteButtonEnabled =
         selectedCount > 0 && selectedCount <= pick && !isPickLoading && userId.isNotEmpty;
-
 
     return Scaffold(
       appBar: PrimaryAppBar(
@@ -45,12 +51,17 @@ class VotingPage extends ConsumerWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.add_box_outlined),
-            onPressed: () {
-              Navigator.of(context).push(
+            onPressed: () async {
+              final result = await Navigator.of(context).push<bool>(
                 MaterialPageRoute(
                   builder: (_) => const VotingWritePage(),
                 ),
               );
+              
+              // 곡이 추가되었다면 목록 새로고침
+              if (result == true) {
+                paginationNotifier.refresh();
+              }
             },
           ),
         ],
@@ -60,9 +71,38 @@ class VotingPage extends ConsumerWidget {
           PickDisplay(pick: pick, isLoading: isPickLoading),
           Expanded(
             child: VotingList(
-              votes: votes,
-              selectedVoteIds: notifier.selectedVoteIds,
-              onToggle: notifier.toggleVote,
+              votes: paginationState.votes,
+              selectedVoteIds: selectedVoteIds,
+              onToggle: (voteId) {
+                // 선택 상태 토글
+                paginationNotifier.toggleVote(voteId);
+              },
+              currentUserId: userId,
+              onDelete: (voteId, songTitle) async {
+                // 삭제 확인 다이얼로그
+                final confirmed = await AppDialogHelper.showDeleteVoteDialog(
+                  context: context,
+                  songTitle: songTitle,
+                );
+
+                if (confirmed == true) {
+                  await paginationNotifier.deleteVote(voteId, userId);
+                  if (!context.mounted) return;
+                  
+                  if (paginationState.error != null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(paginationState.error!)),
+                    );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('곡이 삭제되었습니다.')),
+                    );
+                  }
+                }
+              },
+              onLoadMore: () => paginationNotifier.loadMore(),
+              isLoadingMore: paginationState.isLoading,
+              hasMore: paginationState.hasMore,
             ),
           ),
 
@@ -72,7 +112,9 @@ class VotingPage extends ConsumerWidget {
             isPickLoading: isPickLoading,
             isVoteButtonEnabled: isVoteButtonEnabled,
             onVote: () async {
-              final error = await notifier.submitVotes(userId);
+              final error = await paginationNotifier.submitVotes(userId);
+              if (!context.mounted) return;
+              
               if (error == null) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('투표가 완료되었습니다')),
@@ -84,7 +126,9 @@ class VotingPage extends ConsumerWidget {
               }
             },
             onGetPick: () async {
-              final error = await notifier.getDailyPick(userId);
+              final error = await paginationNotifier.getDailyPick(userId);
+              if (!context.mounted) return;
+              
               if (error == null) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('피크가 추가되었습니다')),

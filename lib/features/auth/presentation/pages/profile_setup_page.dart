@@ -115,7 +115,7 @@ class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage> {
     try {
       final uploadedImageUrl = await ref.read(authProvider.notifier).uploadProfileImage(_selectedImageFile!);
       if (uploadedImageUrl != null) {
-        ProfileSetupUtils.showSuccess(context, ProfileSetupConstants.imageUploadSuccess);
+        ProfileSetupUtils.showSuccess(context, "회원가입 되었습니다");
         return uploadedImageUrl;
       } else {
         ProfileSetupUtils.showError(context, ProfileSetupConstants.imageUploadFailed);
@@ -178,7 +178,7 @@ class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage> {
                   ),
                   // 저장 버튼
                   AppButton(
-                    label: ProfileSetupConstants.confirmButton,
+                    text: ProfileSetupConstants.confirmButton,
                     onPressed: authState.isLoading || _isImageUploading ? null : _onSaveProfile,
                   ),
                 ],
