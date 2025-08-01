@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/vote.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:youmr_v2/core/constants/app_constants.dart';
 
 /// 투표 리스트의 개별 곡 아이템 커스텀 위젯
 class VotingItem extends StatelessWidget {
@@ -9,6 +8,8 @@ class VotingItem extends StatelessWidget {
   final int rank; // 1부터 시작하는 순위
   final bool selected;
   final void Function(String voteId) onToggle;
+  final String currentUserId;
+  final VoidCallback? onDelete;
 
   const VotingItem({
     super.key,
@@ -16,6 +17,8 @@ class VotingItem extends StatelessWidget {
     required this.rank,
     required this.selected,
     required this.onToggle,
+    required this.currentUserId,
+    this.onDelete,
   });
 
   /// 유튜브 썸네일 URL 생성
@@ -39,9 +42,11 @@ class VotingItem extends StatelessWidget {
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('유튜브를 열 수 없습니다.')),
-      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('유튜브를 열 수 없습니다.')),
+        );
+      }
     }
   }
 
@@ -89,12 +94,20 @@ class VotingItem extends StatelessWidget {
                         ),
                       ),
                     )
-              // TODO 투표 기본 이미지 수정
-                  : Image.asset(
-                      AppConstants.defaultProfileImage,
+              // Apple Music 스타일 음표 아이콘
+                  : Container(
                       width: 48,
                       height: 48,
-                      fit: BoxFit.cover,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE53E3E), // Apple Music 빨간색
+                      ),
+                      child: const Center(
+                        child: Icon(
+                          Icons.my_library_music_outlined,
+                          color: Colors.white,
+                          size: 32,
+                        ),
+                      ),
                     ),
             ),
           ),
@@ -128,17 +141,38 @@ class VotingItem extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 12),
-          // 투표수
+          // 투표수와 삭제 버튼
           SizedBox(
-            width: 48,
-            child: Text(
-              '${vote.voteCount} PICK',
-              style: const TextStyle(
-                fontWeight: FontWeight.w500,
-                fontSize: 13,
-                color: Colors.black,
-              ),
-              textAlign: TextAlign.center,
+            width: 72,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                if (vote.createdBy == currentUserId && onDelete != null)
+                  GestureDetector(
+                    onTap: onDelete,
+                    child: const Padding(
+                      padding: EdgeInsets.only(),
+                      child: Icon(
+                        Icons.delete,
+                        size: 16,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+                SizedBox(width: 4,),
+                Text(
+                  '${vote.voteCount} PICK',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w500,
+                    fontSize: 13,
+                    color: Colors.black,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                // 삭제 버튼 (작성자만 표시)
+
+              ],
             ),
           ),
           // 체크박스

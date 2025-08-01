@@ -14,6 +14,8 @@ class Vote with _$Vote {
     required int voteCount,
     required DateTime createdAt,
     required String createdBy,
+    String? authorNickname,
+    String? authorProfileUrl,
   }) = _Vote;
 
   factory Vote.fromJson(Map<String, dynamic> json) => _$VoteFromJson(json);

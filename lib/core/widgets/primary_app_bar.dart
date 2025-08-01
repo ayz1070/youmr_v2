@@ -48,6 +48,7 @@ class PrimaryAppBar extends StatelessWidget implements PreferredSizeWidget {
       leading: leading,
       backgroundColor: backgroundColor,
       elevation: elevation,
+      scrolledUnderElevation: 0,
     );
   }
 }

@@ -11,9 +11,9 @@ _$AdminUserDtoImpl _$$AdminUserDtoImplFromJson(Map<String, dynamic> json) =>
       uid: json['uid'] as String,
       nickname: json['nickname'] as String,
       email: json['email'] as String,
-      userType: json['userType'] as String,
-      profileImageUrl: json['profileImageUrl'] as String,
-      createdAt: DateTime.parse(json['createdAt'] as String),
+      userType: json['user_type'] as String,
+      profileImageUrl: json['profile_image_url'] as String,
+      createdAt: DateTime.parse(json['created_at'] as String),
     );
 
 Map<String, dynamic> _$$AdminUserDtoImplToJson(_$AdminUserDtoImpl instance) =>
@@ -21,7 +21,7 @@ Map<String, dynamic> _$$AdminUserDtoImplToJson(_$AdminUserDtoImpl instance) =>
       'uid': instance.uid,
       'nickname': instance.nickname,
       'email': instance.email,
-      'userType': instance.userType,
-      'profileImageUrl': instance.profileImageUrl,
-      'createdAt': instance.createdAt.toIso8601String(),
+      'user_type': instance.userType,
+      'profile_image_url': instance.profileImageUrl,
+      'created_at': instance.createdAt.toIso8601String(),
     };

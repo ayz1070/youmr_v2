@@ -27,6 +27,8 @@ mixin _$Vote {
   int get voteCount => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
   String get createdBy => throw _privateConstructorUsedError;
+  String? get authorNickname => throw _privateConstructorUsedError;
+  String? get authorProfileUrl => throw _privateConstructorUsedError;
 
   /// Serializes this Vote to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -49,7 +51,9 @@ abstract class $VoteCopyWith<$Res> {
       String? youtubeUrl,
       int voteCount,
       DateTime createdAt,
-      String createdBy});
+      String createdBy,
+      String? authorNickname,
+      String? authorProfileUrl});
 }
 
 /// @nodoc
@@ -74,6 +78,8 @@ class _$VoteCopyWithImpl<$Res, $Val extends Vote>
     Object? voteCount = null,
     Object? createdAt = null,
     Object? createdBy = null,
+    Object? authorNickname = freezed,
+    Object? authorProfileUrl = freezed,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -104,6 +110,14 @@ class _$VoteCopyWithImpl<$Res, $Val extends Vote>
           ? _value.createdBy
           : createdBy // ignore: cast_nullable_to_non_nullable
               as String,
+      authorNickname: freezed == authorNickname
+          ? _value.authorNickname
+          : authorNickname // ignore: cast_nullable_to_non_nullable
+              as String?,
+      authorProfileUrl: freezed == authorProfileUrl
+          ? _value.authorProfileUrl
+          : authorProfileUrl // ignore: cast_nullable_to_non_nullable
+              as String?,
     ) as $Val);
   }
 }
@@ -122,7 +136,9 @@ abstract class _$$VoteImplCopyWith<$Res> implements $VoteCopyWith<$Res> {
       String? youtubeUrl,
       int voteCount,
       DateTime createdAt,
-      String createdBy});
+      String createdBy,
+      String? authorNickname,
+      String? authorProfileUrl});
 }
 
 /// @nodoc
@@ -144,6 +160,8 @@ class __$$VoteImplCopyWithImpl<$Res>
     Object? voteCount = null,
     Object? createdAt = null,
     Object? createdBy = null,
+    Object? authorNickname = freezed,
+    Object? authorProfileUrl = freezed,
   }) {
     return _then(_$VoteImpl(
       id: null == id
@@ -174,6 +192,14 @@ class __$$VoteImplCopyWithImpl<$Res>
           ? _value.createdBy
           : createdBy // ignore: cast_nullable_to_non_nullable
               as String,
+      authorNickname: freezed == authorNickname
+          ? _value.authorNickname
+          : authorNickname // ignore: cast_nullable_to_non_nullable
+              as String?,
+      authorProfileUrl: freezed == authorProfileUrl
+          ? _value.authorProfileUrl
+          : authorProfileUrl // ignore: cast_nullable_to_non_nullable
+              as String?,
     ));
   }
 }
@@ -188,7 +214,9 @@ class _$VoteImpl implements _Vote {
       this.youtubeUrl,
       required this.voteCount,
       required this.createdAt,
-      required this.createdBy});
+      required this.createdBy,
+      this.authorNickname,
+      this.authorProfileUrl});
 
   factory _$VoteImpl.fromJson(Map<String, dynamic> json) =>
       _$$VoteImplFromJson(json);
@@ -207,10 +235,14 @@ class _$VoteImpl implements _Vote {
   final DateTime createdAt;
   @override
   final String createdBy;
+  @override
+  final String? authorNickname;
+  @override
+  final String? authorProfileUrl;
 
   @override
   String toString() {
-    return 'Vote(id: $id, title: $title, artist: $artist, youtubeUrl: $youtubeUrl, voteCount: $voteCount, createdAt: $createdAt, createdBy: $createdBy)';
+    return 'Vote(id: $id, title: $title, artist: $artist, youtubeUrl: $youtubeUrl, voteCount: $voteCount, createdAt: $createdAt, createdBy: $createdBy, authorNickname: $authorNickname, authorProfileUrl: $authorProfileUrl)';
   }
 
   @override
@@ -228,13 +260,17 @@ class _$VoteImpl implements _Vote {
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.createdBy, createdBy) ||
-                other.createdBy == createdBy));
+                other.createdBy == createdBy) &&
+            (identical(other.authorNickname, authorNickname) ||
+                other.authorNickname == authorNickname) &&
+            (identical(other.authorProfileUrl, authorProfileUrl) ||
+                other.authorProfileUrl == authorProfileUrl));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, id, title, artist, youtubeUrl,
-      voteCount, createdAt, createdBy);
+      voteCount, createdAt, createdBy, authorNickname, authorProfileUrl);
 
   /// Create a copy of Vote
   /// with the given fields replaced by the non-null parameter values.
@@ -260,7 +296,9 @@ abstract class _Vote implements Vote {
       final String? youtubeUrl,
       required final int voteCount,
       required final DateTime createdAt,
-      required final String createdBy}) = _$VoteImpl;
+      required final String createdBy,
+      final String? authorNickname,
+      final String? authorProfileUrl}) = _$VoteImpl;
 
   factory _Vote.fromJson(Map<String, dynamic> json) = _$VoteImpl.fromJson;
 
@@ -278,6 +316,10 @@ abstract class _Vote implements Vote {
   DateTime get createdAt;
   @override
   String get createdBy;
+  @override
+  String? get authorNickname;
+  @override
+  String? get authorProfileUrl;
 
   /// Create a copy of Vote
   /// with the given fields replaced by the non-null parameter values.

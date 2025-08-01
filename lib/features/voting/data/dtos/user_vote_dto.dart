@@ -5,7 +5,6 @@ part 'user_vote_dto.g.dart';
 
 /// Firestore 사용자 투표 기록 문서 매핑용 DTO
 @freezed
-@JsonSerializable(fieldRename: FieldRename.snake)
 class UserVoteDto with _$UserVoteDto {
   /// 생성자
   const factory UserVoteDto({

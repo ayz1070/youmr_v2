@@ -5,6 +5,7 @@ import '../../../../core/errors/voting_failure.dart';
 import '../../domain/repositories/voting_repository.dart';
 import '../data_sources/voting_firestore_data_source.dart';
 import '../dtos/vote_dto.dart';
+import '../../../../core/constants/app_logger.dart';
 
 /// 투표 관련 레포지토리 구현체 (DataSource 위임)
 class VotingRepositoryImpl implements VotingRepository {
@@ -68,6 +69,42 @@ class VotingRepositoryImpl implements VotingRepository {
     } catch (e) {
       if (e.toString().contains('이미 등록')) {
         return Left(VotingAlreadyRegisteredFailure());
+      }
+      return Left(VotingNetworkFailure());
+    }
+  }
+
+  @override
+  Future<Either<VotingFailure, List<Vote>>> getTopVotesPaginated({
+    required int limit,
+    String? lastDocumentId,
+  }) async {
+    try {
+      AppLogger.d('getTopVotesPaginated repository 시작');
+      final voteList = await dataSource.getTopVotesPaginated(
+        limit: limit,
+        lastDocumentId: lastDocumentId,
+      );
+      final votes = voteList.map((json) => VoteDto.fromJson(json).toDomain()).toList();
+      AppLogger.d('getTopVotesPaginated repository 성공: ${votes.length}개 투표');
+      return Right(votes);
+    } catch (e) {
+      AppLogger.e('getTopVotesPaginated repository 실패', error: e);
+      return Left(VotingNetworkFailure());
+    }
+  }
+
+  @override
+  Future<Either<VotingFailure, Unit>> deleteVote({
+    required String voteId,
+    required String userId,
+  }) async {
+    try {
+      await dataSource.deleteVote(voteId: voteId, userId: userId);
+      return const Right(unit);
+    } catch (e) {
+      if (e.toString().contains('권한')) {
+        return Left(VotingPermissionFailure());
       }
       return Left(VotingNetworkFailure());
     }

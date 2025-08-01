@@ -46,6 +46,7 @@ app.*.map.json
 
 # Flutter/Android/iOS 민감 정보 및 빌드 산출물
 firebase.json
+.storage.rules
 pglite-debug.log
 .metadata
 .DS_Store

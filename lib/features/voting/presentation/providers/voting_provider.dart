@@ -1,9 +1,10 @@
-import 'package:dartz/dartz.dart';
 import '../../../../core/errors/voting_failure.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../domain/entities/vote.dart';
 import '../../domain/repositories/voting_repository.dart';
-import 'package:riverpod/riverpod.dart';
+import '../../data/repositories/voting_repository_impl.dart';
+import '../../data/data_sources/voting_firestore_data_source.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 /// 투표 상태 Provider (곡 목록, 피크, 선택, 투표/피크 획득 등 관리)
@@ -24,7 +25,11 @@ class VotingProvider extends Notifier<List<Vote>?> {
 
   @override
   List<Vote>? build() {
-    _repository = ref.watch(votingRepositoryProvider);
+    // DI: 실제 구현체 주입
+    _repository = VotingRepositoryImpl(
+      dataSource: VotingFirestoreDataSource(),
+    );
+    
     // 곡 목록 스트림 구독 및 상태 갱신
     _repository.getTopVotes().listen(
       (either) {
@@ -87,9 +92,4 @@ class VotingProvider extends Notifier<List<Vote>?> {
       (_) => null,
     );
   }
-}
-
-/// VotingRepository Provider (의존성 주입)
-final votingRepositoryProvider = Provider<VotingRepository>((ref) {
-  throw UnimplementedError('votingRepositoryProvider를 main에서 override해야 합니다.');
-}); 
+} 

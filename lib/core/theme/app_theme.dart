@@ -1,15 +1,35 @@
 import 'package:flutter/material.dart';
 
-/// Material Design 3 전문가 템플릿 기반 라이트 테마
+/// Material Design 3 전문가 템플릿 기반 라이트 테마 (Black 메인 컬러)
 class AppTheme {
   static ThemeData get lightTheme => ThemeData(
     useMaterial3: true,
-    colorScheme: ColorScheme.fromSeed(
-      seedColor: const Color(0xFFB5B2FF), // 메인 시드 컬러(기본)
-      secondary: const Color(0xFFB2EBF4), // 보조 색상
+    colorScheme: const ColorScheme(
       brightness: Brightness.light,
+      primary: Colors.black, // 메인 색상 (검은색)
+      onPrimary: Colors.white, // 메인 색상 위의 텍스트 (흰색)
+      secondary: Colors.black, // 보조 색상 (검은색)
+      onSecondary: Colors.white, // 보조 색상 위의 텍스트 (흰색)
+      tertiary: Colors.black, // 3차 색상 (검은색)
+      onTertiary: Colors.white, // 3차 색상 위의 텍스트 (흰색)
+      error: Color(0xFFBA1A1A), // 에러 색상
+      onError: Colors.white, // 에러 색상 위의 텍스트
+      background: Colors.white, // 배경 색상 (흰색)
+      onBackground: Colors.black, // 배경 위의 텍스트 (검은색)
+      surface: Colors.white, // 표면 색상 (흰색)
+      onSurface: Colors.black, // 표면 위의 텍스트 (검은색)
+      surfaceVariant: Color(0xFFF5F5F5), // 표면 변형 색상
+      onSurfaceVariant: Colors.black, // 표면 변형 위의 텍스트
+      outline: Color(0xFF757575), // 외곽선 색상
+      outlineVariant: Color(0xFFCAC4D0), // 외곽선 변형 색상
+      shadow: Color(0xFF000000), // 그림자 색상
+      scrim: Color(0xFF000000), // 스크림 색상
+      inverseSurface: Colors.black, // 역 표면 색상
+      onInverseSurface: Colors.white, // 역 표면 위의 텍스트
+      inversePrimary: Colors.white, // 역 메인 색상
+      surfaceTint: Colors.black, // 표면 틴트 색상
     ),
-    scaffoldBackgroundColor: Colors.white,
+    scaffoldBackgroundColor: Colors.white, // 스캐폴드 배경 (흰색)
     fontFamily: 'Montserrat', // Geometric Sans (Modern)
     textTheme: const TextTheme(
       displayLarge: TextStyle(fontFamily: 'Montserrat', fontWeight: FontWeight.w700),
@@ -56,8 +76,8 @@ class AppTheme {
         minimumSize: const Size(48, 48),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
         textStyle: const TextStyle(fontWeight: FontWeight.w600),
-        backgroundColor: const Color(0xFF52F2F2),
-        foregroundColor: Colors.black,
+        backgroundColor: Colors.black, // Black 메인 컬러
+        foregroundColor: Colors.white, // White 텍스트
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
@@ -65,16 +85,25 @@ class AppTheme {
         minimumSize: const Size(48, 48),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
         textStyle: const TextStyle(fontWeight: FontWeight.w600),
-        foregroundColor: const Color(0xFF52F2F2),
-        side: const BorderSide(color: Color(0xFF52F2F2)),
+        foregroundColor: Colors.black, // Black 텍스트
+        side: const BorderSide(color: Colors.black), // Black 테두리
+      ),
+    ),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        minimumSize: const Size(48, 48),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+        textStyle: const TextStyle(fontWeight: FontWeight.w600),
+        backgroundColor: Colors.black, // Black 메인 컬러
+        foregroundColor: Colors.white, // White 텍스트
       ),
     ),
     tabBarTheme: const TabBarThemeData(
       indicator: UnderlineTabIndicator(
-        borderSide: BorderSide(width: 2.5, color: Color(0xFFB5B2FF)),
+        borderSide: BorderSide(width: 2.5, color: Colors.black), // Black 인디케이터
         insets: EdgeInsets.symmetric(horizontal: 24),
       ),
-      labelColor: Color(0xFFB5B2FF),
+      labelColor: Colors.black, // Black 라벨
       unselectedLabelColor: Color(0xFF757575),
       labelStyle: TextStyle(fontWeight: FontWeight.w600, fontFamily: 'Montserrat'),
       unselectedLabelStyle: TextStyle(fontWeight: FontWeight.w400, fontFamily: 'Montserrat'),
@@ -83,6 +112,18 @@ class AppTheme {
       color: Color(0x1A000000),
       thickness: 1,
       space: 32,
+    ),
+    appBarTheme: const AppBarTheme(
+      backgroundColor: Colors.white, // 흰색 배경
+      foregroundColor: Colors.black, // Black 텍스트
+      elevation: 0,
+      centerTitle: true,
+      titleTextStyle: TextStyle(
+        color: Colors.black, // Black 제목
+        fontSize: 18,
+        fontWeight: FontWeight.w600,
+        fontFamily: 'Montserrat',
+      ),
     ),
     splashFactory: InkSparkle.splashFactory, // 자연스러운 머티리얼 모션
     // 접근성: 색상 대비, 터치 타겟, 폰트 크기 등은 시스템 설정에 따름

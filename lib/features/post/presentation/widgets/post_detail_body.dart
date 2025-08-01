@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'comment_count.dart';
 
 String? _getYoutubeThumbnail(String? url) {
@@ -11,6 +12,16 @@ String? _getYoutubeThumbnail(String? url) {
   final videoId = uri.pathSegments.isNotEmpty ? uri.pathSegments.last : null;
   if (videoId == null || videoId.length < 5) return null;
   return 'https://img.youtube.com/vi/$videoId/0.jpg';
+}
+
+/// YouTube 링크로 이동하는 함수
+Future<void> _launchYoutubeUrl(String url) async {
+  final uri = Uri.parse(url);
+  if (await canLaunchUrl(uri)) {
+    await launchUrl(uri, mode: LaunchMode.externalApplication);
+  } else {
+    throw Exception('YouTube 링크를 열 수 없습니다.');
+  }
 }
 
 String _formatDate(DateTime date) {
@@ -64,6 +75,7 @@ class PostDetailBody extends StatelessWidget {
             createdAt: createdAt,
             title: title,
             likesCount: likesCount,
+            youtubeUrl: youtubeUrl,
           ),
           PostDetailContent(content: content, likesCount: likesCount),
         ],
@@ -81,7 +93,8 @@ class PostDetailHeader extends StatefulWidget {
   final DateTime? createdAt;
   final String title;
   final int likesCount;
-  const PostDetailHeader({super.key, required this.postId, required this.thumb, required this.picsumUrl, required this.author, required this.authorProfileUrl, required this.createdAt, required this.title, required this.likesCount});
+  final String? youtubeUrl;
+  const PostDetailHeader({super.key, required this.postId, required this.thumb, required this.picsumUrl, required this.author, required this.authorProfileUrl, required this.createdAt, required this.title, required this.likesCount, this.youtubeUrl});
 
   @override
   State<PostDetailHeader> createState() => _PostDetailHeaderState();
@@ -90,7 +103,6 @@ class PostDetailHeader extends StatefulWidget {
 class _PostDetailHeaderState extends State<PostDetailHeader> {
   late bool _liked;
   late int _likesCount;
-  late List<String> _likes;
 
   @override
   void initState() {
@@ -104,7 +116,6 @@ class _PostDetailHeaderState extends State<PostDetailHeader> {
     final likes = List<String>.from(doc['likes'] ?? []);
     final uid = FirebaseAuth.instance.currentUser?.uid;
     setState(() {
-      _likes = likes;
       _liked = uid != null && likes.contains(uid);
       _likesCount = doc['likesCount'] ?? likes.length;
     });
@@ -146,9 +157,11 @@ class _PostDetailHeaderState extends State<PostDetailHeader> {
           _likesCount++;
         }
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('좋아요 처리에 실패했습니다.')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('좋아요 처리에 실패했습니다.')),
+        );
+      }
     }
     await _fetchLikes();
   }
@@ -176,15 +189,41 @@ class _PostDetailHeaderState extends State<PostDetailHeader> {
               end: Alignment.bottomCenter,
               colors: [
                 Colors.transparent,
-                Colors.black.withOpacity(0.55),
+                Colors.black.withValues(alpha: 0.55),
               ],
             ),
           ),
         ),
         if (widget.thumb != null)
-          const Positioned.fill(
+          Positioned.fill(
             child: Center(
-              child: Icon(Icons.play_circle_fill, color: Colors.white, size: 56),
+              child: GestureDetector(
+                onTap: () {
+                  if (widget.youtubeUrl != null && widget.youtubeUrl!.isNotEmpty) {
+                    _launchYoutubeUrl(widget.youtubeUrl!);
+                  }
+                },
+                child: Container(
+                  width: 70,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE53E3E), // YouTube 빨간색
+                    borderRadius: BorderRadius.circular(14),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: const Icon(
+                    Icons.play_arrow,
+                    color: Colors.white,
+                    size: 32,
+                  ),
+                ),
+              ),
             ),
           ),
         Positioned(

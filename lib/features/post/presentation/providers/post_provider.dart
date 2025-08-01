@@ -1,13 +1,16 @@
+import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import '../../domain/entities/post.dart';
-import '../../domain/use_cases/get_posts_use_case.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../data/data_sources/post_firestore_data_source.dart';
 
 /// 게시글 목록 상태 클래스
 /// - 게시글 목록, 로딩 여부, 에러 메시지 등 상태를 관리합니다.
 class PostListState {
-  /// 게시글 목록
-  final List<Post> posts;
+  /// 게시글 목록 (QueryDocumentSnapshot)
+  final List<QueryDocumentSnapshot<Map<String, dynamic>>> posts;
+
+  /// 공지글 목록
+  final List<QueryDocumentSnapshot<Map<String, dynamic>>> notices;
 
   /// 로딩 여부
   final bool isLoading;
@@ -18,21 +21,28 @@ class PostListState {
   /// 생성자
   const PostListState({
     required this.posts,
+    required this.notices,
     required this.isLoading,
     this.error,
   });
 
   /// 초기 상태 반환
-  factory PostListState.initial() => const PostListState(posts: [], isLoading: false);
+  factory PostListState.initial() => const PostListState(
+    posts: [], 
+    notices: [], 
+    isLoading: false
+  );
 
   /// 상태 복사 (immutable 패턴)
   PostListState copyWith({
-    List<Post>? posts,
+    List<QueryDocumentSnapshot<Map<String, dynamic>>>? posts,
+    List<QueryDocumentSnapshot<Map<String, dynamic>>>? notices,
     bool? isLoading,
     String? error,
   }) {
     return PostListState(
       posts: posts ?? this.posts,
+      notices: notices ?? this.notices,
       isLoading: isLoading ?? this.isLoading,
       error: error,
     );
@@ -41,37 +51,88 @@ class PostListState {
 
 /// 게시글 목록 Provider (StateNotifier)
 ///
-/// DI 구조 개선: StateNotifierProvider에서 외부에서 useCase를 주입받도록 main에서 ProviderScope.override 사용 권장
-/// 테스트 용이성을 위해 StateNotifier 생성자에 의존성 주입 필수
-/// 공통 로딩/에러 위젯(AppLoadingView, AppErrorView 등) 사용 권장
+/// 실시간 스트림을 사용하여 좋아요 등 실시간 업데이트 지원
 class PostListNotifier extends StateNotifier<PostListState> {
-  final GetPostsUseCase _getPostsUseCase;
+  final PostFirestoreDataSource _dataSource;
+  String _currentCategory = '전체';
+  StreamSubscription<List<QueryDocumentSnapshot<Map<String, dynamic>>>>? _postsSubscription;
 
   /// 생성자
-  /// [getPostsUseCase]는 외부에서 주입받아야 하며, 테스트 시 mock 객체 주입 가능
-  PostListNotifier({required GetPostsUseCase getPostsUseCase})
-      : _getPostsUseCase = getPostsUseCase,
-        super(PostListState.initial());
+  PostListNotifier({required PostFirestoreDataSource dataSource})
+      : _dataSource = dataSource,
+        super(PostListState.initial()) {
+    // 초기 데이터 로드
+    _loadPosts();
+  }
 
-  /// 게시글 목록 불러오기
-  ///
-  /// 에러 발생 시 state.error에 메시지 저장
-  /// 로딩 상태는 state.isLoading으로 관리
-  Future<void> fetchPosts() async {
+  /// 카테고리 변경
+  void changeCategory(String category) {
+    _currentCategory = category;
+    _loadPosts();
+  }
+
+  /// 게시글 목록 로드 (실시간 스트림)
+  void _loadPosts() {
+    // 기존 구독 해제
+    _postsSubscription?.cancel();
+    
     state = state.copyWith(isLoading: true, error: null);
+    
+    // 공지글 로드
+    _loadNotices();
+    
+    // 일반 게시글 실시간 스트림 구독
+    _postsSubscription = _dataSource
+        .fetchPostsStream(category: _currentCategory, limit: 20)
+        .listen(
+          (posts) {
+            // 공지글 제외
+            final filteredPosts = posts.where((post) => 
+              post.data()['isNotice'] != true
+            ).toList();
+            
+            state = state.copyWith(
+              posts: filteredPosts,
+              isLoading: false,
+              error: null,
+            );
+          },
+          onError: (error) {
+            state = state.copyWith(
+              isLoading: false,
+              error: error.toString(),
+            );
+          },
+        );
+  }
+
+  /// 공지글 로드
+  Future<void> _loadNotices() async {
     try {
-      final List<Post> posts = await _getPostsUseCase();
-      state = state.copyWith(posts: posts, isLoading: false);
+      final QuerySnapshot<Map<String, dynamic>> noticeSnap = 
+          await FirebaseFirestore.instance
+              .collection('posts')
+              .where('isNotice', isEqualTo: true)
+              .orderBy('createdAt', descending: true)
+              .limit(3)
+              .get();
+      
+      state = state.copyWith(notices: noticeSnap.docs);
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+      // 공지글 로드 실패는 무시 (일반 게시글은 계속 표시)
     }
+  }
+
+  @override
+  void dispose() {
+    _postsSubscription?.cancel();
+    super.dispose();
   }
 }
 
 /// 게시글 목록 Provider 인스턴스
-///
-/// DI 구조 개선: main.dart에서 ProviderScope.override로 주입 권장
-final StateNotifierProvider<PostListNotifier, PostListState> postListProvider =
-    StateNotifierProvider<PostListNotifier, PostListState>(
-  (ref) => throw UnimplementedError('Provider는 main에서 주입되어야 합니다.'),
+final postListProvider = StateNotifierProvider<PostListNotifier, PostListState>(
+  (ref) => PostListNotifier(
+    dataSource: PostFirestoreDataSource(),
+  ),
 ); 

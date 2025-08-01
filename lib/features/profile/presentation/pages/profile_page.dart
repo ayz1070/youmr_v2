@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/profile_provider.dart';
 import '../../domain/entities/profile.dart';
 import 'profile_edit_page.dart';
+import '../../../auth/presentation/pages/profile_setup_page.dart';
 
 /// 프로필 탭 페이지 (Provider 기반)
 class ProfilePage extends ConsumerWidget {
@@ -18,8 +19,15 @@ class ProfilePage extends ConsumerWidget {
       error: (e, st) => Center(child: Text('내 정보 불러오기 실패\n${e.toString()}')),
       data: (profile) {
         if (profile == null) {
-          return const Center(child: Text('내 정보 불러오기 실패'));
+          // 프로필이 없는 경우 ProfileSetupPage로 이동
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (_) => const ProfileSetupPage()),
+            );
+          });
+          return const Center(child: CircularProgressIndicator());
         }
+        
         final isAdmin = profile.userType == 'admin' || profile.userType == 'developer';
         final profileImageUrl = profile.profileImageUrl != null && profile.profileImageUrl != ''
             ? profile.profileImageUrl
@@ -81,12 +89,12 @@ class ProfilePage extends ConsumerWidget {
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  '회원타입:  {profile.userType}',
+                                  '${profile.userType}',
                                   style: const TextStyle(color: Colors.white, fontSize: 16),
                                 ),
                                 if ((profile.userType) == 'offline_member')
                                   Text(
-                                    '요일:  {profile.dayOfWeek ?? ''}',
+                                    '${profile.dayOfWeek ?? ''}요반',
                                     style: const TextStyle(color: Colors.white, fontSize: 16),
                                   ),
                               ],

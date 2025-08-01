@@ -40,12 +40,41 @@ class _SplashPageState extends State<SplashPage> {
       // Firestore에서 프로필 정보 확인
       final userDoc = FirebaseFirestore.instance.collection('users').doc(user.uid);
       final snapshot = await userDoc.get();
+      
+      // 문서 존재 여부 확인
+      if (!snapshot.exists) {
+        debugPrint('사용자 프로필 문서가 존재하지 않음: ${user.uid}');
+        // 프로필 문서 없음 → 프로필 설정 페이지로 이동
+        if (context.mounted) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (_) => const LoginPage()),
+          );
+        }
+        return;
+      }
+      
+      // 문서 데이터 확인
       final data = snapshot.data();
-      final hasProfile = data != null &&
-          (data['nickname'] != null && (data['nickname'] as String).trim().isNotEmpty) &&
+      if (data == null) {
+        debugPrint('사용자 프로필 데이터가 null: ${user.uid}');
+        // 데이터가 null → 프로필 설정 페이지로 이동
+        if (context.mounted) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (_) => const LoginPage()),
+          );
+        }
+        return;
+      }
+      
+      // 필수 프로필 정보 확인
+      final hasProfile = (data['nickname'] != null && (data['nickname'] as String).trim().isNotEmpty) &&
           (data['userType'] != null && (data['userType'] as String).trim().isNotEmpty);
+      
+      debugPrint('프로필 정보 확인: nickname=${data['nickname']}, userType=${data['userType']}, hasProfile=$hasProfile');
+      
       if (!hasProfile) {
         // 프로필 미설정 → 프로필 설정 페이지로 이동
+        debugPrint('프로필 정보가 불완전함 → 프로필 설정 페이지로 이동');
         if (context.mounted) {
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (_) => const ProfileSetupPage()),
@@ -53,6 +82,7 @@ class _SplashPageState extends State<SplashPage> {
         }
       } else {
         // 프로필 설정 완료 → 메인 페이지로 이동
+        debugPrint('프로필 정보 완료 → 메인 페이지로 이동');
         if (context.mounted) {
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (_) => const MainNavigationPage()),
@@ -64,7 +94,7 @@ class _SplashPageState extends State<SplashPage> {
       debugPrint('Firestore 접근 오류: $e');
       if (context.mounted) {
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const ProfileSetupPage()),
+          MaterialPageRoute(builder: (_) => const LoginPage()),
         );
       }
     }

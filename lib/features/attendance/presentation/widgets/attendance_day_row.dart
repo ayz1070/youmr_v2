@@ -10,6 +10,7 @@ class AttendanceDayRow extends ConsumerWidget {
   final List<String> mySelectedDays;
   final void Function(String day, bool checked) onAttendanceToggle;
   final bool isLoading;
+  final bool showDivider; // divider 표시 여부
 
   const AttendanceDayRow({
     super.key,
@@ -17,6 +18,7 @@ class AttendanceDayRow extends ConsumerWidget {
     required this.mySelectedDays,
     required this.onAttendanceToggle,
     required this.isLoading,
+    this.showDivider = true, // 기본값은 true
   });
 
   @override
@@ -88,6 +90,17 @@ class AttendanceDayRow extends ConsumerWidget {
             );
           },
         ),
+        // 연한 divider 추가
+        if (showDivider) ...[
+          const SizedBox(height: 16),
+          Divider(
+            height: 1,
+            thickness: 0.5,
+            color: Theme.of(context).dividerColor.withOpacity(0.3),
+            indent: 0,
+            endIndent: 0,
+          ),
+        ],
       ],
     );
   }

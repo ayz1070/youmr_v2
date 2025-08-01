@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -110,6 +111,48 @@ class AuthRepositoryImpl implements AuthRepository {
     } catch (e, st) {
       AppLogger.e('프로필 저장 실패', error: e, stackTrace: st);
       return Left(AuthFirestoreFailure('${ErrorMessages.commonError}: $e'));
+    }
+  }
+
+  /// 프로필 이미지 업로드
+  /// 성공: 이미지 URL, 실패: [AuthFailure]
+  @override
+  Future<Either<AuthFailure, String>> uploadProfileImage({
+    required String uid,
+    required File imageFile,
+  }) async {
+    try {
+      final String imageUrl = await dataSource.uploadProfileImage(uid: uid, imageFile: imageFile);
+      return Right(imageUrl);
+    } catch (e, st) {
+      AppLogger.e('프로필 이미지 업로드 실패', error: e, stackTrace: st);
+      return Left(AuthFirebaseFailure('프로필 이미지 업로드 실패: $e'));
+    }
+  }
+
+  /// 프로필 이미지 삭제
+  /// 성공: void, 실패: [AuthFailure]
+  @override
+  Future<Either<AuthFailure, void>> deleteProfileImage({required String imageUrl}) async {
+    try {
+      await dataSource.deleteProfileImage(imageUrl: imageUrl);
+      return const Right(null);
+    } catch (e, st) {
+      AppLogger.e('프로필 이미지 삭제 실패', error: e, stackTrace: st);
+      return Left(AuthFirebaseFailure('프로필 이미지 삭제 실패: $e'));
+    }
+  }
+
+  /// 유저의 모든 프로필 이미지 삭제
+  /// 성공: void, 실패: [AuthFailure]
+  @override
+  Future<Either<AuthFailure, void>> deleteAllProfileImages({required String uid}) async {
+    try {
+      await dataSource.deleteAllProfileImages(uid: uid);
+      return const Right(null);
+    } catch (e, st) {
+      AppLogger.e('프로필 이미지 전체 삭제 실패', error: e, stackTrace: st);
+      return Left(AuthFirebaseFailure('프로필 이미지 전체 삭제 실패: $e'));
     }
   }
 } 

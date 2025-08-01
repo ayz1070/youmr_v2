@@ -8,7 +8,7 @@ class PostFirestoreDataSource {
   final CollectionReference<Map<String, dynamic>> _collection =
       FirebaseFirestore.instance.collection('posts'); // 컬렉션명 상수화 권장
 
-  /// 게시글 목록 불러오기
+  /// 게시글 목록 불러오기 (일회성)
   /// [category]: 카테고리(전체/null이면 전체)
   /// [startAfter]: 페이징용 마지막 문서
   /// [limit]: 한 번에 불러올 개수(기본 20)
@@ -28,5 +28,21 @@ class PostFirestoreDataSource {
     }
     final QuerySnapshot<Map<String, dynamic>> snapshot = await query.limit(limit).get();
     return snapshot.docs;
+  }
+
+  /// 게시글 목록 실시간 스트림 (좋아요 등 실시간 업데이트용)
+  /// [category]: 카테고리(전체/null이면 전체)
+  /// [limit]: 한 번에 불러올 개수(기본 20)
+  /// 반환: 게시글 문서 스트림
+  Stream<List<QueryDocumentSnapshot<Map<String, dynamic>>>> fetchPostsStream({
+    String? category,
+    int limit = 20,
+  }) {
+    Query<Map<String, dynamic>> query =
+        _collection.orderBy(FirestoreConstants.voteCreatedAt, descending: true);
+    if (category != null && category != '전체') {
+      query = query.where('category', isEqualTo: category);
+    }
+    return query.limit(limit).snapshots().map((snapshot) => snapshot.docs);
   }
 } 

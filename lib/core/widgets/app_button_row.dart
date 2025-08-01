@@ -28,7 +28,7 @@ class AppButtonRow extends StatelessWidget {
       children: [
         Expanded(
           child: AppButton(
-            label: leftLabel,
+            text: leftLabel,
             onPressed: onLeftPressed,
             enabled: leftEnabled,
           ),
@@ -36,9 +36,10 @@ class AppButtonRow extends StatelessWidget {
         const SizedBox(width: 12),
         Expanded(
           child: AppButton(
-            label: rightLabel,
+            text: rightLabel,
             onPressed: onRightPressed,
             enabled: rightEnabled,
+            buttonColor: Colors.blue,
           ),
         ),
       ],

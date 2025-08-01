@@ -8,7 +8,6 @@ part 'vote_dto.g.dart';
 
 /// Firestore 투표 곡 문서 매핑용 DTO
 @freezed
-@JsonSerializable(fieldRename: FieldRename.snake)
 class VoteDto with _$VoteDto {
   /// 생성자
   const factory VoteDto({
@@ -26,6 +25,10 @@ class VoteDto with _$VoteDto {
     @TimestampOrDateTimeConverter() required DateTime createdAt,
     /// 등록자 ID
     required String createdBy,
+    /// 작성자 닉네임
+    String? authorNickname,
+    /// 작성자 프로필 이미지 URL
+    String? authorProfileUrl,
   }) = _VoteDto;
 
   /// JSON → DTO 변환
@@ -41,6 +44,8 @@ class VoteDto with _$VoteDto {
         voteCount: vote.voteCount,
         createdAt: vote.createdAt,
         createdBy: vote.createdBy,
+        authorNickname: vote.authorNickname,
+        authorProfileUrl: vote.authorProfileUrl,
       );
 }
 
@@ -75,5 +80,7 @@ extension VoteDtoX on VoteDto {
         voteCount: voteCount,
         createdAt: createdAt,
         createdBy: createdBy,
+        authorNickname: authorNickname,
+        authorProfileUrl: authorProfileUrl,
       );
 } 

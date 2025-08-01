@@ -20,11 +20,22 @@ AdminUserDto _$AdminUserDtoFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$AdminUserDto {
+  /// 회원 UID
   String get uid => throw _privateConstructorUsedError;
+
+  /// 닉네임
   String get nickname => throw _privateConstructorUsedError;
+
+  /// 이메일
   String get email => throw _privateConstructorUsedError;
+
+  /// 회원 유형(admin, user 등)
   String get userType => throw _privateConstructorUsedError;
+
+  /// 프로필 이미지 URL
   String get profileImageUrl => throw _privateConstructorUsedError;
+
+  /// 가입일(생성일)
   DateTime get createdAt => throw _privateConstructorUsedError;
 
   /// Serializes this AdminUserDto to a JSON map.
@@ -170,7 +181,8 @@ class __$$AdminUserDtoImplCopyWithImpl<$Res>
 }
 
 /// @nodoc
-@JsonSerializable()
+
+@JsonSerializable(fieldRename: FieldRename.snake)
 class _$AdminUserDtoImpl implements _AdminUserDto {
   const _$AdminUserDtoImpl(
       {required this.uid,
@@ -183,16 +195,27 @@ class _$AdminUserDtoImpl implements _AdminUserDto {
   factory _$AdminUserDtoImpl.fromJson(Map<String, dynamic> json) =>
       _$$AdminUserDtoImplFromJson(json);
 
+  /// 회원 UID
   @override
   final String uid;
+
+  /// 닉네임
   @override
   final String nickname;
+
+  /// 이메일
   @override
   final String email;
+
+  /// 회원 유형(admin, user 등)
   @override
   final String userType;
+
+  /// 프로필 이미지 URL
   @override
   final String profileImageUrl;
+
+  /// 가입일(생성일)
   @override
   final DateTime createdAt;
 
@@ -251,16 +274,27 @@ abstract class _AdminUserDto implements AdminUserDto {
   factory _AdminUserDto.fromJson(Map<String, dynamic> json) =
       _$AdminUserDtoImpl.fromJson;
 
+  /// 회원 UID
   @override
   String get uid;
+
+  /// 닉네임
   @override
   String get nickname;
+
+  /// 이메일
   @override
   String get email;
+
+  /// 회원 유형(admin, user 등)
   @override
   String get userType;
+
+  /// 프로필 이미지 URL
   @override
   String get profileImageUrl;
+
+  /// 가입일(생성일)
   @override
   DateTime get createdAt;
 
