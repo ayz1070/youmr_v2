@@ -33,10 +33,11 @@ dependencies:
   dio: ^5.4.0
   hive_flutter: ^1.1.0
   logger:
-
   url_launcher:
-
   flutter_naver_map: ^1.3.1
+  
+  # AdMob 관련 의존성
+  google_mobile_ads: ^6.0.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
