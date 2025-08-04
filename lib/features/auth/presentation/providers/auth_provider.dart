@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import '../../domain/entities/auth_user.dart';
@@ -11,6 +12,7 @@ import '../../domain/use_cases/upload_profile_image.dart';
 import '../../domain/use_cases/delete_profile_image.dart';
 import '../../data/repositories/auth_repository_impl.dart';
 import '../../data/data_sources/auth_firebase_data_source.dart';
+import '../../../notification/presentation/providers/notification_provider.dart';
 
 /// 인증 상태 관리 Provider (AsyncNotifier)
 /// - 실제 앱에서는 ProviderScope override로 DI/Mock 주입 구조 권장
@@ -65,6 +67,16 @@ class AuthNotifier extends AsyncNotifier<AuthUser?> {
   /// 반환: Future<void>
   Future<void> signOut() async {
     state = const AsyncValue.loading();
+    
+    // FCM 토큰 삭제
+    try {
+      final container = ref.read(notificationProvider.notifier);
+      await container.deleteFcmToken();
+    } catch (e) {
+      // FCM 토큰 삭제 실패는 로그아웃을 막지 않음
+      debugPrint('FCM 토큰 삭제 실패: $e');
+    }
+    
     final result = await _signOut();
     result.fold(
       (failure) => state = AsyncValue.error(failure, StackTrace.current),

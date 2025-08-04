@@ -10,6 +10,9 @@ class AdMobService {
   /// AdMob 초기화 여부
   bool _isInitialized = false;
 
+  /// AdMob Application ID (AndroidManifest.xml과 동일해야 함)
+  static const String _applicationId = 'ca-app-pub-3940256099942544~3347511713';
+
   /// 테스트 광고 ID들
   static const String _testBannerAdUnitId = 'ca-app-pub-3940256099942544/6300978111';
   static const String _testInterstitialAdUnitId = 'ca-app-pub-3940256099942544/1033173712';

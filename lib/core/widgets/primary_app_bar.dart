@@ -15,6 +15,9 @@ class PrimaryAppBar extends StatelessWidget implements PreferredSizeWidget {
   /// 왼쪽 leading 위젯(선택)
   final Widget? leading;
 
+  /// 뒤로가기 버튼 표시 여부(선택)
+  final bool showBackButton;
+
   /// AppBar 배경색(선택)
   final Color? backgroundColor;
 
@@ -26,6 +29,7 @@ class PrimaryAppBar extends StatelessWidget implements PreferredSizeWidget {
     required this.title,
     this.actions,
     this.leading,
+    this.showBackButton = false,
     this.backgroundColor,
     this.elevation,
   });
@@ -45,7 +49,8 @@ class PrimaryAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
       centerTitle: true,
       actions: actions,
-      leading: leading,
+      leading: showBackButton ? null : leading,
+      automaticallyImplyLeading: showBackButton,
       backgroundColor: backgroundColor,
       elevation: elevation,
       scrolledUnderElevation: 0,
