@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../providers/comment_provider.dart';
 
 /// 댓글 입력창 위젯 (수정 모드 지원)
 ///
-/// - Firestore에 댓글 등록/수정
-/// - Provider/DI 구조로 개선 권장
+/// - Provider를 통한 댓글 등록/수정
+/// - 키보드와 독립적으로 동작
 /// - 컬러/문구/패딩 등은 core/constants로 상수화 권장
-class CommentInput extends StatefulWidget {
+class CommentInput extends ConsumerStatefulWidget {
   /// 게시글 ID
   final String postId;
   /// 수정할 댓글 ID(수정 모드)
@@ -26,12 +28,21 @@ class CommentInput extends StatefulWidget {
   });
 
   @override
-  State<CommentInput> createState() => _CommentInputState();
+  ConsumerState<CommentInput> createState() => _CommentInputState();
 }
 
-class _CommentInputState extends State<CommentInput> {
+class _CommentInputState extends ConsumerState<CommentInput> {
   final TextEditingController _controller = TextEditingController();
-  bool _isLoading = false;
+  final FocusNode _focusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    // 초기 수정 모드 확인
+    if (widget.editCommentId != null && widget.editContent != null) {
+      _controller.text = widget.editContent!;
+    }
+  }
 
   @override
   void didUpdateWidget(covariant CommentInput oldWidget) {
@@ -39,10 +50,17 @@ class _CommentInputState extends State<CommentInput> {
     // 수정 모드 진입 시 기존 내용 입력
     if (widget.editCommentId != null && widget.editCommentId != oldWidget.editCommentId) {
       _controller.text = widget.editContent ?? '';
+      // 수정 모드 진입 시 자동으로 포커스
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          _focusNode.requestFocus();
+        }
+      });
     }
     // 수정 모드 종료 시 입력창 초기화
     if (widget.editCommentId == null && oldWidget.editCommentId != null) {
       _controller.clear();
+      _focusNode.unfocus();
     }
   }
 
@@ -50,113 +68,159 @@ class _CommentInputState extends State<CommentInput> {
   Future<void> _submit() async {
     final String text = _controller.text.trim();
     if (text.isEmpty) return;
-    setState(() => _isLoading = true);
+    
     try {
-      final User? user = FirebaseAuth.instance.currentUser;
+      final user = FirebaseAuth.instance.currentUser;
       if (user == null) throw Exception('로그인 필요');
-      final DocumentSnapshot<Map<String, dynamic>> userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
-      final Map<String, dynamic> userData = userDoc.data() ?? {};
+      
+      // 사용자 정보 조회
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+      final userData = userDoc.data() ?? {};
+      final nickname = userData['nickname'] ?? '';
+      final profileUrl = userData['profileImageUrl'];
+      
+      final commentNotifier = ref.read(commentProvider(widget.postId).notifier);
+      
       if (widget.editCommentId != null) {
         // 댓글 수정
-        await FirebaseFirestore.instance.collection('comments').doc(widget.editCommentId).update({
-          'content': text,
-        });
-        if (widget.onEditDone != null) widget.onEditDone!();
+        final result = await commentNotifier.updateComment(
+          commentId: widget.editCommentId!,
+          content: text,
+        );
+        
+        result.fold(
+          (failure) {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('댓글 수정에 실패했습니다: ${failure.message}')),
+              );
+            }
+          },
+          (_) {
+            if (widget.onEditDone != null) widget.onEditDone!();
+          },
+        );
       } else {
         // 새 댓글 등록
-        await FirebaseFirestore.instance.collection('comments').add({
-          'postId': widget.postId,
-          'content': text,
-          'authorId': user.uid,
-          'authorNickname': userData['nickname'] ?? '',
-          'authorProfileUrl': userData['profileImageUrl'] ?? '',
-          'likes': [],
-          'likesCount': 0,
-          'createdAt': Timestamp.fromDate(DateTime.now()),
-          'serverCreatedAt': FieldValue.serverTimestamp(),
-        });
+        final result = await commentNotifier.createComment(
+          content: text,
+          authorNickname: nickname,
+          authorProfileUrl: profileUrl,
+        );
+        
+        result.fold(
+          (failure) {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('댓글 등록에 실패했습니다: ${failure.message}')),
+              );
+            }
+          },
+          (_) {
+            _controller.clear();
+            _focusNode.unfocus();
+          },
+        );
       }
-      _controller.clear();
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('댓글 등록/수정에 실패했습니다. 다시 시도해 주세요.')),
-      );
-    } finally {
-      setState(() => _isLoading = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('댓글 등록/수정에 실패했습니다. 다시 시도해 주세요.')),
+        );
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final commentState = ref.watch(commentProvider(widget.postId));
     final bool isEdit = widget.editCommentId != null;
     final ThemeData theme = Theme.of(context);
-    return SafeArea(
-      child: Container(
-        color: theme.colorScheme.surfaceContainerLowest,
-        padding: const EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 4),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.surfaceContainer,
-                  borderRadius: BorderRadius.circular(8),
+    
+    return Container(
+      color: theme.colorScheme.surfaceContainerLowest,
+      padding: const EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                color: Color(0xFFF6F6F6),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+              child: TextField(
+                controller: _controller,
+                focusNode: _focusNode,
+                style: theme.textTheme.bodySmall,
+                decoration: InputDecoration(
+                  hintText: isEdit ? '댓글을 수정하세요...' : '댓글을 입력하세요...',
+                  border: InputBorder.none,
+                  isDense: true,
+                  contentPadding: const EdgeInsets.symmetric(vertical: 12),
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
-                child: TextField(
-                  controller: _controller,
-                  style: theme.textTheme.bodySmall,
-                  decoration: InputDecoration(
-                    hintText: isEdit ? '댓글을 수정하세요...' : '댓글을 입력하세요...',
-                    border: InputBorder.none,
-                    isDense: true,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 8),
-                  ),
-                  minLines: 1,
-                  maxLines: 2,
-                  enabled: !_isLoading,
-                ),
+                minLines: 1,
+                maxLines: 3, // 최대 3줄까지 허용
+                enabled: !commentState.isLoading,
+                textInputAction: TextInputAction.send,
+                onSubmitted: (_) => _submit(),
+                onTap: () {
+                  // 텍스트 필드 터치 시 포커스만 요청 (상태 변경 없음)
+                  if (!_focusNode.hasFocus) {
+                    _focusNode.requestFocus();
+                  }
+                },
+                onChanged: (value) {
+                  // 텍스트 변경 시에도 상태 변경 없음
+                },
+                onEditingComplete: () {
+                  // 편집 완료 시에도 상태 변경 없음
+                },
               ),
             ),
-            if (isEdit)
-              TextButton(
-                onPressed: _isLoading
-                    ? null
-                    : () {
-                        _controller.clear();
-                        if (widget.onEditDone != null) widget.onEditDone!();
-                      },
-                style: TextButton.styleFrom(
-                  minimumSize: const Size(36, 36),
-                  padding: EdgeInsets.zero,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  textStyle: theme.textTheme.bodySmall,
-                ),
-                child: const Text('취소'),
+          ),
+          if (isEdit)
+            TextButton(
+              onPressed: commentState.isLoading
+                  ? null
+                  : () {
+                      _controller.clear();
+                      _focusNode.unfocus();
+                      if (widget.onEditDone != null) widget.onEditDone!();
+                    },
+              style: TextButton.styleFrom(
+                minimumSize: const Size(36, 36),
+                padding: EdgeInsets.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                textStyle: theme.textTheme.bodySmall,
               ),
-            const SizedBox(width: 4),
-            SizedBox(
-              height: 36,
-              width: 36,
-              child: ElevatedButton(
-                onPressed: _isLoading ? null : _submit,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: theme.colorScheme.primary,
-                  foregroundColor: theme.colorScheme.onPrimary,
-                  padding: EdgeInsets.zero,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                  minimumSize: const Size(36, 36),
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  elevation: 0,
-                ),
-                child: _isLoading
-                    ? SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: theme.colorScheme.onPrimary))
-                    : Icon(isEdit ? Icons.check : Icons.send, size: 18),
-              ),
+              child: const Text('취소'),
             ),
-          ],
-        ),
+          const SizedBox(width: 4),
+          SizedBox(
+            height: 36,
+            width: 36,
+            child: ElevatedButton(
+              onPressed: commentState.isLoading ? null : _submit,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: theme.colorScheme.primary,
+                foregroundColor: theme.colorScheme.onPrimary,
+                padding: EdgeInsets.zero,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                minimumSize: const Size(36, 36),
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                elevation: 0,
+              ),
+              child: commentState.isLoading
+                  ? SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: theme.colorScheme.onPrimary))
+                  : Icon(isEdit ? Icons.check : Icons.send, size: 18),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -164,6 +228,7 @@ class _CommentInputState extends State<CommentInput> {
   @override
   void dispose() {
     _controller.dispose();
+    _focusNode.dispose();
     super.dispose();
   }
 } 

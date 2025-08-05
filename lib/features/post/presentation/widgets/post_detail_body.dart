@@ -101,7 +101,7 @@ class PostDetailHeader extends StatefulWidget {
 }
 
 class _PostDetailHeaderState extends State<PostDetailHeader> {
-  late bool _liked;
+  bool _liked = false; // 기본값으로 초기화
   late int _likesCount;
 
   @override
