@@ -20,8 +20,21 @@ abstract class FcmDataSource {
   /// 푸시 알림 전송
   Future<void> sendPushNotification(SendNotificationParams params);
   
+  /// 조건부 푸시 알림 전송
+  Future<void> sendConditionalPushNotification(
+    SendNotificationParams params, {
+    int? dayOfWeek,
+    String? userType,
+  });
+  
   /// 모든 사용자의 FCM 토큰 조회
   Future<List<String>> getAllFcmTokens();
+  
+  /// 조건부 사용자 FCM 토큰 조회
+  Future<List<String>> getFcmTokensByConditions({
+    int? dayOfWeek,
+    String? userType,
+  });
 }
 
 /// FCM Firestore 데이터 소스 구현
@@ -138,6 +151,52 @@ class FcmFirestoreDataSource implements FcmDataSource {
   }
 
   @override
+  Future<List<String>> getFcmTokensByConditions({
+    int? dayOfWeek,
+    String? userType,
+  }) async {
+    try {
+      // 조건에 맞는 사용자 ID 조회
+      final userQuery = _firestore.collection('users');
+      
+      Query query = userQuery;
+      
+      if (dayOfWeek != null) {
+        query = query.where('attendanceDayOfWeek', isEqualTo: dayOfWeek);
+      }
+      
+      if (userType != null) {
+        query = query.where('userType', isEqualTo: userType);
+      }
+      
+      final userSnapshot = await query.get();
+      final userIds = userSnapshot.docs.map((doc) => doc.id).toList();
+      
+      if (userIds.isEmpty) {
+        debugPrint('조건에 맞는 사용자가 없습니다.');
+        return [];
+      }
+      
+      // 해당 사용자들의 FCM 토큰 조회
+      final tokenQuerySnapshot = await _firestore
+          .collection(_collectionName)
+          .where(FieldPath.documentId, whereIn: userIds)
+          .get();
+
+      final tokens = tokenQuerySnapshot.docs
+          .map((doc) => FcmTokenDto.fromJson(doc.data()))
+          .map((dto) => dto.token)
+          .toList();
+
+      debugPrint('조건부 FCM 토큰 조회 완료: ${tokens.length}개 (조건: dayOfWeek=$dayOfWeek, userType=$userType)');
+      return tokens;
+    } catch (e) {
+      debugPrint('조건부 FCM 토큰 조회 실패: $e');
+      rethrow;
+    }
+  }
+
+  @override
   Future<void> sendPushNotification(SendNotificationParams params) async {
     try {
       // 대상 사용자들의 FCM 토큰 조회
@@ -167,6 +226,41 @@ class FcmFirestoreDataSource implements FcmDataSource {
     }
   }
 
+  @override
+  Future<void> sendConditionalPushNotification(
+    SendNotificationParams params, {
+    int? dayOfWeek,
+    String? userType,
+  }) async {
+    try {
+      // 조건에 맞는 사용자들의 FCM 토큰 조회
+      final tokens = await getFcmTokensByConditions(
+        dayOfWeek: dayOfWeek,
+        userType: userType,
+      );
+
+      if (tokens.isEmpty) {
+        debugPrint('조건에 맞는 사용자가 없습니다.');
+        return;
+      }
+
+      // Firestore에 알림 기록 저장
+      await _saveConditionalNotificationRecord(
+        params, 
+        tokens.length,
+        dayOfWeek: dayOfWeek,
+        userType: userType,
+      );
+
+      // TODO: 실제 FCM 서버로 알림 전송
+      // 현재는 로컬에서만 처리하고, 실제 구현 시에는 Cloud Functions나 서버를 통해 전송
+      debugPrint('조건부 푸시 알림 전송 완료: ${tokens.length}개 토큰, 제목: ${params.title}');
+    } catch (e) {
+      debugPrint('조건부 푸시 알림 전송 실패: $e');
+      rethrow;
+    }
+  }
+
   /// 알림 기록을 Firestore에 저장
   Future<void> _saveNotificationRecord(SendNotificationParams params, int recipientCount) async {
     try {
@@ -189,6 +283,39 @@ class FcmFirestoreDataSource implements FcmDataSource {
       debugPrint('알림 기록 저장 완료');
     } catch (e) {
       debugPrint('알림 기록 저장 실패: $e');
+    }
+  }
+
+  /// 조건부 알림 기록을 Firestore에 저장
+  Future<void> _saveConditionalNotificationRecord(
+    SendNotificationParams params, 
+    int recipientCount, {
+    int? dayOfWeek,
+    String? userType,
+  }) async {
+    try {
+      final notificationData = {
+        'title': params.title,
+        'body': params.body,
+        'type': params.type,
+        'data': params.data,
+        'imageUrl': params.imageUrl,
+        'recipientCount': recipientCount,
+        'conditions': {
+          'dayOfWeek': dayOfWeek,
+          'userType': userType,
+        },
+        'createdAt': FieldValue.serverTimestamp(),
+        'status': 'sent',
+      };
+
+      await _firestore
+          .collection('conditional_notifications')
+          .add(notificationData);
+
+      debugPrint('조건부 알림 기록 저장 완료');
+    } catch (e) {
+      debugPrint('조건부 알림 기록 저장 실패: $e');
     }
   }
 } 

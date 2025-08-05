@@ -154,6 +154,24 @@ class NotificationRepositoryImpl implements NotificationRepository {
     }
   }
 
+  @override
+  Future<Either<AppFailure, void>> sendConditionalPushNotification(
+    SendNotificationParams params, {
+    int? dayOfWeek,
+    String? userType,
+  }) async {
+    try {
+      await _fcmDataSource.sendConditionalPushNotification(
+        params,
+        dayOfWeek: dayOfWeek,
+        userType: userType,
+      );
+      return const Right(null);
+    } catch (e) {
+      return Left(AppFailure.serverError(e.toString()));
+    }
+  }
+
   /// TimeOfDay를 문자열로 변환 (HH:mm 형식)
   String _formatTimeOfDay(TimeOfDay timeOfDay) {
     return '${timeOfDay.hour.toString().padLeft(2, '0')}:${timeOfDay.minute.toString().padLeft(2, '0')}';

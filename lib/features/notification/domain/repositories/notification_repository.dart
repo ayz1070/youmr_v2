@@ -25,4 +25,11 @@ abstract class NotificationRepository {
   
   /// 푸시 알림 전송
   Future<Either<AppFailure, void>> sendPushNotification(SendNotificationParams params);
+  
+  /// 조건부 푸시 알림 전송
+  Future<Either<AppFailure, void>> sendConditionalPushNotification(
+    SendNotificationParams params, {
+    int? dayOfWeek,
+    String? userType,
+  });
 } 
