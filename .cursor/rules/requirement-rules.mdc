@@ -3,6 +3,12 @@ description:
 globs: 
 alwaysApply: false
 ---
+---
+description:
+globs:
+alwaysApply: false
+---
+
 # 🎨 YouMR 앱 개선된 요구사항 명세서
 
 ## 1️⃣ 프로젝트 핵심

@@ -1,21 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:youmr_v2/core/services/fcm_service.dart';
+import 'package:youmr_v2/features/notification/presentation/providers/notification_provider.dart';
 import 'login_page.dart';
 import 'profile_setup_page.dart';
 import '../../../main/presentation/pages/main_navigation_page.dart';
 
 /// 앱 실행 시 최초로 보여지는 스플래시 화면
-class SplashPage extends StatefulWidget {
+class SplashPage extends ConsumerStatefulWidget {
   /// [key]: 위젯 고유 키
   const SplashPage({super.key});
 
   @override
-  State<SplashPage> createState() => _SplashPageState();
+  ConsumerState<SplashPage> createState() => _SplashPageState();
 }
 
 /// 스플래시 페이지 상태 클래스
-class _SplashPageState extends State<SplashPage> {
+class _SplashPageState extends ConsumerState<SplashPage> {
   @override
   void initState() {
     super.initState();
@@ -25,7 +28,7 @@ class _SplashPageState extends State<SplashPage> {
   /// 로그인 상태 및 프로필 정보 확인 후 분기
   /// Firestore/FirebaseAuth 직접 접근 → 추후 Provider 구조로 개선 권장
   Future<void> _checkAuth() async {
-    await Future.delayed(const Duration(seconds: 1)); // 스플래시 연출용
+    await Future.delayed(const Duration(milliseconds: 300)); // 스플래시 연출용 (1초 → 0.3초로 단축)
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
       // 로그인 X → 로그인 페이지로 이동
@@ -36,6 +39,11 @@ class _SplashPageState extends State<SplashPage> {
       }
       return;
     }
+    
+    // 로그인된 사용자의 FCM 토큰 저장 및 FCM 서비스 초기화
+    await _saveFcmToken();
+    await _initializeFcmService();
+    
     try {
       // Firestore에서 프로필 정보 확인
       final userDoc = FirebaseFirestore.instance.collection('users').doc(user.uid);
@@ -97,6 +105,49 @@ class _SplashPageState extends State<SplashPage> {
           MaterialPageRoute(builder: (_) => const LoginPage()),
         );
       }
+    }
+  }
+
+  /// FCM 토큰 저장
+  Future<void> _saveFcmToken() async {
+    try {
+      final fcmService = FcmService();
+      final token = await fcmService.getToken();
+      
+      if (token != null) {
+        // Provider를 통해 FCM 토큰 저장
+        await ref.read(notificationProvider.notifier).saveFcmToken(token);
+        debugPrint('FCM 토큰 저장 완료: $token');
+        
+        // FCM 토큰 갱신 리스너 등록
+        fcmService.onTokenRefresh((newToken) async {
+          await ref.read(notificationProvider.notifier).saveFcmToken(newToken);
+          debugPrint('FCM 토큰 갱신 및 저장 완료: $newToken');
+        });
+      }
+    } catch (e) {
+      debugPrint('FCM 토큰 저장 실패: $e');
+    }
+  }
+
+  /// FCM 서비스 초기화
+  Future<void> _initializeFcmService() async {
+    try {
+      final fcmService = FcmService();
+      
+      // 포그라운드 메시지 핸들러 등록
+      fcmService.onForegroundMessage((message) {
+        debugPrint('포그라운드 FCM 메시지 수신: ${message.messageId}');
+        // TODO: 필요시 특정 화면으로 네비게이션 처리
+        // 예: 투표 알림이면 투표 페이지로, 출석 알림이면 출석 페이지로
+      });
+      
+      // 알림 설정 로드
+      await ref.read(notificationProvider.notifier).loadNotificationSettings();
+      
+      debugPrint('FCM 서비스 초기화 완료');
+    } catch (e) {
+      debugPrint('FCM 서비스 초기화 실패: $e');
     }
   }
 

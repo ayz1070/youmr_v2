@@ -24,8 +24,9 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
-	<key>UILaunchStoryboardName</key>
-	<string>LaunchScreen</string>
+	<!-- 기본 스플래시 화면 제거 -->
+	<!-- <key>UILaunchStoryboardName</key>
+	<string>LaunchScreen</string> -->
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
 	<key>UISupportedInterfaceOrientations</key>

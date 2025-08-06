@@ -16,6 +16,8 @@ class UserDto with _$UserDto {
     required String email,
     /// 닉네임
     required String nickname,
+    /// 실명 (nullable)
+    String? name,
     /// 프로필 이미지 URL (nullable)
     String? profileImageUrl,
   }) = _UserDto;
@@ -31,6 +33,7 @@ extension UserDtoDomainMapper on UserDto {
         uid: uid,
         email: email,
         nickname: nickname,
+        name: name,
         profileImageUrl: profileImageUrl,
       );
 }
@@ -41,6 +44,7 @@ extension UserDtoFromDomain on AuthUser {
         uid: uid,
         email: email,
         nickname: nickname,
+        name: name,
         profileImageUrl: profileImageUrl,
       );
 } 

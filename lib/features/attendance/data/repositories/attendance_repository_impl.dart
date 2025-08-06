@@ -6,6 +6,8 @@ import '../dtos/attendance_dto.dart';
 import '../../../../core/errors/attendance_failure.dart';
 import '../../../../core/constants/error_messages.dart';
 import '../../../../core/constants/app_logger.dart';
+import '../../../../core/constants/firestore_constants.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 /// 출석 Repository 구현체
 class AttendanceRepositoryImpl implements AttendanceRepository {
@@ -65,6 +67,36 @@ class AttendanceRepositoryImpl implements AttendanceRepository {
       // 에러 및 스택트레이스 로깅
       AppLogger.e('참석자 스트림 실패', error: e, stackTrace: st);
       return Stream.value(Left(AttendanceFirestoreFailure('$e')));
+    }
+  }
+
+  /// 현재 사용자 프로필 정보 조회
+  /// 반환: 성공 시 (이름, 프로필이미지URL), 실패 시 [AttendanceFailure]
+  @override
+  Future<Either<AttendanceFailure, (String name, String profileImageUrl)>> getCurrentUserProfile() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        return Left(AttendanceFirestoreFailure('사용자 정보를 찾을 수 없습니다'));
+      }
+
+      // Firestore에서 사용자 정보 가져오기
+      final userData = await dataSource.fetchUserData(user.uid);
+      if (userData == null) {
+        return Left(AttendanceFirestoreFailure('사용자 프로필 정보를 찾을 수 없습니다'));
+      }
+
+      // name 필드를 우선 사용하고, 없으면 nickname 사용
+      final userName = userData[FirestoreConstants.name] ?? 
+                      userData[FirestoreConstants.nickname] ?? 
+                      user.displayName ?? 
+                      '이름없음';
+      final userProfileImageUrl = userData[FirestoreConstants.profileImageUrl] ?? '';
+
+      return Right((userName, userProfileImageUrl));
+    } catch (e, st) {
+      AppLogger.e('사용자 프로필 정보 조회 실패', error: e, stackTrace: st);
+      return Left(AttendanceFirestoreFailure('${ErrorMessages.commonError}: $e'));
     }
   }
 } 

@@ -23,7 +23,7 @@ mixin _$Attendance {
   String get weekKey => throw _privateConstructorUsedError;
   String get userId => throw _privateConstructorUsedError;
   List<String> get selectedDays => throw _privateConstructorUsedError;
-  String get nickname => throw _privateConstructorUsedError;
+  String get name => throw _privateConstructorUsedError;
   String get profileImageUrl => throw _privateConstructorUsedError;
   DateTime? get lastUpdated => throw _privateConstructorUsedError;
 
@@ -47,7 +47,7 @@ abstract class $AttendanceCopyWith<$Res> {
       {String weekKey,
       String userId,
       List<String> selectedDays,
-      String nickname,
+      String name,
       String profileImageUrl,
       DateTime? lastUpdated});
 }
@@ -70,7 +70,7 @@ class _$AttendanceCopyWithImpl<$Res, $Val extends Attendance>
     Object? weekKey = null,
     Object? userId = null,
     Object? selectedDays = null,
-    Object? nickname = null,
+    Object? name = null,
     Object? profileImageUrl = null,
     Object? lastUpdated = freezed,
   }) {
@@ -87,9 +87,9 @@ class _$AttendanceCopyWithImpl<$Res, $Val extends Attendance>
           ? _value.selectedDays
           : selectedDays // ignore: cast_nullable_to_non_nullable
               as List<String>,
-      nickname: null == nickname
-          ? _value.nickname
-          : nickname // ignore: cast_nullable_to_non_nullable
+      name: null == name
+          ? _value.name
+          : name // ignore: cast_nullable_to_non_nullable
               as String,
       profileImageUrl: null == profileImageUrl
           ? _value.profileImageUrl
@@ -115,7 +115,7 @@ abstract class _$$AttendanceImplCopyWith<$Res>
       {String weekKey,
       String userId,
       List<String> selectedDays,
-      String nickname,
+      String name,
       String profileImageUrl,
       DateTime? lastUpdated});
 }
@@ -136,7 +136,7 @@ class __$$AttendanceImplCopyWithImpl<$Res>
     Object? weekKey = null,
     Object? userId = null,
     Object? selectedDays = null,
-    Object? nickname = null,
+    Object? name = null,
     Object? profileImageUrl = null,
     Object? lastUpdated = freezed,
   }) {
@@ -153,9 +153,9 @@ class __$$AttendanceImplCopyWithImpl<$Res>
           ? _value._selectedDays
           : selectedDays // ignore: cast_nullable_to_non_nullable
               as List<String>,
-      nickname: null == nickname
-          ? _value.nickname
-          : nickname // ignore: cast_nullable_to_non_nullable
+      name: null == name
+          ? _value.name
+          : name // ignore: cast_nullable_to_non_nullable
               as String,
       profileImageUrl: null == profileImageUrl
           ? _value.profileImageUrl
@@ -176,7 +176,7 @@ class _$AttendanceImpl implements _Attendance {
       {required this.weekKey,
       required this.userId,
       required final List<String> selectedDays,
-      required this.nickname,
+      required this.name,
       required this.profileImageUrl,
       this.lastUpdated})
       : _selectedDays = selectedDays;
@@ -197,7 +197,7 @@ class _$AttendanceImpl implements _Attendance {
   }
 
   @override
-  final String nickname;
+  final String name;
   @override
   final String profileImageUrl;
   @override
@@ -205,7 +205,7 @@ class _$AttendanceImpl implements _Attendance {
 
   @override
   String toString() {
-    return 'Attendance(weekKey: $weekKey, userId: $userId, selectedDays: $selectedDays, nickname: $nickname, profileImageUrl: $profileImageUrl, lastUpdated: $lastUpdated)';
+    return 'Attendance(weekKey: $weekKey, userId: $userId, selectedDays: $selectedDays, name: $name, profileImageUrl: $profileImageUrl, lastUpdated: $lastUpdated)';
   }
 
   @override
@@ -217,8 +217,7 @@ class _$AttendanceImpl implements _Attendance {
             (identical(other.userId, userId) || other.userId == userId) &&
             const DeepCollectionEquality()
                 .equals(other._selectedDays, _selectedDays) &&
-            (identical(other.nickname, nickname) ||
-                other.nickname == nickname) &&
+            (identical(other.name, name) || other.name == name) &&
             (identical(other.profileImageUrl, profileImageUrl) ||
                 other.profileImageUrl == profileImageUrl) &&
             (identical(other.lastUpdated, lastUpdated) ||
@@ -232,7 +231,7 @@ class _$AttendanceImpl implements _Attendance {
       weekKey,
       userId,
       const DeepCollectionEquality().hash(_selectedDays),
-      nickname,
+      name,
       profileImageUrl,
       lastUpdated);
 
@@ -257,7 +256,7 @@ abstract class _Attendance implements Attendance {
       {required final String weekKey,
       required final String userId,
       required final List<String> selectedDays,
-      required final String nickname,
+      required final String name,
       required final String profileImageUrl,
       final DateTime? lastUpdated}) = _$AttendanceImpl;
 
@@ -271,7 +270,7 @@ abstract class _Attendance implements Attendance {
   @override
   List<String> get selectedDays;
   @override
-  String get nickname;
+  String get name;
   @override
   String get profileImageUrl;
   @override

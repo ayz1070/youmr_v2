@@ -57,11 +57,30 @@ class AuthRepositoryImpl implements AuthRepository {
           FirestoreConstants.lastUpdated: FieldValue.serverTimestamp(),
         });
       }
+      
+      // Firestore에서 최신 사용자 정보 가져오기
+      String userNickname = user.displayName ?? '';
+      String? userName;
+      String? userProfileImageUrl = user.photoURL;
+      
+      try {
+        final Map<String, dynamic>? latestUserDoc = await dataSource.fetchUserProfile(uid: user.uid);
+        if (latestUserDoc != null) {
+          userNickname = latestUserDoc[FirestoreConstants.nickname] ?? user.displayName ?? '';
+          userName = latestUserDoc[FirestoreConstants.name];
+          userProfileImageUrl = latestUserDoc[FirestoreConstants.profileImageUrl] ?? user.photoURL;
+        }
+      } catch (e) {
+        // Firestore 조회 실패 시 Firebase Auth 정보 사용
+        AppLogger.w('Firestore 사용자 정보 조회 실패, Firebase Auth 정보 사용', error: e);
+      }
+      
       return Right(AuthUser(
         uid: user.uid,
         email: user.email ?? '',
-        nickname: user.displayName ?? '',
-        profileImageUrl: user.photoURL,
+        nickname: userNickname,
+        name: userName,
+        profileImageUrl: userProfileImageUrl,
       ));
     } catch (e, st) {
       AppLogger.e('구글 로그인 실패', error: e, stackTrace: st);
@@ -89,11 +108,30 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       final User? user = dataSource.getCurrentUser();
       if (user == null) return const Right(null);
+      
+      // Firestore에서 사용자 정보 가져오기
+      String userNickname = user.displayName ?? '';
+      String? userName;
+      String? userProfileImageUrl = user.photoURL;
+      
+      try {
+        final Map<String, dynamic>? userDoc = await dataSource.fetchUserProfile(uid: user.uid);
+        if (userDoc != null) {
+          userNickname = userDoc[FirestoreConstants.nickname] ?? user.displayName ?? '';
+          userName = userDoc[FirestoreConstants.name];
+          userProfileImageUrl = userDoc[FirestoreConstants.profileImageUrl] ?? user.photoURL;
+        }
+      } catch (e) {
+        // Firestore 조회 실패 시 Firebase Auth 정보 사용
+        AppLogger.w('Firestore 사용자 정보 조회 실패, Firebase Auth 정보 사용', error: e);
+      }
+      
       return Right(AuthUser(
         uid: user.uid,
         email: user.email ?? '',
-        nickname: user.displayName ?? '',
-        profileImageUrl: user.photoURL,
+        nickname: userNickname,
+        name: userName,
+        profileImageUrl: userProfileImageUrl,
       ));
     } catch (e, st) {
       AppLogger.e('유저 조회 실패', error: e, stackTrace: st);

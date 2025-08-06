@@ -1,5 +1,54 @@
 ---
+description: 
+globs: 
+alwaysApply: false
+---
+---
 description:
 globs:
 alwaysApply: false
 ---
+
+# flutter-refactor-domain-rules.mdc
+
+---
+설명: 이 파일은 Flutter Clean Architecture 기반 프로젝트에서 domain layer(entities, value_objects, repositories, use_cases 등)에 일관되고 유지보수성 높은 리팩토링을 적용하기 위한 실무 규칙을 정의합니다. 모든 코드, 주석, 문서는 한글로 작성하며, 아래 규칙을 모든 feature의 domain layer에 적용하세요.
+---
+
+## 1. 계층별 책임 분리
+- Entity: 도메인 불변 객체, @freezed 적극 활용, 각 필드에 한글 주석, 도메인 규칙/유효성 검사 로직 포함
+- ValueObject: 값의 동등성, 불변성, 도메인 의미 명확화, toString/fromString, equals, hashCode 등 구현, 한글 주석 필수
+- Repository: 도메인 계층의 추상화(abstract class), DataSource/DTO에 의존하지 않음, Failure/Either 등 함수형 에러 처리 적용, 한글 주석 필수
+- UseCase: 단일 책임 원칙(SRP), 비즈니스 시나리오 캡슐화, DI(생성자 주입), 파라미터/반환값 타입 명시, 한글 주석 필수
+
+## 2. 타입 명시 및 코드 스타일
+- 모든 변수, 파라미터, 반환값에 타입 명시(null safety)
+- 80자 제한, 의미 있는 네이밍, 매직넘버/하드코딩 상수화
+- 한글 주석, SOLID 원칙, Clean Architecture 계층 분리
+
+## 3. Value Object 적극 활용
+- 날짜, 기간, 식별자 등 도메인 개념은 ValueObject로 모델링
+- Entity/UseCase/Repository에서 ValueObject 타입을 직접 사용
+- 유효성 검사, 비교, 직렬화 등 메서드 구현
+
+## 4. 함수형 에러 처리
+- Repository/UseCase 반환값은 Either<Failure, Result> 형태로 성공/실패를 명확히 구분
+- 성공: Right(정상 결과), 실패: Left(Failure)
+- fold/map 등 함수형 체이닝 적극 활용
+
+## 5. 테스트 용이성
+- DI(생성자 주입)로 mock/fake 주입 가능하게 설계
+- 단위 테스트에서 mock Repository/UseCase로 다양한 시나리오 검증
+- Given-When-Then, Arrange-Act-Assert 패턴, 한글 주석 필수
+
+## 6. 주석 및 문서화
+- 모든 클래스, 함수, 파라미터, 반환값에 한글 주석 필수
+- 복잡한 로직, 비직관적 결정에는 반드시 상세 주석 남김
+
+## 7. 계층 분리 및 의존성
+- domain layer는 data/presentation/core 등 외부 계층에 의존하지 않음
+- core/constants 등은 import 가능(공통 상수/Failure 등)
+
+---
+이 규칙을 모든 feature의 domain layer 리팩토링에 일관되게 적용하세요.
+

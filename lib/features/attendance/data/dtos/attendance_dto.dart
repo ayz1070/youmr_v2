@@ -15,8 +15,8 @@ class AttendanceDto with _$AttendanceDto {
     required String userId,
     /// 선택한 요일 리스트
     required List<String> selectedDays,
-    /// 닉네임
-    required String nickname,
+    /// 실명
+    required String name,
     /// 프로필 이미지 URL
     required String profileImageUrl,
     /// 마지막 업데이트 시각
@@ -31,7 +31,7 @@ class AttendanceDto with _$AttendanceDto {
     weekKey: attendance.weekKey,
     userId: attendance.userId,
     selectedDays: attendance.selectedDays,
-    nickname: attendance.nickname,
+    name: attendance.name,
     profileImageUrl: attendance.profileImageUrl,
     lastUpdated: attendance.lastUpdated,
   );
@@ -43,7 +43,7 @@ extension AttendanceDtoX on AttendanceDto {
     weekKey: weekKey,
     userId: userId,
     selectedDays: selectedDays,
-    nickname: nickname,
+    name: name,
     profileImageUrl: profileImageUrl,
     lastUpdated: lastUpdated,
   );

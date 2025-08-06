@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:youmr_v2/core/widgets/primary_app_bar.dart';
+import 'package:youmr_v2/core/widgets/banner_ad_widget.dart';
 import '../providers/post_provider.dart';
 import '../widgets/post_category_tabbar.dart';
 
@@ -127,7 +128,7 @@ class _PostPageState extends ConsumerState<PostPage> with SingleTickerProviderSt
                                       SliverToBoxAdapter(
                                         child: PostNoticeList(notices: postState.notices, theme: theme),
                                       ),
-                                    // PostGridList를 SliverToBoxAdapter로 감싸지 않고 바로 추가
+                                    // 원래의 PostGridList 사용
                                     PostGridList(
                                       posts: postState.posts,
                                       hasMore: false, // 현재는 무한 스크롤 미지원
@@ -138,6 +139,8 @@ class _PostPageState extends ConsumerState<PostPage> with SingleTickerProviderSt
                               ),
               ),
             ),
+            // 배너 광고
+            const BannerAdWidget(),
           ],
         ),
       ),

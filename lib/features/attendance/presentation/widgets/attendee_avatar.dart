@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 
 /// 참석자 아바타 위젯
 class AttendeeAvatar extends StatelessWidget {
-  final String nickname;
+  final String name;
   final String? profileImageUrl;
   final double size;
 
   const AttendeeAvatar({
     super.key,
-    required this.nickname,
+    required this.name,
     this.profileImageUrl,
     this.size = 40,
   });
@@ -35,7 +35,7 @@ class AttendeeAvatar extends StatelessWidget {
         SizedBox(
           width: size,
           child: Text(
-            nickname,
+            name,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 10),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,

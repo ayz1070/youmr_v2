@@ -4,6 +4,8 @@ import '../providers/profile_provider.dart';
 import '../../domain/entities/profile.dart';
 import 'profile_edit_page.dart';
 import '../../../auth/presentation/pages/profile_setup_page.dart';
+import '../../../notification/presentation/pages/notification_settings_page.dart';
+import '../../../notification/presentation/pages/admin_notification_page.dart';
 
 /// 프로필 탭 페이지 (Provider 기반)
 class ProfilePage extends ConsumerWidget {
@@ -114,7 +116,7 @@ class ProfilePage extends ConsumerWidget {
                       ],
                     ),
                   ),
-                  // 메뉴 리스트 (프로필 수정, 로그아웃)
+                  // 메뉴 리스트 (프로필 수정, 알림 설정, 로그아웃)
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 0),
                     child: Column(
@@ -129,6 +131,18 @@ class ProfilePage extends ConsumerWidget {
                             if (result == true) {
                               notifier.build(); // 프로필 정보 새로고침
                             }
+                          },
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 24),
+                          visualDensity: VisualDensity.compact,
+                        ),
+                        const Divider(height: 1, thickness: 1, indent: 24, endIndent: 24),
+                        ListTile(
+                          leading: const Icon(Icons.notifications_outlined),
+                          title: const Text('알림 설정', style: TextStyle(fontSize: 14)),
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(builder: (_) => const NotificationSettingsPage()),
+                            );
                           },
                           contentPadding: const EdgeInsets.symmetric(horizontal: 24),
                           visualDensity: VisualDensity.compact,
@@ -153,16 +167,32 @@ class ProfilePage extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        if (isAdmin)
+                        if (isAdmin) ...[
                           Card(
                             color: Colors.blue[50],
-                            child: ListTile(
-                              leading: const Icon(Icons.admin_panel_settings, color: Colors.blue),
-                              title: const Text('관리자 메뉴'),
-                              subtitle: const Text('공지글 관리, 회원 관리 등'),
-                              onTap: () {}, // TODO: 관리자 기능 연결
+                            child: Column(
+                              children: [
+                                ListTile(
+                                  leading: const Icon(Icons.admin_panel_settings, color: Colors.blue),
+                                  title: const Text('관리자 메뉴'),
+                                  subtitle: const Text('공지글 관리, 회원 관리 등'),
+                                  onTap: () {}, // TODO: 관리자 기능 연결
+                                ),
+                                const Divider(height: 1),
+                                ListTile(
+                                  leading: const Icon(Icons.send, color: Colors.blue),
+                                  title: const Text('알림 전송'),
+                                  subtitle: const Text('사용자들에게 푸시 알림 전송'),
+                                  onTap: () {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(builder: (_) => const AdminNotificationPage()),
+                                    );
+                                  },
+                                ),
+                              ],
                             ),
                           ),
+                        ],
                       ],
                     ),
                   ),

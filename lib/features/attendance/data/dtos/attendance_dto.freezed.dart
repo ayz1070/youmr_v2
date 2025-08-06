@@ -29,8 +29,8 @@ mixin _$AttendanceDto {
   /// 선택한 요일 리스트
   List<String> get selectedDays => throw _privateConstructorUsedError;
 
-  /// 닉네임
-  String get nickname => throw _privateConstructorUsedError;
+  /// 실명
+  String get name => throw _privateConstructorUsedError;
 
   /// 프로필 이미지 URL
   String get profileImageUrl => throw _privateConstructorUsedError;
@@ -59,7 +59,7 @@ abstract class $AttendanceDtoCopyWith<$Res> {
       {String weekKey,
       String userId,
       List<String> selectedDays,
-      String nickname,
+      String name,
       String profileImageUrl,
       @JsonKey(
           name: 'last_updated', fromJson: _fromTimestamp, toJson: _toTimestamp)
@@ -84,7 +84,7 @@ class _$AttendanceDtoCopyWithImpl<$Res, $Val extends AttendanceDto>
     Object? weekKey = null,
     Object? userId = null,
     Object? selectedDays = null,
-    Object? nickname = null,
+    Object? name = null,
     Object? profileImageUrl = null,
     Object? lastUpdated = freezed,
   }) {
@@ -101,9 +101,9 @@ class _$AttendanceDtoCopyWithImpl<$Res, $Val extends AttendanceDto>
           ? _value.selectedDays
           : selectedDays // ignore: cast_nullable_to_non_nullable
               as List<String>,
-      nickname: null == nickname
-          ? _value.nickname
-          : nickname // ignore: cast_nullable_to_non_nullable
+      name: null == name
+          ? _value.name
+          : name // ignore: cast_nullable_to_non_nullable
               as String,
       profileImageUrl: null == profileImageUrl
           ? _value.profileImageUrl
@@ -129,7 +129,7 @@ abstract class _$$AttendanceDtoImplCopyWith<$Res>
       {String weekKey,
       String userId,
       List<String> selectedDays,
-      String nickname,
+      String name,
       String profileImageUrl,
       @JsonKey(
           name: 'last_updated', fromJson: _fromTimestamp, toJson: _toTimestamp)
@@ -152,7 +152,7 @@ class __$$AttendanceDtoImplCopyWithImpl<$Res>
     Object? weekKey = null,
     Object? userId = null,
     Object? selectedDays = null,
-    Object? nickname = null,
+    Object? name = null,
     Object? profileImageUrl = null,
     Object? lastUpdated = freezed,
   }) {
@@ -169,9 +169,9 @@ class __$$AttendanceDtoImplCopyWithImpl<$Res>
           ? _value._selectedDays
           : selectedDays // ignore: cast_nullable_to_non_nullable
               as List<String>,
-      nickname: null == nickname
-          ? _value.nickname
-          : nickname // ignore: cast_nullable_to_non_nullable
+      name: null == name
+          ? _value.name
+          : name // ignore: cast_nullable_to_non_nullable
               as String,
       profileImageUrl: null == profileImageUrl
           ? _value.profileImageUrl
@@ -192,7 +192,7 @@ class _$AttendanceDtoImpl implements _AttendanceDto {
       {required this.weekKey,
       required this.userId,
       required final List<String> selectedDays,
-      required this.nickname,
+      required this.name,
       required this.profileImageUrl,
       @JsonKey(
           name: 'last_updated', fromJson: _fromTimestamp, toJson: _toTimestamp)
@@ -221,9 +221,9 @@ class _$AttendanceDtoImpl implements _AttendanceDto {
     return EqualUnmodifiableListView(_selectedDays);
   }
 
-  /// 닉네임
+  /// 실명
   @override
-  final String nickname;
+  final String name;
 
   /// 프로필 이미지 URL
   @override
@@ -236,7 +236,7 @@ class _$AttendanceDtoImpl implements _AttendanceDto {
 
   @override
   String toString() {
-    return 'AttendanceDto(weekKey: $weekKey, userId: $userId, selectedDays: $selectedDays, nickname: $nickname, profileImageUrl: $profileImageUrl, lastUpdated: $lastUpdated)';
+    return 'AttendanceDto(weekKey: $weekKey, userId: $userId, selectedDays: $selectedDays, name: $name, profileImageUrl: $profileImageUrl, lastUpdated: $lastUpdated)';
   }
 
   @override
@@ -248,8 +248,7 @@ class _$AttendanceDtoImpl implements _AttendanceDto {
             (identical(other.userId, userId) || other.userId == userId) &&
             const DeepCollectionEquality()
                 .equals(other._selectedDays, _selectedDays) &&
-            (identical(other.nickname, nickname) ||
-                other.nickname == nickname) &&
+            (identical(other.name, name) || other.name == name) &&
             (identical(other.profileImageUrl, profileImageUrl) ||
                 other.profileImageUrl == profileImageUrl) &&
             (identical(other.lastUpdated, lastUpdated) ||
@@ -263,7 +262,7 @@ class _$AttendanceDtoImpl implements _AttendanceDto {
       weekKey,
       userId,
       const DeepCollectionEquality().hash(_selectedDays),
-      nickname,
+      name,
       profileImageUrl,
       lastUpdated);
 
@@ -288,7 +287,7 @@ abstract class _AttendanceDto implements AttendanceDto {
       {required final String weekKey,
       required final String userId,
       required final List<String> selectedDays,
-      required final String nickname,
+      required final String name,
       required final String profileImageUrl,
       @JsonKey(
           name: 'last_updated', fromJson: _fromTimestamp, toJson: _toTimestamp)
@@ -309,9 +308,9 @@ abstract class _AttendanceDto implements AttendanceDto {
   @override
   List<String> get selectedDays;
 
-  /// 닉네임
+  /// 실명
   @override
-  String get nickname;
+  String get name;
 
   /// 프로필 이미지 URL
   @override

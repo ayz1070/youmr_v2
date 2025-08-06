@@ -13,4 +13,4 @@ class Attendee with _$Attendee {
   }) = _Attendee;
 
   factory Attendee.fromJson(Map<String, dynamic> json) => _$AttendeeFromJson(json);
-} 
+}

@@ -82,7 +82,7 @@ class AttendanceDayRow extends ConsumerWidget {
                   }
                   final a = attendees[idx - 1];
                   return AttendeeAvatar(
-                    nickname: a.nickname,
+                    name: a.name,
                     profileImageUrl: a.profileImageUrl,
                   );
                 },

@@ -29,6 +29,9 @@ mixin _$UserDto {
   /// 닉네임
   String get nickname => throw _privateConstructorUsedError;
 
+  /// 실명 (nullable)
+  String? get name => throw _privateConstructorUsedError;
+
   /// 프로필 이미지 URL (nullable)
   String? get profileImageUrl => throw _privateConstructorUsedError;
 
@@ -47,7 +50,11 @@ abstract class $UserDtoCopyWith<$Res> {
       _$UserDtoCopyWithImpl<$Res, UserDto>;
   @useResult
   $Res call(
-      {String uid, String email, String nickname, String? profileImageUrl});
+      {String uid,
+      String email,
+      String nickname,
+      String? name,
+      String? profileImageUrl});
 }
 
 /// @nodoc
@@ -68,6 +75,7 @@ class _$UserDtoCopyWithImpl<$Res, $Val extends UserDto>
     Object? uid = null,
     Object? email = null,
     Object? nickname = null,
+    Object? name = freezed,
     Object? profileImageUrl = freezed,
   }) {
     return _then(_value.copyWith(
@@ -83,6 +91,10 @@ class _$UserDtoCopyWithImpl<$Res, $Val extends UserDto>
           ? _value.nickname
           : nickname // ignore: cast_nullable_to_non_nullable
               as String,
+      name: freezed == name
+          ? _value.name
+          : name // ignore: cast_nullable_to_non_nullable
+              as String?,
       profileImageUrl: freezed == profileImageUrl
           ? _value.profileImageUrl
           : profileImageUrl // ignore: cast_nullable_to_non_nullable
@@ -99,7 +111,11 @@ abstract class _$$UserDtoImplCopyWith<$Res> implements $UserDtoCopyWith<$Res> {
   @override
   @useResult
   $Res call(
-      {String uid, String email, String nickname, String? profileImageUrl});
+      {String uid,
+      String email,
+      String nickname,
+      String? name,
+      String? profileImageUrl});
 }
 
 /// @nodoc
@@ -118,6 +134,7 @@ class __$$UserDtoImplCopyWithImpl<$Res>
     Object? uid = null,
     Object? email = null,
     Object? nickname = null,
+    Object? name = freezed,
     Object? profileImageUrl = freezed,
   }) {
     return _then(_$UserDtoImpl(
@@ -133,6 +150,10 @@ class __$$UserDtoImplCopyWithImpl<$Res>
           ? _value.nickname
           : nickname // ignore: cast_nullable_to_non_nullable
               as String,
+      name: freezed == name
+          ? _value.name
+          : name // ignore: cast_nullable_to_non_nullable
+              as String?,
       profileImageUrl: freezed == profileImageUrl
           ? _value.profileImageUrl
           : profileImageUrl // ignore: cast_nullable_to_non_nullable
@@ -148,6 +169,7 @@ class _$UserDtoImpl implements _UserDto {
       {required this.uid,
       required this.email,
       required this.nickname,
+      this.name,
       this.profileImageUrl});
 
   factory _$UserDtoImpl.fromJson(Map<String, dynamic> json) =>
@@ -165,13 +187,17 @@ class _$UserDtoImpl implements _UserDto {
   @override
   final String nickname;
 
+  /// 실명 (nullable)
+  @override
+  final String? name;
+
   /// 프로필 이미지 URL (nullable)
   @override
   final String? profileImageUrl;
 
   @override
   String toString() {
-    return 'UserDto(uid: $uid, email: $email, nickname: $nickname, profileImageUrl: $profileImageUrl)';
+    return 'UserDto(uid: $uid, email: $email, nickname: $nickname, name: $name, profileImageUrl: $profileImageUrl)';
   }
 
   @override
@@ -183,6 +209,7 @@ class _$UserDtoImpl implements _UserDto {
             (identical(other.email, email) || other.email == email) &&
             (identical(other.nickname, nickname) ||
                 other.nickname == nickname) &&
+            (identical(other.name, name) || other.name == name) &&
             (identical(other.profileImageUrl, profileImageUrl) ||
                 other.profileImageUrl == profileImageUrl));
   }
@@ -190,7 +217,7 @@ class _$UserDtoImpl implements _UserDto {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode =>
-      Object.hash(runtimeType, uid, email, nickname, profileImageUrl);
+      Object.hash(runtimeType, uid, email, nickname, name, profileImageUrl);
 
   /// Create a copy of UserDto
   /// with the given fields replaced by the non-null parameter values.
@@ -213,6 +240,7 @@ abstract class _UserDto implements UserDto {
       {required final String uid,
       required final String email,
       required final String nickname,
+      final String? name,
       final String? profileImageUrl}) = _$UserDtoImpl;
 
   factory _UserDto.fromJson(Map<String, dynamic> json) = _$UserDtoImpl.fromJson;
@@ -228,6 +256,10 @@ abstract class _UserDto implements UserDto {
   /// 닉네임
   @override
   String get nickname;
+
+  /// 실명 (nullable)
+  @override
+  String? get name;
 
   /// 프로필 이미지 URL (nullable)
   @override

@@ -3,6 +3,12 @@ description:
 globs: 
 alwaysApply: false
 ---
+---
+description:
+globs:
+alwaysApply: false
+---
+
 # 🚀 현업 최적화 앱 개발 일일 보고서 템플릿
 
 ## 📋 기본 명령 구조

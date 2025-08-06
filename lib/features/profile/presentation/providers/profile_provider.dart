@@ -8,6 +8,7 @@ import '../../data/data_sources/profile_firestore_data_source.dart';
 import '../../core/errors/profile_failure.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../../../notification/presentation/providers/notification_provider.dart';
 
 /// 프로필 상태 관리 Provider (AsyncNotifier)
 final profileProvider = AsyncNotifierProvider<ProfileNotifier, Profile?>(
@@ -63,9 +64,23 @@ class ProfileNotifier extends AsyncNotifier<Profile?> {
 
   /// 로그아웃 기능
   Future<void> logout(BuildContext context) async {
-    await FirebaseAuth.instance.signOut();
-    if (context.mounted) {
-      Navigator.of(context).popUntil((route) => route.isFirst);
+    try {
+      // FCM 토큰 삭제
+      await ref.read(notificationProvider.notifier).deleteFcmToken();
+      
+      // Firebase Auth 로그아웃
+      await FirebaseAuth.instance.signOut();
+      
+      if (context.mounted) {
+        Navigator.of(context).popUntil((route) => route.isFirst);
+      }
+    } catch (e) {
+      debugPrint('로그아웃 중 오류 발생: $e');
+      // FCM 토큰 삭제 실패해도 로그아웃은 진행
+      await FirebaseAuth.instance.signOut();
+      if (context.mounted) {
+        Navigator.of(context).popUntil((route) => route.isFirst);
+      }
     }
   }
 } 

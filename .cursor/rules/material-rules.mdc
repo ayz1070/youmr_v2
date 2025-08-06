@@ -3,6 +3,12 @@ description:
 globs: 
 alwaysApply: false
 ---
+---
+description:
+globs:
+alwaysApply: false
+---
+
 당신은 Material Design 3 (Material You) 전문가입니다. **실무에서 바로 사용할 수 있는** 아름답고 일관되며 고성능의 앱을 빠르게 구축합니다.
 
 ## 🎯 핵심 원칙

@@ -22,6 +22,7 @@ class ProfileSetupPage extends ConsumerStatefulWidget {
 class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _nicknameController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
   String? _userType;
   String? _dayOfWeek;
   File? _selectedImageFile;
@@ -39,6 +40,7 @@ class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage> {
     final authState = ref.read(authProvider);
     if (authState.value != null) {
       _nicknameController.text = authState.value!.nickname;
+      _nameController.text = authState.value!.name ?? '';
       _currentImageUrl = authState.value!.profileImageUrl;
     }
   }
@@ -95,6 +97,7 @@ class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage> {
     // 프로필 정보 업데이트
     final updatedUser = user.copyWith(
       nickname: _nicknameController.text.trim(),
+      name: _nameController.text.trim().isEmpty ? null : _nameController.text.trim(),
       userType: _userType,
       dayOfWeek: _userType == ProfileSetupConstants.offlineMember ? _dayOfWeek : '',
       profileImageUrl: finalImageUrl ?? _currentImageUrl,
@@ -171,6 +174,7 @@ class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage> {
                   ProfileForm(
                     formKey: _formKey,
                     nicknameController: _nicknameController,
+                    nameController: _nameController,
                     userType: _userType,
                     dayOfWeek: _dayOfWeek,
                     onUserTypeChanged: _onUserTypeChanged,
@@ -190,6 +194,7 @@ class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage> {
   @override
   void dispose() {
     _nicknameController.dispose();
+    _nameController.dispose();
     super.dispose();
   }
 }

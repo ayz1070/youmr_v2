@@ -4,6 +4,7 @@ import '../../domain/entities/attendance.dart';
 import '../../domain/use_cases/get_my_attendance.dart';
 import '../../domain/use_cases/save_my_attendance.dart';
 import '../../domain/use_cases/get_attendees_by_day.dart';
+import '../../domain/use_cases/get_current_user_profile.dart';
 import '../../data/repositories/attendance_repository_impl.dart';
 import '../../data/data_sources/attendance_firestore_data_source.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -17,6 +18,7 @@ class AttendanceNotifier extends AsyncNotifier<Attendance?> {
   late final GetMyAttendance _getMyAttendance;
   late final SaveMyAttendance _saveMyAttendance;
   late final GetAttendeesByDay _getAttendeesByDay;
+  late final GetCurrentUserProfile _getCurrentUserProfile;
 
   @override
   FutureOr<Attendance?> build() async {
@@ -27,10 +29,19 @@ class AttendanceNotifier extends AsyncNotifier<Attendance?> {
     _getMyAttendance = GetMyAttendance(repository);
     _saveMyAttendance = SaveMyAttendance(repository);
     _getAttendeesByDay = GetAttendeesByDay(repository);
+    _getCurrentUserProfile = GetCurrentUserProfile(repository);
 
     // 현재 로그인 유저 정보로 출석 정보 불러오기
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return null;
+    
+    // UseCase를 통해 사용자 프로필 정보 가져오기
+    final profileResult = await _getCurrentUserProfile();
+    final (userName, userProfileImageUrl) = profileResult.fold(
+      (failure) => ('이름없음', ''),
+      (profile) => profile,
+    );
+    
     final weekKey = _getCurrentWeekKey();
     final result = await _getMyAttendance(weekKey: weekKey, userId: user.uid);
     return result.fold(
@@ -42,8 +53,8 @@ class AttendanceNotifier extends AsyncNotifier<Attendance?> {
             weekKey: weekKey,
             userId: user.uid,
             selectedDays: <String>[],
-            nickname: user.displayName ?? '이름없음',
-            profileImageUrl: user.photoURL ?? '',
+            name: userName,
+            profileImageUrl: userProfileImageUrl,
             lastUpdated: null,
           );
         }
@@ -78,6 +89,15 @@ class AttendanceNotifier extends AsyncNotifier<Attendance?> {
     // Either 스트림을 성공 시 리스트, 실패 시 빈 리스트로 변환
     return _getAttendeesByDay(weekKey: weekKey, day: day).map((either) =>
       either.fold((_) => <Attendance>[], (list) => list),
+    );
+  }
+
+  /// 현재 사용자 프로필 정보 가져오기
+  Future<(String name, String profileImageUrl)> getCurrentUserProfile() async {
+    final result = await _getCurrentUserProfile();
+    return result.fold(
+      (failure) => ('이름없음', ''),
+      (profile) => profile,
     );
   }
 
