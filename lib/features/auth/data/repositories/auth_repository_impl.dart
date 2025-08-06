@@ -60,12 +60,14 @@ class AuthRepositoryImpl implements AuthRepository {
       
       // Firestore에서 최신 사용자 정보 가져오기
       String userNickname = user.displayName ?? '';
+      String? userName;
       String? userProfileImageUrl = user.photoURL;
       
       try {
         final Map<String, dynamic>? latestUserDoc = await dataSource.fetchUserProfile(uid: user.uid);
         if (latestUserDoc != null) {
           userNickname = latestUserDoc[FirestoreConstants.nickname] ?? user.displayName ?? '';
+          userName = latestUserDoc[FirestoreConstants.name];
           userProfileImageUrl = latestUserDoc[FirestoreConstants.profileImageUrl] ?? user.photoURL;
         }
       } catch (e) {
@@ -77,6 +79,7 @@ class AuthRepositoryImpl implements AuthRepository {
         uid: user.uid,
         email: user.email ?? '',
         nickname: userNickname,
+        name: userName,
         profileImageUrl: userProfileImageUrl,
       ));
     } catch (e, st) {
@@ -108,12 +111,14 @@ class AuthRepositoryImpl implements AuthRepository {
       
       // Firestore에서 사용자 정보 가져오기
       String userNickname = user.displayName ?? '';
+      String? userName;
       String? userProfileImageUrl = user.photoURL;
       
       try {
         final Map<String, dynamic>? userDoc = await dataSource.fetchUserProfile(uid: user.uid);
         if (userDoc != null) {
           userNickname = userDoc[FirestoreConstants.nickname] ?? user.displayName ?? '';
+          userName = userDoc[FirestoreConstants.name];
           userProfileImageUrl = userDoc[FirestoreConstants.profileImageUrl] ?? user.photoURL;
         }
       } catch (e) {
@@ -125,6 +130,7 @@ class AuthRepositoryImpl implements AuthRepository {
         uid: user.uid,
         email: user.email ?? '',
         nickname: userNickname,
+        name: userName,
         profileImageUrl: userProfileImageUrl,
       ));
     } catch (e, st) {

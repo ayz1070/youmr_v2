@@ -6,6 +6,7 @@ class FirestoreConstants {
   static const String userId = 'userId';
   static const String selectedDays = 'selectedDays';
   static const String nickname = 'nickname';
+  static const String name = 'name';
   static const String profileImageUrl = 'profileImageUrl';
   static const String lastUpdated = 'lastUpdated';
   static const String userType = 'userType';

@@ -12,4 +12,8 @@ abstract class AttendanceRepository {
 
   /// 요일별 참석자 스트림
   Stream<Either<AttendanceFailure, List<Attendance>>> attendeesByDayStream({required String weekKey, required String day});
+
+  /// 현재 사용자 프로필 정보 조회
+  /// 반환: 성공 시 (이름, 프로필이미지URL), 실패 시 [AttendanceFailure]
+  Future<Either<AttendanceFailure, (String name, String profileImageUrl)>> getCurrentUserProfile();
 } 

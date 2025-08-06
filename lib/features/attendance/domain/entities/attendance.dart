@@ -10,7 +10,7 @@ class Attendance with _$Attendance {
     required String weekKey,
     required String userId,
     required List<String> selectedDays,
-    required String nickname,
+    required String name,
     required String profileImageUrl,
     DateTime? lastUpdated,
   }) = _Attendance;

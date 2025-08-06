@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 
 /// 프로필 폼 위젯
-/// - 닉네임, 회원 타입, 요일 선택 폼
+/// - 닉네임, 실명, 회원 타입, 요일 선택 폼
 class ProfileForm extends StatelessWidget {
   /// 폼 키
   final GlobalKey<FormState> formKey;
   /// 닉네임 컨트롤러
   final TextEditingController nicknameController;
+  /// 실명 컨트롤러
+  final TextEditingController nameController;
   /// 선택된 회원 타입
   final String? userType;
   /// 선택된 요일
@@ -18,6 +20,7 @@ class ProfileForm extends StatelessWidget {
 
   /// [formKey]: 폼 키
   /// [nicknameController]: 닉네임 컨트롤러
+  /// [nameController]: 실명 컨트롤러
   /// [userType]: 선택된 회원 타입
   /// [dayOfWeek]: 선택된 요일
   /// [onUserTypeChanged]: 회원 타입 변경 콜백
@@ -26,6 +29,7 @@ class ProfileForm extends StatelessWidget {
     super.key,
     required this.formKey,
     required this.nicknameController,
+    required this.nameController,
     this.userType,
     this.dayOfWeek,
     required this.onUserTypeChanged,
@@ -49,6 +53,16 @@ class ProfileForm extends StatelessWidget {
             validator: (v) => v == null || v.trim().isEmpty
                 ? '닉네임을 입력하세요'
                 : null,
+          ),
+          const SizedBox(height: 24),
+          // 실명 입력
+          TextFormField(
+            controller: nameController,
+            decoration: const InputDecoration(
+              labelText: '실명 (선택사항)',
+              border: OutlineInputBorder(),
+              hintText: '실명을 입력하세요',
+            ),
           ),
           const SizedBox(height: 24),
           // 회원 타입 선택

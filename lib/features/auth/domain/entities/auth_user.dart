@@ -11,6 +11,7 @@ class AuthUser with _$AuthUser {
   /// [uid] 유저 고유 ID
   /// [email] 이메일
   /// [nickname] 닉네임
+  /// [name] 실명 (nullable)
   /// [profileImageUrl] 프로필 이미지 URL (nullable)
   /// [userType] 유저 타입(관리자/일반 등, nullable)
   /// [dayOfWeek] 요일 정보(nullable)
@@ -24,6 +25,8 @@ class AuthUser with _$AuthUser {
     required String email,
     /// 닉네임
     required String nickname,
+    /// 실명 (nullable)
+    String? name,
     /// 프로필 이미지 URL (nullable)
     String? profileImageUrl,
     /// 유저 타입(관리자/일반 등, nullable)

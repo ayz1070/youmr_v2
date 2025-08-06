@@ -13,7 +13,7 @@ _$AttendanceImpl _$$AttendanceImplFromJson(Map<String, dynamic> json) =>
       selectedDays: (json['selectedDays'] as List<dynamic>)
           .map((e) => e as String)
           .toList(),
-      nickname: json['nickname'] as String,
+      name: json['name'] as String,
       profileImageUrl: json['profileImageUrl'] as String,
       lastUpdated: json['lastUpdated'] == null
           ? null
@@ -25,7 +25,7 @@ Map<String, dynamic> _$$AttendanceImplToJson(_$AttendanceImpl instance) =>
       'weekKey': instance.weekKey,
       'userId': instance.userId,
       'selectedDays': instance.selectedDays,
-      'nickname': instance.nickname,
+      'name': instance.name,
       'profileImageUrl': instance.profileImageUrl,
       'lastUpdated': instance.lastUpdated?.toIso8601String(),
     };

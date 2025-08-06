@@ -29,6 +29,9 @@ mixin _$AuthUser {
   /// 닉네임
   String get nickname => throw _privateConstructorUsedError;
 
+  /// 실명 (nullable)
+  String? get name => throw _privateConstructorUsedError;
+
   /// 프로필 이미지 URL (nullable)
   String? get profileImageUrl => throw _privateConstructorUsedError;
 
@@ -66,6 +69,7 @@ abstract class $AuthUserCopyWith<$Res> {
       {String uid,
       String email,
       String nickname,
+      String? name,
       String? profileImageUrl,
       String? userType,
       String? dayOfWeek,
@@ -92,6 +96,7 @@ class _$AuthUserCopyWithImpl<$Res, $Val extends AuthUser>
     Object? uid = null,
     Object? email = null,
     Object? nickname = null,
+    Object? name = freezed,
     Object? profileImageUrl = freezed,
     Object? userType = freezed,
     Object? dayOfWeek = freezed,
@@ -112,6 +117,10 @@ class _$AuthUserCopyWithImpl<$Res, $Val extends AuthUser>
           ? _value.nickname
           : nickname // ignore: cast_nullable_to_non_nullable
               as String,
+      name: freezed == name
+          ? _value.name
+          : name // ignore: cast_nullable_to_non_nullable
+              as String?,
       profileImageUrl: freezed == profileImageUrl
           ? _value.profileImageUrl
           : profileImageUrl // ignore: cast_nullable_to_non_nullable
@@ -152,6 +161,7 @@ abstract class _$$AuthUserImplCopyWith<$Res>
       {String uid,
       String email,
       String nickname,
+      String? name,
       String? profileImageUrl,
       String? userType,
       String? dayOfWeek,
@@ -176,6 +186,7 @@ class __$$AuthUserImplCopyWithImpl<$Res>
     Object? uid = null,
     Object? email = null,
     Object? nickname = null,
+    Object? name = freezed,
     Object? profileImageUrl = freezed,
     Object? userType = freezed,
     Object? dayOfWeek = freezed,
@@ -196,6 +207,10 @@ class __$$AuthUserImplCopyWithImpl<$Res>
           ? _value.nickname
           : nickname // ignore: cast_nullable_to_non_nullable
               as String,
+      name: freezed == name
+          ? _value.name
+          : name // ignore: cast_nullable_to_non_nullable
+              as String?,
       profileImageUrl: freezed == profileImageUrl
           ? _value.profileImageUrl
           : profileImageUrl // ignore: cast_nullable_to_non_nullable
@@ -231,6 +246,7 @@ class _$AuthUserImpl implements _AuthUser {
       {required this.uid,
       required this.email,
       required this.nickname,
+      this.name,
       this.profileImageUrl,
       this.userType,
       this.dayOfWeek,
@@ -252,6 +268,10 @@ class _$AuthUserImpl implements _AuthUser {
   /// 닉네임
   @override
   final String nickname;
+
+  /// 실명 (nullable)
+  @override
+  final String? name;
 
   /// 프로필 이미지 URL (nullable)
   @override
@@ -279,7 +299,7 @@ class _$AuthUserImpl implements _AuthUser {
 
   @override
   String toString() {
-    return 'AuthUser(uid: $uid, email: $email, nickname: $nickname, profileImageUrl: $profileImageUrl, userType: $userType, dayOfWeek: $dayOfWeek, fcmToken: $fcmToken, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'AuthUser(uid: $uid, email: $email, nickname: $nickname, name: $name, profileImageUrl: $profileImageUrl, userType: $userType, dayOfWeek: $dayOfWeek, fcmToken: $fcmToken, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -291,6 +311,7 @@ class _$AuthUserImpl implements _AuthUser {
             (identical(other.email, email) || other.email == email) &&
             (identical(other.nickname, nickname) ||
                 other.nickname == nickname) &&
+            (identical(other.name, name) || other.name == name) &&
             (identical(other.profileImageUrl, profileImageUrl) ||
                 other.profileImageUrl == profileImageUrl) &&
             (identical(other.userType, userType) ||
@@ -307,7 +328,7 @@ class _$AuthUserImpl implements _AuthUser {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, uid, email, nickname,
+  int get hashCode => Object.hash(runtimeType, uid, email, nickname, name,
       profileImageUrl, userType, dayOfWeek, fcmToken, createdAt, updatedAt);
 
   /// Create a copy of AuthUser
@@ -331,6 +352,7 @@ abstract class _AuthUser implements AuthUser {
       {required final String uid,
       required final String email,
       required final String nickname,
+      final String? name,
       final String? profileImageUrl,
       final String? userType,
       final String? dayOfWeek,
@@ -352,6 +374,10 @@ abstract class _AuthUser implements AuthUser {
   /// 닉네임
   @override
   String get nickname;
+
+  /// 실명 (nullable)
+  @override
+  String? get name;
 
   /// 프로필 이미지 URL (nullable)
   @override
