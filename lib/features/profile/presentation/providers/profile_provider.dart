@@ -5,7 +5,6 @@ import '../../domain/use_cases/get_my_profile.dart';
 import '../../domain/use_cases/save_my_profile.dart';
 import '../../data/repositories/profile_repository_impl.dart';
 import '../../data/data_sources/profile_firestore_data_source.dart';
-import '../../core/errors/profile_failure.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../../notification/presentation/providers/notification_provider.dart';

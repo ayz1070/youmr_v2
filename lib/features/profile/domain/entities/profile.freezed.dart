@@ -22,6 +22,7 @@ Profile _$ProfileFromJson(Map<String, dynamic> json) {
 mixin _$Profile {
   String get uid => throw _privateConstructorUsedError;
   String get nickname => throw _privateConstructorUsedError;
+  String? get name => throw _privateConstructorUsedError; // 실명 (선택사항)
   String get userType => throw _privateConstructorUsedError; // 값 객체로 분리 가능
   String? get profileImageUrl => throw _privateConstructorUsedError;
   String? get dayOfWeek => throw _privateConstructorUsedError;
@@ -43,6 +44,7 @@ abstract class $ProfileCopyWith<$Res> {
   $Res call(
       {String uid,
       String nickname,
+      String? name,
       String userType,
       String? profileImageUrl,
       String? dayOfWeek});
@@ -65,6 +67,7 @@ class _$ProfileCopyWithImpl<$Res, $Val extends Profile>
   $Res call({
     Object? uid = null,
     Object? nickname = null,
+    Object? name = freezed,
     Object? userType = null,
     Object? profileImageUrl = freezed,
     Object? dayOfWeek = freezed,
@@ -78,6 +81,10 @@ class _$ProfileCopyWithImpl<$Res, $Val extends Profile>
           ? _value.nickname
           : nickname // ignore: cast_nullable_to_non_nullable
               as String,
+      name: freezed == name
+          ? _value.name
+          : name // ignore: cast_nullable_to_non_nullable
+              as String?,
       userType: null == userType
           ? _value.userType
           : userType // ignore: cast_nullable_to_non_nullable
@@ -104,6 +111,7 @@ abstract class _$$ProfileImplCopyWith<$Res> implements $ProfileCopyWith<$Res> {
   $Res call(
       {String uid,
       String nickname,
+      String? name,
       String userType,
       String? profileImageUrl,
       String? dayOfWeek});
@@ -124,6 +132,7 @@ class __$$ProfileImplCopyWithImpl<$Res>
   $Res call({
     Object? uid = null,
     Object? nickname = null,
+    Object? name = freezed,
     Object? userType = null,
     Object? profileImageUrl = freezed,
     Object? dayOfWeek = freezed,
@@ -137,6 +146,10 @@ class __$$ProfileImplCopyWithImpl<$Res>
           ? _value.nickname
           : nickname // ignore: cast_nullable_to_non_nullable
               as String,
+      name: freezed == name
+          ? _value.name
+          : name // ignore: cast_nullable_to_non_nullable
+              as String?,
       userType: null == userType
           ? _value.userType
           : userType // ignore: cast_nullable_to_non_nullable
@@ -159,6 +172,7 @@ class _$ProfileImpl implements _Profile {
   const _$ProfileImpl(
       {required this.uid,
       required this.nickname,
+      this.name,
       required this.userType,
       this.profileImageUrl,
       this.dayOfWeek});
@@ -171,6 +185,9 @@ class _$ProfileImpl implements _Profile {
   @override
   final String nickname;
   @override
+  final String? name;
+// 실명 (선택사항)
+  @override
   final String userType;
 // 값 객체로 분리 가능
   @override
@@ -180,7 +197,7 @@ class _$ProfileImpl implements _Profile {
 
   @override
   String toString() {
-    return 'Profile(uid: $uid, nickname: $nickname, userType: $userType, profileImageUrl: $profileImageUrl, dayOfWeek: $dayOfWeek)';
+    return 'Profile(uid: $uid, nickname: $nickname, name: $name, userType: $userType, profileImageUrl: $profileImageUrl, dayOfWeek: $dayOfWeek)';
   }
 
   @override
@@ -191,6 +208,7 @@ class _$ProfileImpl implements _Profile {
             (identical(other.uid, uid) || other.uid == uid) &&
             (identical(other.nickname, nickname) ||
                 other.nickname == nickname) &&
+            (identical(other.name, name) || other.name == name) &&
             (identical(other.userType, userType) ||
                 other.userType == userType) &&
             (identical(other.profileImageUrl, profileImageUrl) ||
@@ -202,7 +220,7 @@ class _$ProfileImpl implements _Profile {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
-      runtimeType, uid, nickname, userType, profileImageUrl, dayOfWeek);
+      runtimeType, uid, nickname, name, userType, profileImageUrl, dayOfWeek);
 
   /// Create a copy of Profile
   /// with the given fields replaced by the non-null parameter values.
@@ -224,6 +242,7 @@ abstract class _Profile implements Profile {
   const factory _Profile(
       {required final String uid,
       required final String nickname,
+      final String? name,
       required final String userType,
       final String? profileImageUrl,
       final String? dayOfWeek}) = _$ProfileImpl;
@@ -234,6 +253,8 @@ abstract class _Profile implements Profile {
   String get uid;
   @override
   String get nickname;
+  @override
+  String? get name; // 실명 (선택사항)
   @override
   String get userType; // 값 객체로 분리 가능
   @override
