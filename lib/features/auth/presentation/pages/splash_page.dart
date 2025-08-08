@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -22,13 +23,14 @@ class _SplashPageState extends ConsumerState<SplashPage> {
   @override
   void initState() {
     super.initState();
+
     _checkAuth();
   }
 
   /// 로그인 상태 및 프로필 정보 확인 후 분기
   /// Firestore/FirebaseAuth 직접 접근 → 추후 Provider 구조로 개선 권장
   Future<void> _checkAuth() async {
-    await Future.delayed(const Duration(milliseconds: 300)); // 스플래시 연출용 (1초 → 0.3초로 단축)
+    // 딜레이 제거 - 즉시 다음 화면으로 전환
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
       // 로그인 X → 로그인 페이지로 이동
@@ -45,7 +47,7 @@ class _SplashPageState extends ConsumerState<SplashPage> {
     await _initializeFcmService();
     
     try {
-      // Firestore에서 프로필 정보 확인
+      // Firestore에서 0프로필 정보 확인
       final userDoc = FirebaseFirestore.instance.collection('users').doc(user.uid);
       final snapshot = await userDoc.get();
       
@@ -153,11 +155,76 @@ class _SplashPageState extends ConsumerState<SplashPage> {
 
   @override
   Widget build(BuildContext context) {
-    // 실제 앱에서는 AppLoadingView 등 core/widgets 공통 위젯 사용 권장
-    return const Scaffold(
-      body: Center(
-        child: Text('YouMR', style: TextStyle(fontSize: 32)), // 문구 상수화 권장
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+    
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Column(
+          children: [
+            // 상단 여백
+            Expanded(
+              flex: 1,
+              child: Container(),
+            ),
+            
+            // 중앙 텍스트 영역
+            Expanded(
+              flex: 2,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // You Make 텍스트
+                  Text(
+                    'You Make',
+                    style: GoogleFonts.poppins(
+                      fontSize: screenWidth * 0.12, // 화면 너비의 12%
+                      fontWeight: FontWeight.w700,
+                      color: Colors.black,
+                    ),
+                  ),
+                  
+                  const SizedBox(height: 8), // 텍스트 간격
+                  
+                  // Rhythm 텍스트
+                  Text(
+                    'Rhythm',
+                    style: GoogleFonts.poppins(
+                      fontSize: screenWidth * 0.12, // 화면 너비의 12%
+                      fontWeight: FontWeight.w700,
+                      color: Colors.grey, // 더 진한 회색으로 대비 개선
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            
+            // 하단 영역
+            Expanded(
+              flex: 1,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  // made by Jun 텍스트
+                  Padding(
+                    padding: EdgeInsets.only(bottom: screenHeight * 0.05), // 하단 여백
+                    child: Text(
+                      'made by Jun',
+                      style: GoogleFonts.poppins(
+                        fontSize: screenWidth * 0.03, // 화면 너비의 3%
+                        fontWeight: FontWeight.w500,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
-} 
+}

@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 빈 레이어 리스트로 스플래시 화면 완전 제거 -->
+<!-- Flutter 기본 스플래시 화면 -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- 모든 아이템 제거하여 완전히 투명하게 만듦 -->
+    <!-- 배경색 -->
+    <item android:drawable="@android:color/white" />
+    
+    <!-- 앱 아이콘 -->
+    <item>
+        <bitmap
+            android:gravity="center"
+            android:src="@mipmap/ic_launcher" />
+    </item>
 </layer-list>
