@@ -24,7 +24,16 @@ class AdminUserRepositoryImpl implements AdminUserRepository {
   Future<Either<AppFailure, List<AdminUser>>> getAllUsers() async {
     try {
       final List<Map<String, dynamic>> list = await dataSource.fetchAllUsers();
-      final List<AdminUser> users = list.map((e) => AdminUserDto.fromJson(e).toDomain()).toList();
+      final List<AdminUser> users = list.map((e) {
+        try {
+          return AdminUserDto.fromJson(e).toDomain();
+        } catch (parseError) {
+          AppLogger.e('사용자 데이터 파싱 실패: $parseError', error: parseError);
+          // 파싱 실패한 데이터는 건너뛰기
+          return null;
+        }
+      }).where((user) => user != null).cast<AdminUser>().toList();
+      
       return Right(users);
     } catch (e, st) {
       AppLogger.e('getAllUsers 실패', error: e, stackTrace: st);

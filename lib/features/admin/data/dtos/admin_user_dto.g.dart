@@ -8,20 +8,24 @@ part of 'admin_user_dto.dart';
 
 _$AdminUserDtoImpl _$$AdminUserDtoImplFromJson(Map<String, dynamic> json) =>
     _$AdminUserDtoImpl(
-      uid: json['uid'] as String,
-      nickname: json['nickname'] as String,
-      email: json['email'] as String,
-      userType: json['user_type'] as String,
-      profileImageUrl: json['profile_image_url'] as String,
-      createdAt: DateTime.parse(json['created_at'] as String),
+      uid: json['uid'] as String?,
+      nickname: json['nickname'] as String?,
+      name: json['name'] as String?,
+      email: json['email'] as String?,
+      userType: json['userType'] as String?,
+      profileImageUrl: json['profileImageUrl'] as String?,
+      createdAt: json['createdAt'] == null
+          ? null
+          : DateTime.parse(json['createdAt'] as String),
     );
 
 Map<String, dynamic> _$$AdminUserDtoImplToJson(_$AdminUserDtoImpl instance) =>
     <String, dynamic>{
       'uid': instance.uid,
       'nickname': instance.nickname,
+      'name': instance.name,
       'email': instance.email,
-      'user_type': instance.userType,
-      'profile_image_url': instance.profileImageUrl,
-      'created_at': instance.createdAt.toIso8601String(),
+      'userType': instance.userType,
+      'profileImageUrl': instance.profileImageUrl,
+      'createdAt': instance.createdAt?.toIso8601String(),
     };

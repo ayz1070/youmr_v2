@@ -26,6 +26,9 @@ mixin _$AdminUser {
   /// 닉네임
   String get nickname => throw _privateConstructorUsedError;
 
+  /// 이름
+  String? get name => throw _privateConstructorUsedError;
+
   /// 이메일
   String get email => throw _privateConstructorUsedError;
 
@@ -56,6 +59,7 @@ abstract class $AdminUserCopyWith<$Res> {
   $Res call(
       {String uid,
       String nickname,
+      String? name,
       String email,
       String userType,
       String profileImageUrl,
@@ -79,6 +83,7 @@ class _$AdminUserCopyWithImpl<$Res, $Val extends AdminUser>
   $Res call({
     Object? uid = null,
     Object? nickname = null,
+    Object? name = freezed,
     Object? email = null,
     Object? userType = null,
     Object? profileImageUrl = null,
@@ -93,6 +98,10 @@ class _$AdminUserCopyWithImpl<$Res, $Val extends AdminUser>
           ? _value.nickname
           : nickname // ignore: cast_nullable_to_non_nullable
               as String,
+      name: freezed == name
+          ? _value.name
+          : name // ignore: cast_nullable_to_non_nullable
+              as String?,
       email: null == email
           ? _value.email
           : email // ignore: cast_nullable_to_non_nullable
@@ -124,6 +133,7 @@ abstract class _$$AdminUserImplCopyWith<$Res>
   $Res call(
       {String uid,
       String nickname,
+      String? name,
       String email,
       String userType,
       String profileImageUrl,
@@ -145,6 +155,7 @@ class __$$AdminUserImplCopyWithImpl<$Res>
   $Res call({
     Object? uid = null,
     Object? nickname = null,
+    Object? name = freezed,
     Object? email = null,
     Object? userType = null,
     Object? profileImageUrl = null,
@@ -159,6 +170,10 @@ class __$$AdminUserImplCopyWithImpl<$Res>
           ? _value.nickname
           : nickname // ignore: cast_nullable_to_non_nullable
               as String,
+      name: freezed == name
+          ? _value.name
+          : name // ignore: cast_nullable_to_non_nullable
+              as String?,
       email: null == email
           ? _value.email
           : email // ignore: cast_nullable_to_non_nullable
@@ -185,6 +200,7 @@ class _$AdminUserImpl implements _AdminUser {
   const _$AdminUserImpl(
       {required this.uid,
       required this.nickname,
+      this.name,
       required this.email,
       required this.userType,
       required this.profileImageUrl,
@@ -200,6 +216,10 @@ class _$AdminUserImpl implements _AdminUser {
   /// 닉네임
   @override
   final String nickname;
+
+  /// 이름
+  @override
+  final String? name;
 
   /// 이메일
   @override
@@ -219,7 +239,7 @@ class _$AdminUserImpl implements _AdminUser {
 
   @override
   String toString() {
-    return 'AdminUser(uid: $uid, nickname: $nickname, email: $email, userType: $userType, profileImageUrl: $profileImageUrl, createdAt: $createdAt)';
+    return 'AdminUser(uid: $uid, nickname: $nickname, name: $name, email: $email, userType: $userType, profileImageUrl: $profileImageUrl, createdAt: $createdAt)';
   }
 
   @override
@@ -230,6 +250,7 @@ class _$AdminUserImpl implements _AdminUser {
             (identical(other.uid, uid) || other.uid == uid) &&
             (identical(other.nickname, nickname) ||
                 other.nickname == nickname) &&
+            (identical(other.name, name) || other.name == name) &&
             (identical(other.email, email) || other.email == email) &&
             (identical(other.userType, userType) ||
                 other.userType == userType) &&
@@ -241,8 +262,8 @@ class _$AdminUserImpl implements _AdminUser {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType, uid, nickname, email, userType, profileImageUrl, createdAt);
+  int get hashCode => Object.hash(runtimeType, uid, nickname, name, email,
+      userType, profileImageUrl, createdAt);
 
   /// Create a copy of AdminUser
   /// with the given fields replaced by the non-null parameter values.
@@ -264,6 +285,7 @@ abstract class _AdminUser implements AdminUser {
   const factory _AdminUser(
       {required final String uid,
       required final String nickname,
+      final String? name,
       required final String email,
       required final String userType,
       required final String profileImageUrl,
@@ -279,6 +301,10 @@ abstract class _AdminUser implements AdminUser {
   /// 닉네임
   @override
   String get nickname;
+
+  /// 이름
+  @override
+  String? get name;
 
   /// 이메일
   @override

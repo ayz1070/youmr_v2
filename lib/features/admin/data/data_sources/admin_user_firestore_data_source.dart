@@ -20,7 +20,7 @@ class AdminUserFirestoreDataSource {
   Future<List<Map<String, dynamic>>> fetchAllUsers() async {
     final QuerySnapshot<Map<String, dynamic>> snap = await _firestore
         .collection(FirestoreConstants.usersCollection)
-        .orderBy(FirestoreConstants.voteCreatedAt, descending: true)
+        .orderBy(FirestoreConstants.createdAt, descending: true)
         .get();
     return snap.docs.map((d) => d.data()).toList();
   }
