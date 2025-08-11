@@ -4,9 +4,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:youmr_v2/core/services/fcm_service.dart';
+import 'package:youmr_v2/core/constants/app_logger.dart';
+import 'package:youmr_v2/core/utils/onboarding_utils.dart';
 import 'package:youmr_v2/features/notification/presentation/providers/notification_provider.dart';
 import 'login_page.dart';
 import 'profile_setup_page.dart';
+import 'onboarding_page.dart';
 import '../../../main/presentation/pages/main_navigation_page.dart';
 
 /// 앱 실행 시 최초로 보여지는 스플래시 화면
@@ -24,40 +27,44 @@ class _SplashPageState extends ConsumerState<SplashPage> {
   void initState() {
     super.initState();
 
-    _checkAuth();
+    // 빌드 완료 후 인증 확인 실행
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkAuth();
+    });
   }
 
   /// 로그인 상태 및 프로필 정보 확인 후 분기
   /// Firestore/FirebaseAuth 직접 접근 → 추후 Provider 구조로 개선 권장
   Future<void> _checkAuth() async {
-    // 딜레이 제거 - 즉시 다음 화면으로 전환
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      // 로그인 X → 로그인 페이지로 이동
-      if (context.mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const LoginPage()),
-        );
-      }
-      return;
-    }
-    
-    // 로그인된 사용자의 FCM 토큰 저장 및 FCM 서비스 초기화
-    await _saveFcmToken();
-    await _initializeFcmService();
-    
     try {
-      // Firestore에서 0프로필 정보 확인
+      // 딜레이 제거 - 즉시 다음 화면으로 전환
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        // 로그인 X → 로그인 페이지로 이동
+        AppLogger.i('사용자 로그인 상태 없음 → 로그인 페이지로 이동');
+        if (mounted) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (_) => const LoginPage()),
+          );
+        }
+        return;
+      }
+      
+      // 로그인된 사용자의 FCM 토큰 저장 및 FCM 서비스 초기화
+      await _saveFcmToken();
+      await _initializeFcmService();
+      
+      // Firestore에서 사용자 프로필 정보 확인
       final userDoc = FirebaseFirestore.instance.collection('users').doc(user.uid);
       final snapshot = await userDoc.get();
       
       // 문서 존재 여부 확인
       if (!snapshot.exists) {
-        debugPrint('사용자 프로필 문서가 존재하지 않음: ${user.uid}');
+        AppLogger.w('사용자 프로필 문서가 존재하지 않음: ${user.uid}');
         // 프로필 문서 없음 → 프로필 설정 페이지로 이동
-        if (context.mounted) {
+        if (mounted) {
           Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (_) => const LoginPage()),
+            MaterialPageRoute(builder: (_) => const ProfileSetupPage()),
           );
         }
         return;
@@ -66,11 +73,11 @@ class _SplashPageState extends ConsumerState<SplashPage> {
       // 문서 데이터 확인
       final data = snapshot.data();
       if (data == null) {
-        debugPrint('사용자 프로필 데이터가 null: ${user.uid}');
+        AppLogger.w('사용자 프로필 데이터가 null: ${user.uid}');
         // 데이터가 null → 프로필 설정 페이지로 이동
-        if (context.mounted) {
+        if (mounted) {
           Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (_) => const LoginPage()),
+            MaterialPageRoute(builder: (_) => const ProfileSetupPage()),
           );
         }
         return;
@@ -80,29 +87,45 @@ class _SplashPageState extends ConsumerState<SplashPage> {
       final hasProfile = (data['nickname'] != null && (data['nickname'] as String).trim().isNotEmpty) &&
           (data['userType'] != null && (data['userType'] as String).trim().isNotEmpty);
       
-      debugPrint('프로필 정보 확인: nickname=${data['nickname']}, userType=${data['userType']}, hasProfile=$hasProfile');
+      AppLogger.i('프로필 정보 확인: nickname=${data['nickname']}, userType=${data['userType']}, hasProfile=$hasProfile');
       
       if (!hasProfile) {
         // 프로필 미설정 → 프로필 설정 페이지로 이동
-        debugPrint('프로필 정보가 불완전함 → 프로필 설정 페이지로 이동');
-        if (context.mounted) {
+        AppLogger.i('프로필 정보가 불완전함 → 프로필 설정 페이지로 이동');
+        if (mounted) {
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (_) => const ProfileSetupPage()),
           );
         }
+        return; // 여기에 return 문 추가
       } else {
-        // 프로필 설정 완료 → 메인 페이지로 이동
-        debugPrint('프로필 정보 완료 → 메인 페이지로 이동');
-        if (context.mounted) {
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (_) => const MainNavigationPage()),
-          );
+        // 프로필 설정 완료 → 온보딩 여부 확인 후 분기
+        AppLogger.i('프로필 정보 완료 → 온보딩 여부 확인');
+        
+        // 온보딩 완료 여부 확인
+        final isOnboardingCompleted = await OnboardingUtils.isOnboardingCompleted();
+        
+        if (mounted) {
+          if (isOnboardingCompleted) {
+            // 온보딩 완료된 경우 메인 페이지로 이동
+            AppLogger.i('온보딩 완료 → 메인 페이지로 이동');
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (_) => const MainNavigationPage()),
+            );
+          } else {
+            // 온보딩이 필요한 경우 온보딩 페이지로 이동
+            AppLogger.i('온보딩 필요 → 온보딩 페이지로 이동');
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (_) => const OnboardingPage()),
+            );
+          }
         }
+        return; // 명시적 return 추가
       }
     } catch (e) {
-      // Firestore 접근 오류 시 → 프로필 설정 페이지로 이동
-      debugPrint('Firestore 접근 오류: $e');
-      if (context.mounted) {
+      // Firestore 접근 오류 시 → 로그인 페이지로 이동
+      AppLogger.e('Firestore 접근 오류: $e');
+      if (mounted) {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (_) => const LoginPage()),
         );
@@ -119,16 +142,16 @@ class _SplashPageState extends ConsumerState<SplashPage> {
       if (token != null) {
         // Provider를 통해 FCM 토큰 저장
         await ref.read(notificationProvider.notifier).saveFcmToken(token);
-        debugPrint('FCM 토큰 저장 완료: $token');
+        AppLogger.i('FCM 토큰 저장 완료: $token');
         
         // FCM 토큰 갱신 리스너 등록
         fcmService.onTokenRefresh((newToken) async {
           await ref.read(notificationProvider.notifier).saveFcmToken(newToken);
-          debugPrint('FCM 토큰 갱신 및 저장 완료: $newToken');
+          AppLogger.i('FCM 토큰 갱신 및 저장 완료: $newToken');
         });
       }
     } catch (e) {
-      debugPrint('FCM 토큰 저장 실패: $e');
+      AppLogger.e('FCM 토큰 저장 실패: $e');
     }
   }
 
@@ -139,7 +162,7 @@ class _SplashPageState extends ConsumerState<SplashPage> {
       
       // 포그라운드 메시지 핸들러 등록
       fcmService.onForegroundMessage((message) {
-        debugPrint('포그라운드 FCM 메시지 수신: ${message.messageId}');
+        AppLogger.i('포그라운드 FCM 메시지 수신: ${message.messageId}');
         // TODO: 필요시 특정 화면으로 네비게이션 처리
         // 예: 투표 알림이면 투표 페이지로, 출석 알림이면 출석 페이지로
       });
@@ -147,9 +170,10 @@ class _SplashPageState extends ConsumerState<SplashPage> {
       // 알림 설정 로드
       await ref.read(notificationProvider.notifier).loadNotificationSettings();
       
-      debugPrint('FCM 서비스 초기화 완료');
+      AppLogger.i('FCM 서비스 초기화 완료');
     } catch (e) {
-      debugPrint('FCM 서비스 초기화 실패: $e');
+      AppLogger.e('FCM 서비스 초기화 실패: $e');
+      // FCM 초기화 실패해도 앱은 계속 진행
     }
   }
 

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:youmr_v2/core/widgets/app_button.dart';
 
 /// 위치 정보를 보여주는 페이지
 class LocationPage extends StatelessWidget {

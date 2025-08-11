@@ -6,6 +6,7 @@ import '../../../../core/widgets/primary_app_bar.dart';
 import '../providers/profile_provider.dart';
 import 'profile_edit_page.dart';
 import 'location_page.dart';
+import '../../../auth/presentation/pages/onboarding_page.dart';
 import '../../../auth/presentation/pages/profile_setup_page.dart';
 import '../../../auth/presentation/pages/login_page.dart';
 import '../../../notification/presentation/pages/notification_settings_page.dart';
@@ -248,6 +249,16 @@ class ProfilePage extends ConsumerWidget {
                           Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (_) => const LocationPage(),
+                            ),
+                          );
+                        },
+                      ),
+                      _buildMenuItem(
+                        title: '온보딩',
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => const OnboardingPage(),
                             ),
                           );
                         },
