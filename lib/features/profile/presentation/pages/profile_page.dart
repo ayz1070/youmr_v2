@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:youmr_v2/features/admin/presentation/pages/admin_page.dart';
+import '../../../../core/widgets/primary_app_bar.dart';
 import '../providers/profile_provider.dart';
 import 'profile_edit_page.dart';
 import 'location_page.dart';
 import '../../../auth/presentation/pages/profile_setup_page.dart';
+import '../../../auth/presentation/pages/login_page.dart';
 import '../../../notification/presentation/pages/notification_settings_page.dart';
+import '../../../../core/widgets/app_dialog.dart';
 
 /// 프로필 탭 페이지 (Provider 기반)
 class ProfilePage extends ConsumerWidget {
@@ -40,16 +43,10 @@ class ProfilePage extends ConsumerWidget {
 
         return Scaffold(
           backgroundColor: Colors.white,
-          appBar: AppBar(
+          appBar: PrimaryAppBar(
             backgroundColor: Colors.white,
             elevation: 0,
-            title: const Text(
-              '마이페이지',
-              style: TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            title: '마이페이지',
           ),
           body: SingleChildScrollView(
             padding: const EdgeInsets.all(16),
@@ -182,7 +179,7 @@ class ProfilePage extends ConsumerWidget {
                       _buildMenuItem(
                         title: '로그아웃',
                         onTap: () async {
-                          await notifier.logout(context);
+                          _showLogoutDialog(context, notifier);
                         },
                       ),
                     ],
@@ -294,7 +291,7 @@ class ProfilePage extends ConsumerWidget {
 
                 ],
 
-                const SizedBox(height: 32),
+
 
               ],
             ),
@@ -352,6 +349,68 @@ class ProfilePage extends ConsumerWidget {
         return '일반 회원';
       default:
         return userType;
+    }
+  }
+
+  /// 로그아웃 확인 다이얼로그를 표시합니다
+  void _showLogoutDialog(BuildContext context, ProfileNotifier notifier) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AppDialog(
+          title: '로그아웃',
+          message: '정말로 로그아웃 하시겠습니까?',
+          cancelText: '취소',
+          confirmText: '로그아웃',
+          cancelColor: const Color(0xFFF5F5F5),
+          confirmColor: Colors.red,
+          cancelTextColor: Colors.black,
+          confirmTextColor: Colors.white,
+          onCancel: () => Navigator.of(context).pop(),
+          onConfirm: () {
+            Navigator.of(context).pop();
+            _performLogout(context, notifier);
+          },
+        );
+      },
+    );
+  }
+
+  /// 로그아웃을 수행합니다
+  Future<void> _performLogout(BuildContext context, ProfileNotifier notifier) async {
+    try {
+      // Firebase Auth에서 로그아웃
+      await notifier.logout(context);
+      
+      if (context.mounted) {
+        // 로그아웃 성공 메시지 표시
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('로그아웃되었습니다.'),
+            duration: Duration(seconds: 2),
+            backgroundColor: Colors.green,
+          ),
+        );
+
+        // LoginPage로 이동 (모든 이전 화면 제거)
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(
+            builder: (_) => const LoginPage(),
+          ),
+          (route) => false, // 모든 이전 화면 제거
+        );
+      }
+    } catch (error) {
+      if (context.mounted) {
+        // 로그아웃 실패 메시지 표시
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('로그아웃 중 오류가 발생했습니다: ${error.toString()}'),
+            duration: const Duration(seconds: 3),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 }
