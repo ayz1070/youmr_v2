@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/app_snackbar.dart';
 
 /// 프로필 설정 관련 유틸리티 함수
 class ProfileSetupUtils {
@@ -6,21 +7,14 @@ class ProfileSetupUtils {
   /// [context]: BuildContext
   /// [message]: 에러 메시지
   static void showError(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+    AppSnackbar.showError(context, message);
   }
 
   /// 성공 메시지 스낵바 표시
   /// [context]: BuildContext
   /// [message]: 성공 메시지
   static void showSuccess(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.green,
-      ),
-    );
+    AppSnackbar.showSuccess(context, message);
   }
 
   /// 폼 유효성 검사

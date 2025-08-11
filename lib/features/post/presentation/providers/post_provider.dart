@@ -49,6 +49,39 @@ class PostListState {
   }
 }
 
+/// 최신 공지글 상태 클래스
+class LatestNoticeState {
+  /// 최신 공지글 (단일)
+  final QueryDocumentSnapshot<Map<String, dynamic>>? notice;
+  /// 로딩 여부
+  final bool isLoading;
+  /// 에러 메시지(있을 경우)
+  final String? error;
+
+  /// 생성자
+  const LatestNoticeState({
+    this.notice,
+    required this.isLoading,
+    this.error,
+  });
+
+  /// 초기 상태 반환
+  factory LatestNoticeState.initial() => const LatestNoticeState(isLoading: false);
+
+  /// 상태 복사 (immutable 패턴)
+  LatestNoticeState copyWith({
+    QueryDocumentSnapshot<Map<String, dynamic>>? notice,
+    bool? isLoading,
+    String? error,
+  }) {
+    return LatestNoticeState(
+      notice: notice ?? this.notice,
+      isLoading: isLoading ?? this.isLoading,
+      error: error,
+    );
+  }
+}
+
 /// 게시글 목록 Provider (StateNotifier)
 ///
 /// 실시간 스트림을 사용하여 좋아요 등 실시간 업데이트 지원
@@ -130,9 +163,58 @@ class PostListNotifier extends StateNotifier<PostListState> {
   }
 }
 
+/// 최신 공지글 Provider (StateNotifier)
+class LatestNoticeNotifier extends StateNotifier<LatestNoticeState> {
+  StreamSubscription<QuerySnapshot<Map<String, dynamic>>>? _noticeSubscription;
+
+  /// 생성자
+  LatestNoticeNotifier() : super(LatestNoticeState.initial()) {
+    _loadLatestNotice();
+  }
+
+  /// 최신 공지글 로드 (실시간 스트림)
+  void _loadLatestNotice() {
+    state = state.copyWith(isLoading: true, error: null);
+    
+    _noticeSubscription = FirebaseFirestore.instance
+        .collection('posts')
+        .where('isNotice', isEqualTo: true)
+        .orderBy('createdAt', descending: true)
+        .limit(1)
+        .snapshots()
+        .listen(
+          (snapshot) {
+            final notice = snapshot.docs.isNotEmpty ? snapshot.docs.first : null;
+            state = state.copyWith(
+              notice: notice,
+              isLoading: false,
+              error: null,
+            );
+          },
+          onError: (error) {
+            state = state.copyWith(
+              isLoading: false,
+              error: error.toString(),
+            );
+          },
+        );
+  }
+
+  @override
+  void dispose() {
+    _noticeSubscription?.cancel();
+    super.dispose();
+  }
+}
+
 /// 게시글 목록 Provider 인스턴스
 final postListProvider = StateNotifierProvider<PostListNotifier, PostListState>(
   (ref) => PostListNotifier(
     dataSource: PostFirestoreDataSource(),
   ),
+);
+
+/// 최신 공지글 Provider 인스턴스
+final latestNoticeProvider = StateNotifierProvider<LatestNoticeNotifier, LatestNoticeState>(
+  (ref) => LatestNoticeNotifier(),
 ); 
