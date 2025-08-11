@@ -74,6 +74,11 @@ class NotificationScheduler {
             channelDescription: '매주 지정된 요일과 시간에 출석 체크 알림',
             importance: Importance.high,
             priority: Priority.high,
+            icon: '@drawable/ic_notification', // 알림 전용 아이콘 사용
+            color: Color(0xFF4CAF50), // 출석 알림 색상 (Material Green)
+            enableLights: true, // LED 알림 활성화
+            enableVibration: true, // 진동 활성화
+            playSound: true, // 소리 재생
           ),
           iOS: DarwinNotificationDetails(),
         ),
@@ -117,6 +122,11 @@ class NotificationScheduler {
             channelDescription: '매월 1일에 회비 납부 알림',
             importance: Importance.high,
             priority: Priority.high,
+            icon: '@drawable/ic_notification', // 알림 전용 아이콘 사용
+            color: Color(0xFFFF9800), // 회비 알림 색상 (Material Orange)
+            enableLights: true, // LED 알림 활성화
+            enableVibration: true, // 진동 활성화
+            playSound: true, // 소리 재생
           ),
           iOS: DarwinNotificationDetails(),
         ),
