@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:youmr_v2/features/admin/presentation/pages/admin_page.dart';
 import '../providers/profile_provider.dart';
 import 'profile_edit_page.dart';
+import 'location_page.dart';
 import '../../../auth/presentation/pages/profile_setup_page.dart';
 import '../../../notification/presentation/pages/notification_settings_page.dart';
 
@@ -186,6 +188,79 @@ class ProfilePage extends ConsumerWidget {
                     ],
                   ),
                 ),
+
+                const SizedBox(height: 32),
+                // 설정 메뉴
+                const Text(
+                  '모임',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Divider(height: 1, color: Colors.grey[200]),
+
+
+                // 설정 메뉴 컨테이너
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                  ),
+                  child: Column(
+                    children: [
+                      _buildMenuItem(
+                        title: '오픈 채팅방 바로가기',
+                        onTap: () async {
+                          // 카카오톡 오픈 채팅방 링크 열기
+                          final Uri url = Uri.parse('https://open.kakao.com/o/gZlPWoff');
+                          try {
+                            if (await canLaunchUrl(url)) {
+                              await launchUrl(
+                                url,
+                                mode: LaunchMode.externalApplication,
+                              );
+                            } else {
+                              // URL을 열 수 없는 경우 스낵바로 알림
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('링크를 열 수 없습니다.'),
+                                    duration: Duration(seconds: 2),
+                                  ),
+                                );
+                              }
+                            }
+                          } catch (e) {
+                            // 오류 발생 시 스낵바로 알림
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('오류가 발생했습니다: ${e.toString()}'),
+                                  duration: Duration(seconds: 2),
+                                ),
+                              );
+                            }
+                          }
+                        },
+                      ),
+                      _buildMenuItem(
+                        title: '위치',
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => const LocationPage(),
+                            ),
+                          );
+                        },
+                      ),
+
+                    ],
+                  ),
+                ),
+
+
 
                 // 관리자 메뉴 (관리자만 표시, 하단에 배치)
                 if (isAdmin) ...[
