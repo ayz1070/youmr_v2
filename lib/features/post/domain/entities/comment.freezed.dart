@@ -42,7 +42,7 @@ mixin _$Comment {
   List<String> get likes => throw _privateConstructorUsedError;
 
   /// 좋아요 수
-  int get likesCount => throw _privateConstructorUsedError;
+  int get likeCount => throw _privateConstructorUsedError;
 
   /// 생성 시간
   DateTime get createdAt => throw _privateConstructorUsedError;
@@ -72,7 +72,7 @@ abstract class $CommentCopyWith<$Res> {
       String authorNickname,
       String? authorProfileUrl,
       List<String> likes,
-      int likesCount,
+      int likeCount,
       DateTime createdAt,
       DateTime? serverCreatedAt});
 }
@@ -99,7 +99,7 @@ class _$CommentCopyWithImpl<$Res, $Val extends Comment>
     Object? authorNickname = null,
     Object? authorProfileUrl = freezed,
     Object? likes = null,
-    Object? likesCount = null,
+    Object? likeCount = null,
     Object? createdAt = null,
     Object? serverCreatedAt = freezed,
   }) {
@@ -132,9 +132,9 @@ class _$CommentCopyWithImpl<$Res, $Val extends Comment>
           ? _value.likes
           : likes // ignore: cast_nullable_to_non_nullable
               as List<String>,
-      likesCount: null == likesCount
-          ? _value.likesCount
-          : likesCount // ignore: cast_nullable_to_non_nullable
+      likeCount: null == likeCount
+          ? _value.likeCount
+          : likeCount // ignore: cast_nullable_to_non_nullable
               as int,
       createdAt: null == createdAt
           ? _value.createdAt
@@ -163,7 +163,7 @@ abstract class _$$CommentImplCopyWith<$Res> implements $CommentCopyWith<$Res> {
       String authorNickname,
       String? authorProfileUrl,
       List<String> likes,
-      int likesCount,
+      int likeCount,
       DateTime createdAt,
       DateTime? serverCreatedAt});
 }
@@ -188,7 +188,7 @@ class __$$CommentImplCopyWithImpl<$Res>
     Object? authorNickname = null,
     Object? authorProfileUrl = freezed,
     Object? likes = null,
-    Object? likesCount = null,
+    Object? likeCount = null,
     Object? createdAt = null,
     Object? serverCreatedAt = freezed,
   }) {
@@ -221,9 +221,9 @@ class __$$CommentImplCopyWithImpl<$Res>
           ? _value._likes
           : likes // ignore: cast_nullable_to_non_nullable
               as List<String>,
-      likesCount: null == likesCount
-          ? _value.likesCount
-          : likesCount // ignore: cast_nullable_to_non_nullable
+      likeCount: null == likeCount
+          ? _value.likeCount
+          : likeCount // ignore: cast_nullable_to_non_nullable
               as int,
       createdAt: null == createdAt
           ? _value.createdAt
@@ -248,7 +248,7 @@ class _$CommentImpl implements _Comment {
       required this.authorNickname,
       this.authorProfileUrl,
       final List<String> likes = const [],
-      this.likesCount = 0,
+      this.likeCount = 0,
       required this.createdAt,
       this.serverCreatedAt})
       : _likes = likes;
@@ -295,7 +295,7 @@ class _$CommentImpl implements _Comment {
   /// 좋아요 수
   @override
   @JsonKey()
-  final int likesCount;
+  final int likeCount;
 
   /// 생성 시간
   @override
@@ -307,7 +307,7 @@ class _$CommentImpl implements _Comment {
 
   @override
   String toString() {
-    return 'Comment(id: $id, postId: $postId, content: $content, authorId: $authorId, authorNickname: $authorNickname, authorProfileUrl: $authorProfileUrl, likes: $likes, likesCount: $likesCount, createdAt: $createdAt, serverCreatedAt: $serverCreatedAt)';
+    return 'Comment(id: $id, postId: $postId, content: $content, authorId: $authorId, authorNickname: $authorNickname, authorProfileUrl: $authorProfileUrl, likes: $likes, likeCount: $likeCount, createdAt: $createdAt, serverCreatedAt: $serverCreatedAt)';
   }
 
   @override
@@ -325,8 +325,8 @@ class _$CommentImpl implements _Comment {
             (identical(other.authorProfileUrl, authorProfileUrl) ||
                 other.authorProfileUrl == authorProfileUrl) &&
             const DeepCollectionEquality().equals(other._likes, _likes) &&
-            (identical(other.likesCount, likesCount) ||
-                other.likesCount == likesCount) &&
+            (identical(other.likeCount, likeCount) ||
+                other.likeCount == likeCount) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.serverCreatedAt, serverCreatedAt) ||
@@ -344,7 +344,7 @@ class _$CommentImpl implements _Comment {
       authorNickname,
       authorProfileUrl,
       const DeepCollectionEquality().hash(_likes),
-      likesCount,
+      likeCount,
       createdAt,
       serverCreatedAt);
 
@@ -373,7 +373,7 @@ abstract class _Comment implements Comment {
       required final String authorNickname,
       final String? authorProfileUrl,
       final List<String> likes,
-      final int likesCount,
+      final int likeCount,
       required final DateTime createdAt,
       final DateTime? serverCreatedAt}) = _$CommentImpl;
 
@@ -409,7 +409,7 @@ abstract class _Comment implements Comment {
 
   /// 좋아요 수
   @override
-  int get likesCount;
+  int get likeCount;
 
   /// 생성 시간
   @override

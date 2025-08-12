@@ -17,7 +17,7 @@ _$CommentImpl _$$CommentImplFromJson(Map<String, dynamic> json) =>
       likes:
           (json['likes'] as List<dynamic>?)?.map((e) => e as String).toList() ??
               const [],
-      likesCount: (json['likesCount'] as num?)?.toInt() ?? 0,
+      likeCount: (json['likeCount'] as num?)?.toInt() ?? 0,
       createdAt: DateTime.parse(json['createdAt'] as String),
       serverCreatedAt: json['serverCreatedAt'] == null
           ? null
@@ -33,7 +33,7 @@ Map<String, dynamic> _$$CommentImplToJson(_$CommentImpl instance) =>
       'authorNickname': instance.authorNickname,
       'authorProfileUrl': instance.authorProfileUrl,
       'likes': instance.likes,
-      'likesCount': instance.likesCount,
+      'likeCount': instance.likeCount,
       'createdAt': instance.createdAt.toIso8601String(),
       'serverCreatedAt': instance.serverCreatedAt?.toIso8601String(),
     };

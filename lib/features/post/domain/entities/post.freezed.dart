@@ -22,15 +22,20 @@ Post _$PostFromJson(Map<String, dynamic> json) {
 mixin _$Post {
   String get id => throw _privateConstructorUsedError;
   String get authorId => throw _privateConstructorUsedError;
-  String get authorName => throw _privateConstructorUsedError;
+  String get authorNickname => throw _privateConstructorUsedError;
+  String get authorProfileUrl => throw _privateConstructorUsedError;
   String get title => throw _privateConstructorUsedError;
   String get content => throw _privateConstructorUsedError;
   String get category => throw _privateConstructorUsedError;
-  String get createdAt => throw _privateConstructorUsedError;
-  String get updatedAt => throw _privateConstructorUsedError;
+  DateTime get createdAt => throw _privateConstructorUsedError;
+  DateTime get updatedAt => throw _privateConstructorUsedError;
   int get likeCount => throw _privateConstructorUsedError;
   int get commentCount => throw _privateConstructorUsedError;
   List<String> get imageUrls => throw _privateConstructorUsedError;
+  String get backgroundImage => throw _privateConstructorUsedError;
+  bool get isNotice => throw _privateConstructorUsedError;
+  List<String> get likes => throw _privateConstructorUsedError;
+  String get youtubeUrl => throw _privateConstructorUsedError;
 
   /// Serializes this Post to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -49,15 +54,20 @@ abstract class $PostCopyWith<$Res> {
   $Res call(
       {String id,
       String authorId,
-      String authorName,
+      String authorNickname,
+      String authorProfileUrl,
       String title,
       String content,
       String category,
-      String createdAt,
-      String updatedAt,
+      DateTime createdAt,
+      DateTime updatedAt,
       int likeCount,
       int commentCount,
-      List<String> imageUrls});
+      List<String> imageUrls,
+      String backgroundImage,
+      bool isNotice,
+      List<String> likes,
+      String youtubeUrl});
 }
 
 /// @nodoc
@@ -77,7 +87,8 @@ class _$PostCopyWithImpl<$Res, $Val extends Post>
   $Res call({
     Object? id = null,
     Object? authorId = null,
-    Object? authorName = null,
+    Object? authorNickname = null,
+    Object? authorProfileUrl = null,
     Object? title = null,
     Object? content = null,
     Object? category = null,
@@ -86,6 +97,10 @@ class _$PostCopyWithImpl<$Res, $Val extends Post>
     Object? likeCount = null,
     Object? commentCount = null,
     Object? imageUrls = null,
+    Object? backgroundImage = null,
+    Object? isNotice = null,
+    Object? likes = null,
+    Object? youtubeUrl = null,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -96,9 +111,13 @@ class _$PostCopyWithImpl<$Res, $Val extends Post>
           ? _value.authorId
           : authorId // ignore: cast_nullable_to_non_nullable
               as String,
-      authorName: null == authorName
-          ? _value.authorName
-          : authorName // ignore: cast_nullable_to_non_nullable
+      authorNickname: null == authorNickname
+          ? _value.authorNickname
+          : authorNickname // ignore: cast_nullable_to_non_nullable
+              as String,
+      authorProfileUrl: null == authorProfileUrl
+          ? _value.authorProfileUrl
+          : authorProfileUrl // ignore: cast_nullable_to_non_nullable
               as String,
       title: null == title
           ? _value.title
@@ -115,11 +134,11 @@ class _$PostCopyWithImpl<$Res, $Val extends Post>
       createdAt: null == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
-              as String,
+              as DateTime,
       updatedAt: null == updatedAt
           ? _value.updatedAt
           : updatedAt // ignore: cast_nullable_to_non_nullable
-              as String,
+              as DateTime,
       likeCount: null == likeCount
           ? _value.likeCount
           : likeCount // ignore: cast_nullable_to_non_nullable
@@ -132,6 +151,22 @@ class _$PostCopyWithImpl<$Res, $Val extends Post>
           ? _value.imageUrls
           : imageUrls // ignore: cast_nullable_to_non_nullable
               as List<String>,
+      backgroundImage: null == backgroundImage
+          ? _value.backgroundImage
+          : backgroundImage // ignore: cast_nullable_to_non_nullable
+              as String,
+      isNotice: null == isNotice
+          ? _value.isNotice
+          : isNotice // ignore: cast_nullable_to_non_nullable
+              as bool,
+      likes: null == likes
+          ? _value.likes
+          : likes // ignore: cast_nullable_to_non_nullable
+              as List<String>,
+      youtubeUrl: null == youtubeUrl
+          ? _value.youtubeUrl
+          : youtubeUrl // ignore: cast_nullable_to_non_nullable
+              as String,
     ) as $Val);
   }
 }
@@ -146,15 +181,20 @@ abstract class _$$PostImplCopyWith<$Res> implements $PostCopyWith<$Res> {
   $Res call(
       {String id,
       String authorId,
-      String authorName,
+      String authorNickname,
+      String authorProfileUrl,
       String title,
       String content,
       String category,
-      String createdAt,
-      String updatedAt,
+      DateTime createdAt,
+      DateTime updatedAt,
       int likeCount,
       int commentCount,
-      List<String> imageUrls});
+      List<String> imageUrls,
+      String backgroundImage,
+      bool isNotice,
+      List<String> likes,
+      String youtubeUrl});
 }
 
 /// @nodoc
@@ -171,7 +211,8 @@ class __$$PostImplCopyWithImpl<$Res>
   $Res call({
     Object? id = null,
     Object? authorId = null,
-    Object? authorName = null,
+    Object? authorNickname = null,
+    Object? authorProfileUrl = null,
     Object? title = null,
     Object? content = null,
     Object? category = null,
@@ -180,6 +221,10 @@ class __$$PostImplCopyWithImpl<$Res>
     Object? likeCount = null,
     Object? commentCount = null,
     Object? imageUrls = null,
+    Object? backgroundImage = null,
+    Object? isNotice = null,
+    Object? likes = null,
+    Object? youtubeUrl = null,
   }) {
     return _then(_$PostImpl(
       id: null == id
@@ -190,9 +235,13 @@ class __$$PostImplCopyWithImpl<$Res>
           ? _value.authorId
           : authorId // ignore: cast_nullable_to_non_nullable
               as String,
-      authorName: null == authorName
-          ? _value.authorName
-          : authorName // ignore: cast_nullable_to_non_nullable
+      authorNickname: null == authorNickname
+          ? _value.authorNickname
+          : authorNickname // ignore: cast_nullable_to_non_nullable
+              as String,
+      authorProfileUrl: null == authorProfileUrl
+          ? _value.authorProfileUrl
+          : authorProfileUrl // ignore: cast_nullable_to_non_nullable
               as String,
       title: null == title
           ? _value.title
@@ -209,11 +258,11 @@ class __$$PostImplCopyWithImpl<$Res>
       createdAt: null == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
-              as String,
+              as DateTime,
       updatedAt: null == updatedAt
           ? _value.updatedAt
           : updatedAt // ignore: cast_nullable_to_non_nullable
-              as String,
+              as DateTime,
       likeCount: null == likeCount
           ? _value.likeCount
           : likeCount // ignore: cast_nullable_to_non_nullable
@@ -226,6 +275,22 @@ class __$$PostImplCopyWithImpl<$Res>
           ? _value._imageUrls
           : imageUrls // ignore: cast_nullable_to_non_nullable
               as List<String>,
+      backgroundImage: null == backgroundImage
+          ? _value.backgroundImage
+          : backgroundImage // ignore: cast_nullable_to_non_nullable
+              as String,
+      isNotice: null == isNotice
+          ? _value.isNotice
+          : isNotice // ignore: cast_nullable_to_non_nullable
+              as bool,
+      likes: null == likes
+          ? _value._likes
+          : likes // ignore: cast_nullable_to_non_nullable
+              as List<String>,
+      youtubeUrl: null == youtubeUrl
+          ? _value.youtubeUrl
+          : youtubeUrl // ignore: cast_nullable_to_non_nullable
+              as String,
     ));
   }
 }
@@ -236,7 +301,8 @@ class _$PostImpl implements _Post {
   const _$PostImpl(
       {required this.id,
       required this.authorId,
-      required this.authorName,
+      required this.authorNickname,
+      this.authorProfileUrl = '',
       required this.title,
       required this.content,
       required this.category,
@@ -244,8 +310,13 @@ class _$PostImpl implements _Post {
       required this.updatedAt,
       this.likeCount = 0,
       this.commentCount = 0,
-      final List<String> imageUrls = const []})
-      : _imageUrls = imageUrls;
+      final List<String> imageUrls = const [],
+      this.backgroundImage = '',
+      this.isNotice = false,
+      final List<String> likes = const [],
+      this.youtubeUrl = ''})
+      : _imageUrls = imageUrls,
+        _likes = likes;
 
   factory _$PostImpl.fromJson(Map<String, dynamic> json) =>
       _$$PostImplFromJson(json);
@@ -255,7 +326,10 @@ class _$PostImpl implements _Post {
   @override
   final String authorId;
   @override
-  final String authorName;
+  final String authorNickname;
+  @override
+  @JsonKey()
+  final String authorProfileUrl;
   @override
   final String title;
   @override
@@ -263,9 +337,9 @@ class _$PostImpl implements _Post {
   @override
   final String category;
   @override
-  final String createdAt;
+  final DateTime createdAt;
   @override
-  final String updatedAt;
+  final DateTime updatedAt;
   @override
   @JsonKey()
   final int likeCount;
@@ -282,8 +356,27 @@ class _$PostImpl implements _Post {
   }
 
   @override
+  @JsonKey()
+  final String backgroundImage;
+  @override
+  @JsonKey()
+  final bool isNotice;
+  final List<String> _likes;
+  @override
+  @JsonKey()
+  List<String> get likes {
+    if (_likes is EqualUnmodifiableListView) return _likes;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_likes);
+  }
+
+  @override
+  @JsonKey()
+  final String youtubeUrl;
+
+  @override
   String toString() {
-    return 'Post(id: $id, authorId: $authorId, authorName: $authorName, title: $title, content: $content, category: $category, createdAt: $createdAt, updatedAt: $updatedAt, likeCount: $likeCount, commentCount: $commentCount, imageUrls: $imageUrls)';
+    return 'Post(id: $id, authorId: $authorId, authorNickname: $authorNickname, authorProfileUrl: $authorProfileUrl, title: $title, content: $content, category: $category, createdAt: $createdAt, updatedAt: $updatedAt, likeCount: $likeCount, commentCount: $commentCount, imageUrls: $imageUrls, backgroundImage: $backgroundImage, isNotice: $isNotice, likes: $likes, youtubeUrl: $youtubeUrl)';
   }
 
   @override
@@ -294,8 +387,10 @@ class _$PostImpl implements _Post {
             (identical(other.id, id) || other.id == id) &&
             (identical(other.authorId, authorId) ||
                 other.authorId == authorId) &&
-            (identical(other.authorName, authorName) ||
-                other.authorName == authorName) &&
+            (identical(other.authorNickname, authorNickname) ||
+                other.authorNickname == authorNickname) &&
+            (identical(other.authorProfileUrl, authorProfileUrl) ||
+                other.authorProfileUrl == authorProfileUrl) &&
             (identical(other.title, title) || other.title == title) &&
             (identical(other.content, content) || other.content == content) &&
             (identical(other.category, category) ||
@@ -309,7 +404,14 @@ class _$PostImpl implements _Post {
             (identical(other.commentCount, commentCount) ||
                 other.commentCount == commentCount) &&
             const DeepCollectionEquality()
-                .equals(other._imageUrls, _imageUrls));
+                .equals(other._imageUrls, _imageUrls) &&
+            (identical(other.backgroundImage, backgroundImage) ||
+                other.backgroundImage == backgroundImage) &&
+            (identical(other.isNotice, isNotice) ||
+                other.isNotice == isNotice) &&
+            const DeepCollectionEquality().equals(other._likes, _likes) &&
+            (identical(other.youtubeUrl, youtubeUrl) ||
+                other.youtubeUrl == youtubeUrl));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -318,7 +420,8 @@ class _$PostImpl implements _Post {
       runtimeType,
       id,
       authorId,
-      authorName,
+      authorNickname,
+      authorProfileUrl,
       title,
       content,
       category,
@@ -326,7 +429,11 @@ class _$PostImpl implements _Post {
       updatedAt,
       likeCount,
       commentCount,
-      const DeepCollectionEquality().hash(_imageUrls));
+      const DeepCollectionEquality().hash(_imageUrls),
+      backgroundImage,
+      isNotice,
+      const DeepCollectionEquality().hash(_likes),
+      youtubeUrl);
 
   /// Create a copy of Post
   /// with the given fields replaced by the non-null parameter values.
@@ -348,15 +455,20 @@ abstract class _Post implements Post {
   const factory _Post(
       {required final String id,
       required final String authorId,
-      required final String authorName,
+      required final String authorNickname,
+      final String authorProfileUrl,
       required final String title,
       required final String content,
       required final String category,
-      required final String createdAt,
-      required final String updatedAt,
+      required final DateTime createdAt,
+      required final DateTime updatedAt,
       final int likeCount,
       final int commentCount,
-      final List<String> imageUrls}) = _$PostImpl;
+      final List<String> imageUrls,
+      final String backgroundImage,
+      final bool isNotice,
+      final List<String> likes,
+      final String youtubeUrl}) = _$PostImpl;
 
   factory _Post.fromJson(Map<String, dynamic> json) = _$PostImpl.fromJson;
 
@@ -365,7 +477,9 @@ abstract class _Post implements Post {
   @override
   String get authorId;
   @override
-  String get authorName;
+  String get authorNickname;
+  @override
+  String get authorProfileUrl;
   @override
   String get title;
   @override
@@ -373,15 +487,23 @@ abstract class _Post implements Post {
   @override
   String get category;
   @override
-  String get createdAt;
+  DateTime get createdAt;
   @override
-  String get updatedAt;
+  DateTime get updatedAt;
   @override
   int get likeCount;
   @override
   int get commentCount;
   @override
   List<String> get imageUrls;
+  @override
+  String get backgroundImage;
+  @override
+  bool get isNotice;
+  @override
+  List<String> get likes;
+  @override
+  String get youtubeUrl;
 
   /// Create a copy of Post
   /// with the given fields replaced by the non-null parameter values.

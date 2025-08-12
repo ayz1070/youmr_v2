@@ -88,7 +88,7 @@ class CommentRepositoryImpl implements CommentRepository {
       authorNickname: dto.authorNickname,
       authorProfileUrl: dto.authorProfileUrl,
       likes: dto.likes,
-      likesCount: dto.likesCount,
+              likeCount: dto.likeCount,
       createdAt: dto.createdAt,
       serverCreatedAt: dto.serverCreatedAt,
     );

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../domain/entities/post.dart';
 import 'post_card.dart';
 
 /// 게시글 그리드 리스트 위젯
 class PostGridList extends StatelessWidget {
-  final List<QueryDocumentSnapshot<Map<String, dynamic>>> posts;
+  final List<Post> posts;
   final bool hasMore;
   final ThemeData theme;
   const PostGridList({super.key, required this.posts, required this.hasMore, required this.theme});
@@ -35,17 +35,20 @@ class PostGridList extends StatelessWidget {
                     )
                   : const SizedBox.shrink();
             }
-            final postData = posts[idx].data();
+            final post = posts[idx];
             return PostCard(
-              postId: posts[idx].id,
-              title: postData['title'] ?? '',
-              content: postData['content'] ?? '',
-              author: postData['authorNickname'] ?? '',
-              authorProfileUrl: postData['authorProfileUrl'] ?? '',
-              createdAt: postData['createdAt'] != null ? (postData['createdAt'] as Timestamp).toDate() : null,
-              youtubeUrl: postData['youtubeUrl'],
-              likes: postData['likes'] ?? [],
-              likesCount: postData['likesCount'] ?? 0,
+              postId: post.id,
+              title: post.title,
+              content: post.content,
+              author: post.authorNickname,
+              authorProfileUrl: post.authorProfileUrl, // Post 엔티티의 authorProfileUrl 사용
+              createdAt: post.createdAt,
+              youtubeUrl: post.youtubeUrl.isNotEmpty ? post.youtubeUrl : null,
+              likes: post.likes,
+              likeCount: post.likeCount,
+              backgroundImage: post.backgroundImage.isNotEmpty 
+                  ? post.backgroundImage 
+                  : 'https://picsum.photos/seed/${post.id}/800/420',
             );
           },
           childCount: posts.length + (hasMore ? 1 : 0),

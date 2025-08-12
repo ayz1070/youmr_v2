@@ -9,8 +9,10 @@ class PostDto {
   final String id;
   /// 작성자 ID
   final String authorId;
-  /// 작성자 이름
-  final String authorName;
+  /// 작성자 닉네임
+  final String authorNickname;
+  /// 작성자 프로필 이미지 URL
+  final String authorProfileUrl;
   /// 제목
   final String title;
   /// 내용
@@ -40,7 +42,8 @@ class PostDto {
   const PostDto({
     required this.id,
     required this.authorId,
-    required this.authorName,
+    required this.authorNickname,
+    required this.authorProfileUrl,
     required this.title,
     required this.content,
     required this.category,
@@ -65,7 +68,8 @@ class PostDto {
       
       // 필드 매핑 및 변환
       final authorId = json['authorUid']?.toString() ?? json['authorId']?.toString() ?? '';
-      final authorName = json['authorNickname']?.toString() ?? json['authorName']?.toString() ?? '';
+      final authorNickname = json['authorNickname']?.toString() ?? json['authorName']?.toString() ?? '';
+      final authorProfileUrl = json['authorProfileUrl']?.toString() ?? '';
       final title = json['title']?.toString() ?? '';
       final content = json['content']?.toString() ?? '';
       final category = json['category']?.toString() ?? '일반';
@@ -75,8 +79,8 @@ class PostDto {
       final updatedAt = _parseDateTime(json['updatedAt']);
       
       // 숫자 필드 변환
-      final likeCount = _parseInt(json['likesCount'] ?? json['likeCount']);
-      final commentCount = _parseInt(json['commentsCount'] ?? json['commentCount']);
+      final likeCount = _parseInt(json['likeCount']);
+      final commentCount = _parseInt(json['commentCount']);
       
       // 리스트 필드 변환
       final imageUrls = _parseStringList(json['imageUrls']);
@@ -90,7 +94,8 @@ class PostDto {
       return PostDto(
         id: id,
         authorId: authorId,
-        authorName: authorName,
+        authorNickname: authorNickname,
+        authorProfileUrl: authorProfileUrl,
         title: title,
         content: content,
         category: category,
@@ -144,7 +149,8 @@ extension PostDtoDomainMapper on PostDto {
   Post toDomain() => Post(
         id: id,
         authorId: authorId,
-        authorName: authorName,
+        authorNickname: authorNickname, // authorNickname 사용
+        authorProfileUrl: authorProfileUrl,
         title: title,
         content: content,
         category: category,
@@ -165,7 +171,8 @@ extension PostDtoFromDomain on Post {
   PostDto toDto() => PostDto(
         id: id,
         authorId: authorId,
-        authorName: authorName,
+        authorNickname: authorNickname, // authorNickname 사용
+        authorProfileUrl: authorProfileUrl,
         title: title,
         content: content,
         category: category,

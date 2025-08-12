@@ -113,7 +113,7 @@ class CommentFirestoreDataSource implements CommentDataSource {
 
         final data = doc.data()!;
         final List<String> likes = List<String>.from(data['likes'] ?? []);
-        final int likesCount = data['likesCount'] ?? 0;
+        final int likeCount = data['likeCount'] ?? 0;
 
         if (likes.contains(userId)) {
           // 좋아요 취소
@@ -121,7 +121,7 @@ class CommentFirestoreDataSource implements CommentDataSource {
           isLiked = false;
           transaction.update(docRef, {
             'likes': likes,
-            'likesCount': likesCount - 1,
+            'likeCount': likeCount - 1,
           });
         } else {
           // 좋아요 추가
@@ -129,7 +129,7 @@ class CommentFirestoreDataSource implements CommentDataSource {
           isLiked = true;
           transaction.update(docRef, {
             'likes': likes,
-            'likesCount': likesCount + 1,
+            'likeCount': likeCount + 1,
           });
         }
       });

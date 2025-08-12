@@ -7,6 +7,11 @@ abstract class PostDataSource {
   /// 반환: 게시글 DTO 또는 null
   Future<PostDto?> fetchPostById(String postId);
 
+  /// 게시글 상세 정보 실시간 스트림 조회
+  /// [postId]: 게시글 ID
+  /// 반환: 실시간 업데이트되는 게시글 DTO 스트림
+  Stream<PostDto?> getPostStream(String postId);
+
   /// 게시글 목록 불러오기 (일회성)
   /// [category]: 카테고리(전체/null이면 전체)
   /// [startAfter]: 페이징용 마지막 문서

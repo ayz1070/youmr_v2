@@ -2,10 +2,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:dartz/dartz.dart';
 import 'package:youmr_v2/core/errors/app_failure.dart';
-import 'package:youmr_v2/features/post/domain/entities/comment.dart';
-import 'package:youmr_v2/features/post/domain/repositories/comment_repository.dart';
-import 'package:youmr_v2/features/post/data/repositories/comment_repository_impl.dart';
-import 'package:youmr_v2/features/post/data/data_sources/comment_data_source.dart';
 import 'package:youmr_v2/features/post/domain/use_cases/get_comments_use_case.dart';
 import 'package:youmr_v2/features/post/domain/use_cases/create_comment_use_case.dart';
 import 'package:youmr_v2/features/post/domain/use_cases/update_comment_use_case.dart';
@@ -13,43 +9,7 @@ import 'package:youmr_v2/features/post/domain/use_cases/delete_comment_use_case.
 import 'package:youmr_v2/features/post/domain/use_cases/toggle_comment_like_use_case.dart';
 import 'package:youmr_v2/features/post/domain/use_cases/report_comment_use_case.dart';
 
-/// 댓글 상태
-class CommentState {
-  final List<Comment> comments;
-  final bool isLoading;
-  final String? error;
-
-  const CommentState({
-    this.comments = const [],
-    this.isLoading = false,
-    this.error,
-  });
-
-  CommentState copyWith({
-    List<Comment>? comments,
-    bool? isLoading,
-    String? error,
-  }) {
-    return CommentState(
-      comments: comments ?? this.comments,
-      isLoading: isLoading ?? this.isLoading,
-      error: error,
-    );
-  }
-}
-
-/// 댓글 Provider
-final commentProvider = StateNotifierProvider.family<CommentNotifier, CommentState, String>(
-  (ref, postId) => CommentNotifier(
-    getComments: ref.read(getCommentsUseCaseProvider),
-    createComment: ref.read(createCommentUseCaseProvider),
-    updateComment: ref.read(updateCommentUseCaseProvider),
-    deleteComment: ref.read(deleteCommentUseCaseProvider),
-    toggleLike: ref.read(toggleCommentLikeUseCaseProvider),
-    reportComment: ref.read(reportCommentUseCaseProvider),
-    postId: postId,
-  ),
-);
+import '../states/comment_state.dart';
 
 /// 댓글 Notifier
 class CommentNotifier extends StateNotifier<CommentState> {
@@ -82,7 +42,7 @@ class CommentNotifier extends StateNotifier<CommentState> {
   /// 댓글 목록 로드
   void _loadComments() {
     _getComments(postId).listen(
-      (comments) {
+          (comments) {
         state = state.copyWith(comments: comments);
       },
       onError: (error) {
@@ -115,8 +75,8 @@ class CommentNotifier extends StateNotifier<CommentState> {
     state = state.copyWith(isLoading: false);
 
     return result.fold(
-      (failure) => Left(failure),
-      (_) => const Right(null),
+          (failure) => Left(failure),
+          (_) => const Right(null),
     );
   }
 
@@ -182,40 +142,3 @@ class CommentNotifier extends StateNotifier<CommentState> {
     return result;
   }
 }
-
-// Use Case Providers
-final getCommentsUseCaseProvider = Provider<GetCommentsUseCase>((ref) {
-  final repository = ref.read(commentRepositoryProvider);
-  return GetCommentsUseCase(repository);
-});
-
-final createCommentUseCaseProvider = Provider<CreateCommentUseCase>((ref) {
-  final repository = ref.read(commentRepositoryProvider);
-  return CreateCommentUseCase(repository);
-});
-
-final updateCommentUseCaseProvider = Provider<UpdateCommentUseCase>((ref) {
-  final repository = ref.read(commentRepositoryProvider);
-  return UpdateCommentUseCase(repository);
-});
-
-final deleteCommentUseCaseProvider = Provider<DeleteCommentUseCase>((ref) {
-  final repository = ref.read(commentRepositoryProvider);
-  return DeleteCommentUseCase(repository);
-});
-
-final toggleCommentLikeUseCaseProvider = Provider<ToggleCommentLikeUseCase>((ref) {
-  final repository = ref.read(commentRepositoryProvider);
-  return ToggleCommentLikeUseCase(repository);
-});
-
-final reportCommentUseCaseProvider = Provider<ReportCommentUseCase>((ref) {
-  final repository = ref.read(commentRepositoryProvider);
-  return ReportCommentUseCase(repository);
-});
-
-// Repository Provider
-final commentRepositoryProvider = Provider<CommentRepository>((ref) {
-  final dataSource = CommentFirestoreDataSource();
-  return CommentRepositoryImpl(dataSource);
-}); 

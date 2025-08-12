@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../../di/comment_module.dart';
 import 'comment_item.dart';
-import '../providers/comment_provider.dart';
 
 /// 댓글의 수정/삭제/신고 콜백 타입
 typedef OnEditComment = void Function(String commentId, String content);
@@ -70,7 +70,7 @@ class CommentList extends ConsumerWidget {
         final bool isOwnerOrAdmin = _isAdminOrOwner(comment, uid, userType);
         
         return CommentItem(
-          key: ValueKey('${comment.id}_${comment.content}_${comment.likesCount}'), // 더 구체적인 키로 변경
+          key: ValueKey('${comment.id}_${comment.content}_${comment.likeCount}'), // 더 구체적인 키로 변경
           comment: comment,
           isOwnerOrAdmin: isOwnerOrAdmin,
           uid: uid,

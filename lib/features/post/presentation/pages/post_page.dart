@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:youmr_v2/core/widgets/primary_app_bar.dart';
 import 'package:youmr_v2/core/widgets/banner_ad_widget.dart';
-import '../providers/post_provider.dart';
+import 'package:youmr_v2/core/constants/post_constants.dart';
+import '../../di/post_module.dart';
 import '../widgets/post_category_tabbar.dart';
 
 import 'post_write_page.dart'; // 글쓰기 페이지 import
@@ -26,7 +27,7 @@ class PostPage extends ConsumerStatefulWidget {
 
 class _PostPageState extends ConsumerState<PostPage> with SingleTickerProviderStateMixin {
   late final TabController _tabController;
-  final List<String> _categories = ['전체', '자유', '밴드', '영상'];
+  final List<String> _categories = PostConstants.categories;
 
   final ScrollController _scrollController = ScrollController();
 

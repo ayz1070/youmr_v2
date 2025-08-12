@@ -24,7 +24,7 @@ class CommentDto {
   final List<String> likes;
   
   /// 좋아요 수
-  final int likesCount;
+  final int likeCount;
   
   /// 생성 시간
   final DateTime createdAt;
@@ -41,7 +41,7 @@ class CommentDto {
     required this.authorNickname,
     this.authorProfileUrl,
     this.likes = const [],
-    this.likesCount = 0,
+    this.likeCount = 0,
     required this.createdAt,
     this.serverCreatedAt,
   });
@@ -68,7 +68,7 @@ class CommentDto {
           : null;
       
       // 숫자 및 리스트 필드 변환
-      final likesCount = _parseInt(json['likesCount']);
+      final likeCount = _parseInt(json['likeCount']);
       final likes = _parseStringList(json['likes']);
       
       return CommentDto(
@@ -79,7 +79,7 @@ class CommentDto {
         authorNickname: authorNickname,
         authorProfileUrl: authorProfileUrl,
         likes: likes,
-        likesCount: likesCount,
+        likeCount: likeCount,
         createdAt: createdAt,
         serverCreatedAt: serverCreatedAt,
       );
@@ -132,7 +132,7 @@ extension CommentDtoExtension on CommentDto {
       'authorNickname': authorNickname,
       'authorProfileUrl': authorProfileUrl,
       'likes': likes,
-      'likesCount': likesCount,
+      'likeCount': likeCount,
       'createdAt': Timestamp.fromDate(createdAt),
       'serverCreatedAt': serverCreatedAt != null 
           ? Timestamp.fromDate(serverCreatedAt!) 

@@ -29,7 +29,7 @@ class Comment with _$Comment {
     @Default([]) List<String> likes,
     
     /// 좋아요 수
-    @Default(0) int likesCount,
+    @Default(0) int likeCount,
     
     /// 생성 시간
     required DateTime createdAt,

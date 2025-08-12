@@ -1,6 +1,6 @@
 import '../entities/profile.dart';
 import '../repositories/profile_repository.dart';
-import '../../core/errors/profile_failure.dart';
+import '../../../../core/errors/profile_failure.dart';
 import 'package:dartz/dartz.dart';
 
 /// 내 프로필 정보 저장 유즈케이스

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/post_provider.dart';
+import '../../di/post_module.dart';
 import '../pages/post_detail_page.dart';
 
 /// 심플한 공지글 위젯 (최신 공지글 하나만 표시)
@@ -21,9 +21,8 @@ class SimpleNoticeWidget extends ConsumerWidget {
     }
 
     final notice = noticeState.notice!;
-    final noticeData = notice.data();
-    final title = noticeData['title'] ?? '';
-    final content = noticeData['content'] ?? '';
+    final title = notice.title;
+    final content = notice.content;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),

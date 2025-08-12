@@ -66,8 +66,8 @@ class _NoticeWritePageState extends State<NoticeWritePage> {
         'createdAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
         'likes': [],
-        'likesCount': 0,
-        'commentsCount': 0,
+        'likeCount': 0,
+        'commentCount': 0,
       };
 
       // YouTube URL이 있으면 추가
