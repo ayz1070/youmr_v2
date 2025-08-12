@@ -3,7 +3,7 @@ import '../../domain/entities/profile.dart';
 import '../../domain/repositories/profile_repository.dart';
 import '../data_sources/profile_firestore_data_source.dart';
 import '../dtos/profile_dto.dart';
-import '../../core/errors/profile_failure.dart';
+import '../../../../core/errors/profile_failure.dart';
 
 /// 프로필 Repository 구현체
 class ProfileRepositoryImpl implements ProfileRepository {

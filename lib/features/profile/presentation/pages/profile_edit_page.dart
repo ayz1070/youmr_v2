@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/profile_provider.dart';
+import '../../di/profile_module.dart';
 import '../../domain/entities/profile.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/app_dropdown.dart';
