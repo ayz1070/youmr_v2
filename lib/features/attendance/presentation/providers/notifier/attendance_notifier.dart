@@ -1,18 +1,15 @@
 import 'dart:async';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../domain/entities/attendance.dart';
-import '../../domain/use_cases/get_my_attendance.dart';
-import '../../domain/use_cases/save_my_attendance.dart';
-import '../../domain/use_cases/get_attendees_by_day.dart';
-import '../../domain/use_cases/get_current_user_profile.dart';
-import '../../data/repositories/attendance_repository_impl.dart';
-import '../../data/data_sources/attendance_firestore_data_source.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
-/// 출석 상태 관리 Provider (AsyncNotifier)
-final attendanceProvider = AsyncNotifierProvider<AttendanceNotifier, Attendance?>(
-  AttendanceNotifier.new,
-);
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../data/data_sources/attendance_firestore_data_source.dart';
+import '../../../data/repositories/attendance_repository_impl.dart';
+import '../../../domain/entities/attendance.dart';
+import '../../../domain/use_cases/get_attendees_by_day.dart';
+import '../../../domain/use_cases/get_current_user_profile.dart';
+import '../../../domain/use_cases/get_my_attendance.dart';
+import '../../../domain/use_cases/save_my_attendance.dart';
 
 class AttendanceNotifier extends AsyncNotifier<Attendance?> {
   late final GetMyAttendance _getMyAttendance;
@@ -34,19 +31,19 @@ class AttendanceNotifier extends AsyncNotifier<Attendance?> {
     // 현재 로그인 유저 정보로 출석 정보 불러오기
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return null;
-    
+
     // UseCase를 통해 사용자 프로필 정보 가져오기
     final profileResult = await _getCurrentUserProfile();
     final (userName, userProfileImageUrl) = profileResult.fold(
-      (failure) => ('이름없음', ''),
-      (profile) => profile,
+          (failure) => ('이름없음', ''),
+          (profile) => profile,
     );
-    
+
     final weekKey = _getCurrentWeekKey();
     final result = await _getMyAttendance(weekKey: weekKey, userId: user.uid);
     return result.fold(
-      (failure) => throw AsyncError(failure, StackTrace.current),
-      (attendance) {
+          (failure) => throw AsyncError(failure, StackTrace.current),
+          (attendance) {
         // 출석 정보가 없으면 기본값으로 생성하여 반환
         if (attendance == null) {
           return Attendance(
@@ -68,16 +65,16 @@ class AttendanceNotifier extends AsyncNotifier<Attendance?> {
     state = const AsyncValue.loading();
     final result = await _saveMyAttendance(attendance: attendance);
     result.fold(
-      (failure) => state = AsyncValue.error(failure, StackTrace.current),
-      (_) async {
+          (failure) => state = AsyncValue.error(failure, StackTrace.current),
+          (_) async {
         // 저장 후 최신 정보 다시 불러오기
         final user = FirebaseAuth.instance.currentUser;
         if (user == null) return;
         final weekKey = _getCurrentWeekKey();
         final newResult = await _getMyAttendance(weekKey: weekKey, userId: user.uid);
         newResult.fold(
-          (failure) => state = AsyncValue.error(failure, StackTrace.current),
-          (attendance) => state = AsyncValue.data(attendance),
+              (failure) => state = AsyncValue.error(failure, StackTrace.current),
+              (attendance) => state = AsyncValue.data(attendance),
         );
       },
     );
@@ -88,7 +85,7 @@ class AttendanceNotifier extends AsyncNotifier<Attendance?> {
     final weekKey = _getCurrentWeekKey();
     // Either 스트림을 성공 시 리스트, 실패 시 빈 리스트로 변환
     return _getAttendeesByDay(weekKey: weekKey, day: day).map((either) =>
-      either.fold((_) => <Attendance>[], (list) => list),
+        either.fold((_) => <Attendance>[], (list) => list),
     );
   }
 
@@ -96,8 +93,8 @@ class AttendanceNotifier extends AsyncNotifier<Attendance?> {
   Future<(String name, String profileImageUrl)> getCurrentUserProfile() async {
     final result = await _getCurrentUserProfile();
     return result.fold(
-      (failure) => ('이름없음', ''),
-      (profile) => profile,
+          (failure) => ('이름없음', ''),
+          (profile) => profile,
     );
   }
 
@@ -109,4 +106,4 @@ class AttendanceNotifier extends AsyncNotifier<Attendance?> {
     String format(DateTime d) => '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
     return '${format(start)}~${format(end)}';
   }
-} 
+}

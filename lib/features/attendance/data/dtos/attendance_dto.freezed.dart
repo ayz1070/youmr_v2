@@ -36,7 +36,6 @@ mixin _$AttendanceDto {
   String get profileImageUrl => throw _privateConstructorUsedError;
 
   /// 마지막 업데이트 시각
-  @JsonKey(name: 'last_updated', fromJson: _fromTimestamp, toJson: _toTimestamp)
   DateTime? get lastUpdated => throw _privateConstructorUsedError;
 
   /// Serializes this AttendanceDto to a JSON map.
@@ -61,8 +60,6 @@ abstract class $AttendanceDtoCopyWith<$Res> {
       List<String> selectedDays,
       String name,
       String profileImageUrl,
-      @JsonKey(
-          name: 'last_updated', fromJson: _fromTimestamp, toJson: _toTimestamp)
       DateTime? lastUpdated});
 }
 
@@ -131,8 +128,6 @@ abstract class _$$AttendanceDtoImplCopyWith<$Res>
       List<String> selectedDays,
       String name,
       String profileImageUrl,
-      @JsonKey(
-          name: 'last_updated', fromJson: _fromTimestamp, toJson: _toTimestamp)
       DateTime? lastUpdated});
 }
 
@@ -194,8 +189,6 @@ class _$AttendanceDtoImpl implements _AttendanceDto {
       required final List<String> selectedDays,
       required this.name,
       required this.profileImageUrl,
-      @JsonKey(
-          name: 'last_updated', fromJson: _fromTimestamp, toJson: _toTimestamp)
       this.lastUpdated})
       : _selectedDays = selectedDays;
 
@@ -231,7 +224,6 @@ class _$AttendanceDtoImpl implements _AttendanceDto {
 
   /// 마지막 업데이트 시각
   @override
-  @JsonKey(name: 'last_updated', fromJson: _fromTimestamp, toJson: _toTimestamp)
   final DateTime? lastUpdated;
 
   @override
@@ -289,8 +281,6 @@ abstract class _AttendanceDto implements AttendanceDto {
       required final List<String> selectedDays,
       required final String name,
       required final String profileImageUrl,
-      @JsonKey(
-          name: 'last_updated', fromJson: _fromTimestamp, toJson: _toTimestamp)
       final DateTime? lastUpdated}) = _$AttendanceDtoImpl;
 
   factory _AttendanceDto.fromJson(Map<String, dynamic> json) =
@@ -318,7 +308,6 @@ abstract class _AttendanceDto implements AttendanceDto {
 
   /// 마지막 업데이트 시각
   @override
-  @JsonKey(name: 'last_updated', fromJson: _fromTimestamp, toJson: _toTimestamp)
   DateTime? get lastUpdated;
 
   /// Create a copy of AttendanceDto

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:youmr_v2/core/constants/app_constants.dart';
+import '../../di/attendance_module.dart';
 import '../../domain/entities/attendance.dart';
-import '../providers/attendance_provider.dart';
 import '../widgets/attendance_day_row.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:youmr_v2/core/widgets/primary_app_bar.dart';

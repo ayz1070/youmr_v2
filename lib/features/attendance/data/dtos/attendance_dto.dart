@@ -1,5 +1,4 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../domain/entities/attendance.dart';
 
 part 'attendance_dto.freezed.dart';
@@ -20,7 +19,6 @@ class AttendanceDto with _$AttendanceDto {
     /// 프로필 이미지 URL
     required String profileImageUrl,
     /// 마지막 업데이트 시각
-    @JsonKey(name: 'last_updated', fromJson: _fromTimestamp, toJson: _toTimestamp)
     DateTime? lastUpdated,
   }) = _AttendanceDto;
 
@@ -47,19 +45,4 @@ extension AttendanceDtoX on AttendanceDto {
     profileImageUrl: profileImageUrl,
     lastUpdated: lastUpdated,
   );
-}
-
-/// Firestore Timestamp → DateTime 변환
-DateTime? _fromTimestamp(dynamic value) {
-  if (value == null) return null;
-  if (value is DateTime) return value;
-  if (value is Timestamp) return value.toDate();
-  if (value is String) return DateTime.tryParse(value);
-  return null;
-}
-
-/// DateTime → Firestore Timestamp 변환
-Object? _toTimestamp(DateTime? value) {
-  if (value == null) return null;
-  return Timestamp.fromDate(value);
 } 
