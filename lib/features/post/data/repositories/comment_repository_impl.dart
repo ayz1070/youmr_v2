@@ -13,19 +13,8 @@ class CommentRepositoryImpl implements CommentRepository {
 
   @override
   Stream<List<Comment>> getCommentsStream(String postId) {
-    return _dataSource.getCommentsStream(postId).map((dtos) =>
-        dtos.map((dto) => Comment(
-          id: dto.id,
-          postId: dto.postId,
-          content: dto.content,
-          authorId: dto.authorId,
-          authorNickname: dto.authorNickname,
-          authorProfileUrl: dto.authorProfileUrl,
-          likes: dto.likes,
-          likesCount: dto.likesCount,
-          createdAt: dto.createdAt,
-          serverCreatedAt: dto.serverCreatedAt,
-        )).toList());
+    return _dataSource.fetchCommentsStream(postId).map((dtos) =>
+        dtos.map((dto) => _mapDtoToEntity(dto)).toList());
   }
 
   @override
@@ -36,7 +25,7 @@ class CommentRepositoryImpl implements CommentRepository {
     required String authorNickname,
     String? authorProfileUrl,
   }) async {
-    try {
+    return _handleAsyncOperation(() async {
       final commentDto = CommentDto(
         id: '', // Firestore에서 자동 생성
         postId: postId,
@@ -47,11 +36,8 @@ class CommentRepositoryImpl implements CommentRepository {
         createdAt: DateTime.now(),
       );
 
-      final commentId = await _dataSource.createComment(commentDto);
-      return Right(commentId);
-    } catch (e) {
-      return Left(AppFailure.serverError(e.toString()));
-    }
+      return await _dataSource.createComment(commentDto);
+    });
   }
 
   @override
@@ -59,22 +45,16 @@ class CommentRepositoryImpl implements CommentRepository {
     required String commentId,
     required String content,
   }) async {
-    try {
+    return _handleAsyncOperation(() async {
       await _dataSource.updateComment(commentId, content);
-      return const Right(null);
-    } catch (e) {
-      return Left(AppFailure.serverError(e.toString()));
-    }
+    });
   }
 
   @override
   Future<Either<AppFailure, void>> deleteComment(String commentId) async {
-    try {
+    return _handleAsyncOperation(() async {
       await _dataSource.deleteComment(commentId);
-      return const Right(null);
-    } catch (e) {
-      return Left(AppFailure.serverError(e.toString()));
-    }
+    });
   }
 
   @override
@@ -82,12 +62,9 @@ class CommentRepositoryImpl implements CommentRepository {
     required String commentId,
     required String userId,
   }) async {
-    try {
+    return _handleAsyncOperation(() async {
       await _dataSource.toggleLike(commentId, userId);
-      return const Right(null);
-    } catch (e) {
-      return Left(AppFailure.serverError(e.toString()));
-    }
+    });
   }
 
   @override
@@ -96,9 +73,32 @@ class CommentRepositoryImpl implements CommentRepository {
     required String reporterId,
     required String reason,
   }) async {
-    try {
+    return _handleAsyncOperation(() async {
       await _dataSource.reportComment(commentId, reporterId, reason);
-      return const Right(null);
+    });
+  }
+
+  /// DTO를 도메인 엔티티로 변환하는 헬퍼 메서드
+  Comment _mapDtoToEntity(CommentDto dto) {
+    return Comment(
+      id: dto.id,
+      postId: dto.postId,
+      content: dto.content,
+      authorId: dto.authorId,
+      authorNickname: dto.authorNickname,
+      authorProfileUrl: dto.authorProfileUrl,
+      likes: dto.likes,
+      likesCount: dto.likesCount,
+      createdAt: dto.createdAt,
+      serverCreatedAt: dto.serverCreatedAt,
+    );
+  }
+
+  /// 비동기 작업의 에러 처리를 통합하는 헬퍼 메서드
+  Future<Either<AppFailure, T>> _handleAsyncOperation<T>(Future<T> Function() operation) async {
+    try {
+      final result = await operation();
+      return Right(result);
     } catch (e) {
       return Left(AppFailure.serverError(e.toString()));
     }

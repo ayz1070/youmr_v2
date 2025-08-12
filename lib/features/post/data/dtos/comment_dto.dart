@@ -1,63 +1,123 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-part 'comment_dto.freezed.dart';
-part 'comment_dto.g.dart';
-
 /// 댓글 DTO
-@freezed
-class CommentDto with _$CommentDto {
-  const factory CommentDto({
-    /// 댓글 ID
-    required String id,
-    
-    /// 게시글 ID
-    required String postId,
-    
-    /// 댓글 내용
-    required String content,
-    
-    /// 작성자 ID
-    required String authorId,
-    
-    /// 작성자 닉네임
-    required String authorNickname,
-    
-    /// 작성자 프로필 이미지 URL
-    String? authorProfileUrl,
-    
-    /// 좋아요한 사용자 ID 리스트
-    @Default([]) List<String> likes,
-    
-    /// 좋아요 수
-    @Default(0) int likesCount,
-    
-    /// 생성 시간
-    required DateTime createdAt,
-    
-    /// 서버 생성 시간
-    DateTime? serverCreatedAt,
-  }) = _CommentDto;
+class CommentDto {
+  /// 댓글 ID
+  final String id;
+  
+  /// 게시글 ID
+  final String postId;
+  
+  /// 댓글 내용
+  final String content;
+  
+  /// 작성자 ID
+  final String authorId;
+  
+  /// 작성자 닉네임
+  final String authorNickname;
+  
+  /// 작성자 프로필 이미지 URL
+  final String? authorProfileUrl;
+  
+  /// 좋아요한 사용자 ID 리스트
+  final List<String> likes;
+  
+  /// 좋아요 수
+  final int likesCount;
+  
+  /// 생성 시간
+  final DateTime createdAt;
+  
+  /// 서버 생성 시간
+  final DateTime? serverCreatedAt;
 
-  factory CommentDto.fromJson(Map<String, dynamic> json) => _$CommentDtoFromJson(json);
+  /// 댓글 DTO 생성자
+  const CommentDto({
+    required this.id,
+    required this.postId,
+    required this.content,
+    required this.authorId,
+    required this.authorNickname,
+    this.authorProfileUrl,
+    this.likes = const [],
+    this.likesCount = 0,
+    required this.createdAt,
+    this.serverCreatedAt,
+  });
+
+  /// JSON → CommentDto 변환 (타입 안전성 검증 포함)
+  /// [json]: Firestore 문서 데이터
+  /// [documentId]: 문서 ID (필드에 id가 없는 경우 사용)
+  factory CommentDto.fromJson(Map<String, dynamic> json, {String? documentId}) {
+    try {
+      // 문서 ID 처리
+      final id = documentId ?? json['id']?.toString() ?? '';
+      
+      // 필드 매핑 및 변환
+      final postId = json['postId']?.toString() ?? '';
+      final content = json['content']?.toString() ?? '';
+      final authorId = json['authorId']?.toString() ?? '';
+      final authorNickname = json['authorNickname']?.toString() ?? '';
+      final authorProfileUrl = json['authorProfileUrl']?.toString();
+      
+      // DateTime 변환
+      final createdAt = _parseDateTime(json['createdAt']);
+      final serverCreatedAt = json['serverCreatedAt'] != null 
+          ? _parseDateTime(json['serverCreatedAt']) 
+          : null;
+      
+      // 숫자 및 리스트 필드 변환
+      final likesCount = _parseInt(json['likesCount']);
+      final likes = _parseStringList(json['likes']);
+      
+      return CommentDto(
+        id: id,
+        postId: postId,
+        content: content,
+        authorId: authorId,
+        authorNickname: authorNickname,
+        authorProfileUrl: authorProfileUrl,
+        likes: likes,
+        likesCount: likesCount,
+        createdAt: createdAt,
+        serverCreatedAt: serverCreatedAt,
+      );
+      
+    } catch (e) {
+      throw Exception('CommentDto.fromJson 변환 실패: $e');
+    }
+  }
 
   /// Firestore 문서에서 DTO 생성
   factory CommentDto.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
     final data = doc.data()!;
-    return CommentDto(
-      id: doc.id,
-      postId: data['postId'] ?? '',
-      content: data['content'] ?? '',
-      authorId: data['authorId'] ?? '',
-      authorNickname: data['authorNickname'] ?? '',
-      authorProfileUrl: data['authorProfileUrl'],
-      likes: List<String>.from(data['likes'] ?? []),
-      likesCount: data['likesCount'] ?? 0,
-      createdAt: (data['createdAt'] as Timestamp).toDate(),
-      serverCreatedAt: data['serverCreatedAt'] != null 
-          ? (data['serverCreatedAt'] as Timestamp).toDate() 
-          : null,
-    );
+    return CommentDto.fromJson(data, documentId: doc.id);
+  }
+
+  /// DateTime 파싱 헬퍼 메서드
+  static DateTime _parseDateTime(dynamic value) {
+    try {
+      if (value is Timestamp) return value.toDate();
+      if (value is String) return DateTime.parse(value);
+      return DateTime.now();
+    } catch (e) {
+      return DateTime.now();
+    }
+  }
+
+  /// int 파싱 헬퍼 메서드
+  static int _parseInt(dynamic value) {
+    if (value is int) return value;
+    return int.tryParse(value?.toString() ?? '0') ?? 0;
+  }
+
+  /// String 리스트 파싱 헬퍼 메서드
+  static List<String> _parseStringList(dynamic value) {
+    if (value is List) {
+      return value.map((e) => e.toString()).toList();
+    }
+    return [];
   }
 }
 
