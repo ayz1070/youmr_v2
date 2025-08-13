@@ -49,4 +49,37 @@ abstract class AttendanceDataSource {
   /// 반환: 사용자 데이터 맵 또는 null (사용자가 없는 경우)
   /// 예외: Firestore 관련 예외를 그대로 throw
   Future<Map<String, dynamic>?> fetchUserData(String userId);
+
+  /// 특정 주차의 전체 출석 현황 조회
+  /// 
+  /// [weekKey] 조회할 주차 식별자
+  /// 
+  /// 반환: 해당 주차의 모든 출석 DTO 목록
+  /// 예외: Firestore 관련 예외를 그대로 throw
+  Future<List<AttendanceDto>> fetchWeeklyAttendance({
+    required String weekKey,
+  });
+
+  /// 사용자별 출석 이력 조회
+  /// 
+  /// [userId] 조회할 사용자 ID
+  /// [limit] 조회할 최대 기록 수
+  /// 
+  /// 반환: 사용자의 출석 이력 DTO 목록
+  /// 예외: Firestore 관련 예외를 그대로 throw
+  Future<List<AttendanceDto>> fetchUserAttendanceHistory({
+    required String userId,
+    required int limit,
+  });
+
+  /// 출석 데이터 삭제
+  /// 
+  /// [weekKey] 삭제할 주차 식별자
+  /// [userId] 삭제할 사용자 ID
+  /// 
+  /// 예외: Firestore 관련 예외를 그대로 throw
+  Future<void> deleteAttendance({
+    required String weekKey,
+    required String userId,
+  });
 }

@@ -108,4 +108,73 @@ class AttendanceFirestoreDataSource implements AttendanceDataSource {
       rethrow;
     }
   }
+
+  /// 특정 주차의 전체 출석 현황 조회
+  @override
+  Future<List<AttendanceDto>> fetchWeeklyAttendance({
+    required String weekKey,
+  }) async {
+    try {
+      final QuerySnapshot<Map<String, dynamic>> snapshot = 
+          await _firestore
+              .collection(FirestoreConstants.attendancesCollection)
+              .where(FirestoreConstants.weekKey, isEqualTo: weekKey)
+              .get();
+      
+      return snapshot.docs
+          .map((doc) {
+            final Map<String, dynamic> data = doc.data();
+            return AttendanceDto.fromJson(data);
+          })
+          .toList();
+    } catch (e) {
+      // DataSource에서는 예외를 그대로 throw
+      rethrow;
+    }
+  }
+
+  /// 사용자별 출석 이력 조회
+  @override
+  Future<List<AttendanceDto>> fetchUserAttendanceHistory({
+    required String userId,
+    required int limit,
+  }) async {
+    try {
+      final QuerySnapshot<Map<String, dynamic>> snapshot = 
+          await _firestore
+              .collection(FirestoreConstants.attendancesCollection)
+              .where(FirestoreConstants.userId, isEqualTo: userId)
+              .orderBy(FirestoreConstants.weekKey, descending: true)
+              .limit(limit)
+              .get();
+      
+      return snapshot.docs
+          .map((doc) {
+            final Map<String, dynamic> data = doc.data();
+            return AttendanceDto.fromJson(data);
+          })
+          .toList();
+    } catch (e) {
+      // DataSource에서는 예외를 그대로 throw
+      rethrow;
+    }
+  }
+
+  /// 출석 데이터 삭제
+  @override
+  Future<void> deleteAttendance({
+    required String weekKey,
+    required String userId,
+  }) async {
+    try {
+      final String documentId = '${weekKey}_$userId';
+      await _firestore
+          .collection(FirestoreConstants.attendancesCollection)
+          .doc(documentId)
+          .delete();
+    } catch (e) {
+      // DataSource에서는 예외를 그대로 throw
+      rethrow;
+    }
+  }
 } 
