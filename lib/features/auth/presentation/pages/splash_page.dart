@@ -7,6 +7,7 @@ import 'package:youmr_v2/core/services/fcm_service.dart';
 import 'package:youmr_v2/core/constants/app_logger.dart';
 import 'package:youmr_v2/core/utils/onboarding_utils.dart';
 import 'package:youmr_v2/features/notification/presentation/providers/notification_provider.dart';
+import '../../di/auth_module.dart';
 import 'login_page.dart';
 import 'profile_setup_page.dart';
 import 'onboarding_page.dart';
@@ -37,6 +38,9 @@ class _SplashPageState extends ConsumerState<SplashPage> {
   /// Firestore/FirebaseAuth 직접 접근 → 추후 Provider 구조로 개선 권장
   Future<void> _checkAuth() async {
     try {
+      // authProvider 초기화 추가 - 사용자 정보 로드
+      await ref.read(authProvider.notifier).initialize();
+      
       // 딜레이 제거 - 즉시 다음 화면으로 전환
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) {

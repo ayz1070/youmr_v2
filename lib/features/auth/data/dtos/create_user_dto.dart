@@ -28,6 +28,10 @@ class CreateUserDto with _$CreateUserDto {
     @Default('') String dayOfWeek,
     /// FCM 토큰 (기본값: 빈 문자열, 나중에 설정)
     @Default('') String fcmToken,
+    /// 피크 개수 (기본값: 0)
+    @Default(0) int pick,
+    /// 마지막 피크 획득 날짜 (기본값: null)
+    DateTime? lastPickDate,
   }) = _CreateUserDto;
 
   /// JSON -> DTO
@@ -50,6 +54,8 @@ class CreateUserDto with _$CreateUserDto {
       userType: '',
       dayOfWeek: '',
       fcmToken: '',
+      pick: 0, // 신규 사용자는 피크 0개로 시작
+      lastPickDate: null, // 신규 사용자는 피크 획득 이력 없음
     );
   }
 }
@@ -68,6 +74,8 @@ extension CreateUserDtoExtension on CreateUserDto {
     'userType': userType,
     'dayOfWeek': dayOfWeek,
     'fcmToken': fcmToken,
+    'pick': pick,
+    'lastPickDate': lastPickDate != null ? Timestamp.fromDate(lastPickDate!) : null,
     'lastUpdated': FieldValue.serverTimestamp(),
   };
 }

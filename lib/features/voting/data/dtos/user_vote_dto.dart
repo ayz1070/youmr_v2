@@ -1,5 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../../domain/entities/user_vote.dart';
+
 part 'user_vote_dto.freezed.dart';
 part 'user_vote_dto.g.dart';
 
@@ -19,4 +21,21 @@ class UserVoteDto with _$UserVoteDto {
   /// JSON → DTO 변환
   factory UserVoteDto.fromJson(Map<String, dynamic> json) =>
       _$UserVoteDtoFromJson(json);
+
+  /// 도메인 → DTO 변환
+  factory UserVoteDto.fromDomain(UserVote userVote) => UserVoteDto(
+        userId: userVote.userId,
+        voteId: userVote.voteId,
+        votedAt: userVote.votedAt,
+      );
+}
+
+/// UserVoteDto → 도메인 모델 변환 확장
+extension UserVoteDtoX on UserVoteDto {
+  /// UserVoteDto → UserVote 변환
+  UserVote toDomain() => UserVote(
+        userId: userId,
+        voteId: voteId,
+        votedAt: votedAt,
+      );
 } 

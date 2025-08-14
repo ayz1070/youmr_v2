@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:youmr_v2/core/widgets/app_button_row.dart';
+import '../../../auth/di/auth_module.dart';
 
 /// 투표/피크 버튼 및 안내 메시지 위젯
-class VoteActionButtons extends StatelessWidget {
+class VoteActionButtons extends ConsumerWidget {
   final int selectedCount;
-  final int pick;
-  final bool isPickLoading;
-  final bool isVoteButtonEnabled;
   final VoidCallback onVote;
   final VoidCallback onGetPick;
   final String userId;
@@ -14,21 +13,23 @@ class VoteActionButtons extends StatelessWidget {
   const VoteActionButtons({
     super.key,
     required this.selectedCount,
-    required this.pick,
-    required this.isPickLoading,
-    required this.isVoteButtonEnabled,
     required this.onVote,
     required this.onGetPick,
     required this.userId,
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // authProvider에서 pick 값을 실시간으로 가져오기
+    final authUser = ref.watch(authProvider).value;
+    final int pick = authUser?.pick ?? 0;
+    final bool isVoteButtonEnabled = selectedCount > 0 && selectedCount <= pick && userId.isNotEmpty;
+    
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         children: <Widget>[
-          if (selectedCount > pick && !isPickLoading)
+          if (selectedCount > pick)
             Padding(
               padding: const EdgeInsets.only(bottom: 8),
               child: Text(
@@ -45,9 +46,7 @@ class VoteActionButtons extends StatelessWidget {
             rightLabel: '투표하기',
             onRightPressed: isVoteButtonEnabled ? onVote : null,
             rightEnabled: isVoteButtonEnabled,
-
           ),
-
         ],
       ),
     );

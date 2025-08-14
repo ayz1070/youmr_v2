@@ -44,6 +44,12 @@ mixin _$CreateUserDto {
   /// FCM 토큰 (기본값: 빈 문자열, 나중에 설정)
   String get fcmToken => throw _privateConstructorUsedError;
 
+  /// 피크 개수 (기본값: 0)
+  int get pick => throw _privateConstructorUsedError;
+
+  /// 마지막 피크 획득 날짜 (기본값: null)
+  DateTime? get lastPickDate => throw _privateConstructorUsedError;
+
   /// Serializes this CreateUserDto to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
 
@@ -68,7 +74,9 @@ abstract class $CreateUserDtoCopyWith<$Res> {
       String? profileImageUrl,
       String userType,
       String dayOfWeek,
-      String fcmToken});
+      String fcmToken,
+      int pick,
+      DateTime? lastPickDate});
 }
 
 /// @nodoc
@@ -94,6 +102,8 @@ class _$CreateUserDtoCopyWithImpl<$Res, $Val extends CreateUserDto>
     Object? userType = null,
     Object? dayOfWeek = null,
     Object? fcmToken = null,
+    Object? pick = null,
+    Object? lastPickDate = freezed,
   }) {
     return _then(_value.copyWith(
       uid: null == uid
@@ -128,6 +138,14 @@ class _$CreateUserDtoCopyWithImpl<$Res, $Val extends CreateUserDto>
           ? _value.fcmToken
           : fcmToken // ignore: cast_nullable_to_non_nullable
               as String,
+      pick: null == pick
+          ? _value.pick
+          : pick // ignore: cast_nullable_to_non_nullable
+              as int,
+      lastPickDate: freezed == lastPickDate
+          ? _value.lastPickDate
+          : lastPickDate // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
     ) as $Val);
   }
 }
@@ -148,7 +166,9 @@ abstract class _$$CreateUserDtoImplCopyWith<$Res>
       String? profileImageUrl,
       String userType,
       String dayOfWeek,
-      String fcmToken});
+      String fcmToken,
+      int pick,
+      DateTime? lastPickDate});
 }
 
 /// @nodoc
@@ -172,6 +192,8 @@ class __$$CreateUserDtoImplCopyWithImpl<$Res>
     Object? userType = null,
     Object? dayOfWeek = null,
     Object? fcmToken = null,
+    Object? pick = null,
+    Object? lastPickDate = freezed,
   }) {
     return _then(_$CreateUserDtoImpl(
       uid: null == uid
@@ -206,6 +228,14 @@ class __$$CreateUserDtoImplCopyWithImpl<$Res>
           ? _value.fcmToken
           : fcmToken // ignore: cast_nullable_to_non_nullable
               as String,
+      pick: null == pick
+          ? _value.pick
+          : pick // ignore: cast_nullable_to_non_nullable
+              as int,
+      lastPickDate: freezed == lastPickDate
+          ? _value.lastPickDate
+          : lastPickDate // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
     ));
   }
 }
@@ -221,7 +251,9 @@ class _$CreateUserDtoImpl implements _CreateUserDto {
       this.profileImageUrl,
       this.userType = '',
       this.dayOfWeek = '',
-      this.fcmToken = ''});
+      this.fcmToken = '',
+      this.pick = 0,
+      this.lastPickDate});
 
   factory _$CreateUserDtoImpl.fromJson(Map<String, dynamic> json) =>
       _$$CreateUserDtoImplFromJson(json);
@@ -261,9 +293,18 @@ class _$CreateUserDtoImpl implements _CreateUserDto {
   @JsonKey()
   final String fcmToken;
 
+  /// 피크 개수 (기본값: 0)
+  @override
+  @JsonKey()
+  final int pick;
+
+  /// 마지막 피크 획득 날짜 (기본값: null)
+  @override
+  final DateTime? lastPickDate;
+
   @override
   String toString() {
-    return 'CreateUserDto(uid: $uid, email: $email, nickname: $nickname, name: $name, profileImageUrl: $profileImageUrl, userType: $userType, dayOfWeek: $dayOfWeek, fcmToken: $fcmToken)';
+    return 'CreateUserDto(uid: $uid, email: $email, nickname: $nickname, name: $name, profileImageUrl: $profileImageUrl, userType: $userType, dayOfWeek: $dayOfWeek, fcmToken: $fcmToken, pick: $pick, lastPickDate: $lastPickDate)';
   }
 
   @override
@@ -283,13 +324,16 @@ class _$CreateUserDtoImpl implements _CreateUserDto {
             (identical(other.dayOfWeek, dayOfWeek) ||
                 other.dayOfWeek == dayOfWeek) &&
             (identical(other.fcmToken, fcmToken) ||
-                other.fcmToken == fcmToken));
+                other.fcmToken == fcmToken) &&
+            (identical(other.pick, pick) || other.pick == pick) &&
+            (identical(other.lastPickDate, lastPickDate) ||
+                other.lastPickDate == lastPickDate));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, uid, email, nickname, name,
-      profileImageUrl, userType, dayOfWeek, fcmToken);
+      profileImageUrl, userType, dayOfWeek, fcmToken, pick, lastPickDate);
 
   /// Create a copy of CreateUserDto
   /// with the given fields replaced by the non-null parameter values.
@@ -316,7 +360,9 @@ abstract class _CreateUserDto implements CreateUserDto {
       final String? profileImageUrl,
       final String userType,
       final String dayOfWeek,
-      final String fcmToken}) = _$CreateUserDtoImpl;
+      final String fcmToken,
+      final int pick,
+      final DateTime? lastPickDate}) = _$CreateUserDtoImpl;
 
   factory _CreateUserDto.fromJson(Map<String, dynamic> json) =
       _$CreateUserDtoImpl.fromJson;
@@ -352,6 +398,14 @@ abstract class _CreateUserDto implements CreateUserDto {
   /// FCM 토큰 (기본값: 빈 문자열, 나중에 설정)
   @override
   String get fcmToken;
+
+  /// 피크 개수 (기본값: 0)
+  @override
+  int get pick;
+
+  /// 마지막 피크 획득 날짜 (기본값: null)
+  @override
+  DateTime? get lastPickDate;
 
   /// Create a copy of CreateUserDto
   /// with the given fields replaced by the non-null parameter values.

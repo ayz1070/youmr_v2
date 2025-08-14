@@ -28,6 +28,10 @@ class UserResponseDto with _$UserResponseDto {
     String? dayOfWeek,
     /// FCM 토큰(푸시용, nullable)
     String? fcmToken,
+    /// 피크 개수 (nullable)
+    int? pick,
+    /// 마지막 피크 획득 날짜 (nullable)
+    DateTime? lastPickDate,
     /// 생성일(nullable)
     DateTime? createdAt,
     /// 수정일(nullable)
@@ -59,6 +63,8 @@ class UserResponseDto with _$UserResponseDto {
       userType: data['userType'],
       dayOfWeek: data['dayOfWeek'],
       fcmToken: data['fcmToken'],
+      pick: data['pick'] as int?,
+      lastPickDate: _timestampFromJson(data['lastPickDate']),
       createdAt: _timestampFromJson(data['createdAt']),
       updatedAt: _timestampFromJson(data['updatedAt']),
       lastUpdated: _timestampFromJson(data['lastUpdated']),
@@ -86,6 +92,8 @@ extension UserResponseDtoDomainMapper on UserResponseDto {
         userType: userType,
         dayOfWeek: dayOfWeek,
         fcmToken: fcmToken,
+        pick: pick,
+        lastPickDate: lastPickDate,
         createdAt: createdAt,
         updatedAt: updatedAt,
       );
@@ -102,6 +110,8 @@ extension UserResponseDtoFromDomain on AuthUser {
         userType: userType,
         dayOfWeek: dayOfWeek,
         fcmToken: fcmToken,
+        pick: pick,
+        lastPickDate: lastPickDate,
         createdAt: createdAt,
         updatedAt: updatedAt,
         lastUpdated: updatedAt,

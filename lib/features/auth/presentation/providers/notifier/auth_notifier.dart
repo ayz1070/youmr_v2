@@ -9,8 +9,7 @@ import '../../../domain/use_cases/get_current_user.dart';
 import '../../../domain/use_cases/save_profile.dart';
 import '../../../domain/use_cases/upload_profile_image.dart';
 import '../../../domain/use_cases/delete_profile_image.dart';
-import '../../../../notification/presentation/providers/notification_provider.dart';
-import '../../../di/auth_module.dart';
+
 
 
 /// 인증 상태 관리 Notifier
@@ -226,6 +225,39 @@ class AuthNotifier extends StateNotifier<AsyncValue<AuthUser?>> {
       state = AsyncValue.data(currentUser);
     } else {
       state = const AsyncValue.data(null);
+    }
+  }
+
+  /// pick 개수 업데이트
+  /// [newPickCount]: 새로운 pick 개수
+  void updatePickCount(int newPickCount) {
+    final currentUser = state.value;
+    if (currentUser != null) {
+      final updatedUser = currentUser.copyWith(pick: newPickCount);
+      state = AsyncValue.data(updatedUser);
+    }
+  }
+
+  /// pick 개수 감소
+  /// [decreaseAmount]: 감소할 pick 개수
+  void decreasePickCount(int decreaseAmount) {
+    final currentUser = state.value;
+    if (currentUser != null && currentUser.pick != null) {
+      final newPickCount = (currentUser.pick! - decreaseAmount).clamp(0, double.infinity).toInt();
+      final updatedUser = currentUser.copyWith(pick: newPickCount);
+      state = AsyncValue.data(updatedUser);
+    }
+  }
+
+  /// pick 개수 증가
+  /// [increaseAmount]: 증가할 pick 개수
+  void increasePickCount(int increaseAmount) {
+    final currentUser = state.value;
+    if (currentUser != null) {
+      final currentPick = currentUser.pick ?? 0;
+      final newPickCount = currentPick + increaseAmount;
+      final updatedUser = currentUser.copyWith(pick: newPickCount);
+      state = AsyncValue.data(updatedUser);
     }
   }
 } 

@@ -16,6 +16,10 @@ _$CreateUserDtoImpl _$$CreateUserDtoImplFromJson(Map<String, dynamic> json) =>
       userType: json['userType'] as String? ?? '',
       dayOfWeek: json['dayOfWeek'] as String? ?? '',
       fcmToken: json['fcmToken'] as String? ?? '',
+      pick: (json['pick'] as num?)?.toInt() ?? 0,
+      lastPickDate: json['lastPickDate'] == null
+          ? null
+          : DateTime.parse(json['lastPickDate'] as String),
     );
 
 Map<String, dynamic> _$$CreateUserDtoImplToJson(_$CreateUserDtoImpl instance) =>
@@ -28,4 +32,6 @@ Map<String, dynamic> _$$CreateUserDtoImplToJson(_$CreateUserDtoImpl instance) =>
       'userType': instance.userType,
       'dayOfWeek': instance.dayOfWeek,
       'fcmToken': instance.fcmToken,
+      'pick': instance.pick,
+      'lastPickDate': instance.lastPickDate?.toIso8601String(),
     };

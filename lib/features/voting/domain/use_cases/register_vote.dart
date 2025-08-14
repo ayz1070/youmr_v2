@@ -6,7 +6,7 @@ import '../repositories/voting_repository.dart';
 class RegisterVote {
   final VotingRepository repository;
 
-  RegisterVote(this.repository);
+  RegisterVote({required this.repository});
 
   Future<Either<VotingFailure, Unit>> call({
     required String title,

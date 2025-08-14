@@ -17,6 +17,10 @@ _$UserResponseDtoImpl _$$UserResponseDtoImplFromJson(
       userType: json['userType'] as String?,
       dayOfWeek: json['dayOfWeek'] as String?,
       fcmToken: json['fcmToken'] as String?,
+      pick: (json['pick'] as num?)?.toInt(),
+      lastPickDate: json['lastPickDate'] == null
+          ? null
+          : DateTime.parse(json['lastPickDate'] as String),
       createdAt: json['createdAt'] == null
           ? null
           : DateTime.parse(json['createdAt'] as String),
@@ -39,6 +43,8 @@ Map<String, dynamic> _$$UserResponseDtoImplToJson(
       'userType': instance.userType,
       'dayOfWeek': instance.dayOfWeek,
       'fcmToken': instance.fcmToken,
+      'pick': instance.pick,
+      'lastPickDate': instance.lastPickDate?.toIso8601String(),
       'createdAt': instance.createdAt?.toIso8601String(),
       'updatedAt': instance.updatedAt?.toIso8601String(),
       'lastUpdated': instance.lastUpdated?.toIso8601String(),

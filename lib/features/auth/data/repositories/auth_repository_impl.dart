@@ -75,6 +75,13 @@ class AuthRepositoryImpl implements AuthRepository {
         nickname: userNickname,
         name: userName,
         profileImageUrl: userProfileImageUrl,
+        userType: '',
+        dayOfWeek: '',
+        fcmToken: '',
+        pick: 0, // 신규 사용자는 피크 0개로 시작
+        lastPickDate: null, // 신규 사용자는 피크 획득 이력 없음
+        createdAt: null,
+        updatedAt: null,
       ));
     } catch (e, st) {
       AppLogger.e('구글 로그인 실패', error: e, stackTrace: st);
@@ -107,9 +114,10 @@ class AuthRepositoryImpl implements AuthRepository {
       String userNickname = user.displayName ?? '';
       String? userName;
       String? userProfileImageUrl = user.photoURL;
+      UserResponseDto? userDoc;
       
       try {
-        final UserResponseDto? userDoc = await dataSource.fetchUserProfile(uid: user.uid);
+        userDoc = await dataSource.fetchUserProfile(uid: user.uid);
         if (userDoc != null) {
           userNickname = userDoc.nickname;
           userName = userDoc.name;
@@ -126,6 +134,13 @@ class AuthRepositoryImpl implements AuthRepository {
         nickname: userNickname,
         name: userName,
         profileImageUrl: userProfileImageUrl,
+        userType: userDoc?.userType,
+        dayOfWeek: userDoc?.dayOfWeek,
+        fcmToken: userDoc?.fcmToken,
+        pick: userDoc?.pick,
+        lastPickDate: userDoc?.lastPickDate,
+        createdAt: userDoc?.createdAt,
+        updatedAt: userDoc?.updatedAt,
       ));
     } catch (e, st) {
       AppLogger.e('유저 조회 실패', error: e, stackTrace: st);
@@ -148,6 +163,8 @@ class AuthRepositoryImpl implements AuthRepository {
         userType: user.userType ?? '',
         dayOfWeek: user.dayOfWeek ?? '',
         fcmToken: user.fcmToken ?? '',
+        pick: user.pick ?? 0,
+        lastPickDate: user.lastPickDate,
       );
       await dataSource.saveUserProfile(uid: user.uid, createUserDto: createUserDto);
       return const Right(null);

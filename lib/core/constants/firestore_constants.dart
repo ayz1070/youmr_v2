@@ -42,4 +42,10 @@ class FirestoreConstants {
   static const String pick = 'pick';
   /// 마지막 피크 획득일 필드명
   static const String lastPickDate = 'lastPickDate';
+  
+  /// 투표 관련 추가 필드명
+  static const String voteIdField = 'voteId';
+  static const String votedAtField = 'votedAt';
+  static const String authorNicknameField = 'authorNickname';
+  static const String authorProfileUrlField = 'authorProfileUrl';
 }

@@ -18,4 +18,8 @@ class ErrorMessages {
   static const String votingAlreadyPickedError = '이미 오늘 피크를 받았습니다.';
   /// 투표: 이미 등록된 곡일 때
   static const String votingAlreadyRegisteredError = '이미 등록된 곡입니다.';
+  /// 투표: 곡을 찾을 수 없는 경우
+  static const String votingVoteNotFoundError = '곡을 찾을 수 없습니다.';
+  /// 투표: 삭제 권한이 없는 경우
+  static const String votingPermissionDeniedError = '삭제 권한이 없습니다.';
 } 
