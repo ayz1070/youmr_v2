@@ -65,7 +65,8 @@ class PostGridWithAds extends StatelessWidget {
               : null,
           youtubeUrl: postData['youtubeUrl'],
           likes: postData['likes'] ?? [],
-          likesCount: postData['likesCount'] ?? 0,
+          likeCount: postData['likeCount'] ?? 0,
+          backgroundImage: postData['backgroundImage'] ?? 'https://picsum.photos/seed/${posts[i].id}/800/420',
         ),
       );
       

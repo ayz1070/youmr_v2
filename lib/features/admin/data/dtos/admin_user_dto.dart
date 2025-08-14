@@ -12,20 +12,21 @@ part 'admin_user_dto.g.dart';
 @freezed
 class AdminUserDto with _$AdminUserDto {
   /// 생성자
-  @JsonSerializable(fieldRename: FieldRename.snake)
   const factory AdminUserDto({
     /// 회원 UID
-    required String uid,
+    String? uid,
     /// 닉네임
-    required String nickname,
+    String? nickname,
+    /// 이름
+    String? name,
     /// 이메일
-    required String email,
+    String? email,
     /// 회원 유형(admin, user 등)
-    required String userType,
+    String? userType,
     /// 프로필 이미지 URL
-    required String profileImageUrl,
+    String? profileImageUrl,
     /// 가입일(생성일)
-    required DateTime createdAt,
+    DateTime? createdAt,
   }) = _AdminUserDto;
 
   /// JSON → DTO 변환
@@ -35,6 +36,7 @@ class AdminUserDto with _$AdminUserDto {
   factory AdminUserDto.fromDomain(AdminUser user) => AdminUserDto(
     uid: user.uid,
     nickname: user.nickname,
+    name: user.name,
     email: user.email,
     userType: user.userType,
     profileImageUrl: user.profileImageUrl,
@@ -46,11 +48,12 @@ class AdminUserDto with _$AdminUserDto {
 extension AdminUserDtoX on AdminUserDto {
   /// DTO → 도메인 엔티티 변환
   AdminUser toDomain() => AdminUser(
-    uid: uid,
-    nickname: nickname,
-    email: email,
-    userType: userType,
-    profileImageUrl: profileImageUrl,
-    createdAt: createdAt,
+    uid: uid ?? '',
+    nickname: nickname ?? '',
+    name: name,
+    email: email ?? '',
+    userType: userType ?? 'member',
+    profileImageUrl: profileImageUrl ?? '',
+    createdAt: createdAt ?? DateTime.now(),
   );
 } 

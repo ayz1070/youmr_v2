@@ -9,6 +9,7 @@ class Profile with _$Profile {
   const factory Profile({
     required String uid,
     required String nickname,
+    String? name, // 실명 (선택사항)
     required String userType, // 값 객체로 분리 가능
     String? profileImageUrl,
     String? dayOfWeek,

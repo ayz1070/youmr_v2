@@ -1,19 +1,19 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:youmr_v2/core/constants/firestore_constants.dart';
 import 'package:youmr_v2/core/constants/error_messages.dart';
-import 'package:youmr_v2/core/constants/app_logger.dart';
+import 'package:youmr_v2/features/voting/data/data_sources/voting_data_source.dart';
+import 'package:youmr_v2/features/voting/data/dtos/vote_dto.dart';
 
 /// 투표 관련 Firestore 데이터 소스
-class VotingFirestoreDataSource {
-  /// Firestore 인스턴스
+class VotingFirestoreDataSource implements VotingDataSource{
   final FirebaseFirestore _firestore;
 
-  /// 생성자 - Firestore 인스턴스 주입(테스트 용이성)
   VotingFirestoreDataSource({FirebaseFirestore? firestore})
       : _firestore = firestore ?? FirebaseFirestore.instance;
 
   /// 상위 10개 곡 실시간 조회
   /// @return 곡 문서 리스트(Map) 스트림
+  @override
   Stream<List<Map<String, dynamic>>> topVotesStream() {
     return _firestore
         .collection(FirestoreConstants.votesCollection)
@@ -30,6 +30,7 @@ class VotingFirestoreDataSource {
   /// 투표 배치 처리 (곡 득표수 증가, userVotes 기록, 피크 차감)
   /// @param userId 사용자 ID
   /// @param voteIds 투표할 곡 ID 리스트
+  @override
   Future<void> batchSubmitVotes({
     required String userId,
     required List<String> voteIds,
@@ -56,8 +57,8 @@ class VotingFirestoreDataSource {
           .doc();
       batch.set(userVoteRef, {
         FirestoreConstants.userId: userId,
-        'voteId': voteId, // TODO: voteId도 상수화 필요시 추가
-        'votedAt': Timestamp.now(),
+        FirestoreConstants.voteIdField: voteId,
+        FirestoreConstants.votedAtField: Timestamp.now(),
       });
     }
 
@@ -69,6 +70,7 @@ class VotingFirestoreDataSource {
 
   /// 일일 피크 획득 (하루 1회 제한)
   /// @param userId 사용자 ID
+  @override
   Future<void> getDailyPick({required String userId}) async {
     final DocumentReference<Map<String, dynamic>> userRef =
         _firestore.collection(FirestoreConstants.usersCollection).doc(userId);
@@ -96,7 +98,8 @@ class VotingFirestoreDataSource {
   /// @param artist 아티스트
   /// @param youtubeUrl 유튜브 URL
   /// @param createdBy 등록자 ID
-  Future<void> registerVote({
+  @override
+  Future<void> saveVote({
     required String title,
     required String artist,
     String? youtubeUrl,
@@ -118,59 +121,57 @@ class VotingFirestoreDataSource {
         .get();
     final userData = userDoc.data() ?? {};
     
-    await _firestore.collection(FirestoreConstants.votesCollection).add({
-      FirestoreConstants.voteTitle: title,
-      FirestoreConstants.voteArtist: artist,
-      FirestoreConstants.voteYoutubeUrl: youtubeUrl,
-      FirestoreConstants.voteCount: 0,
-      FirestoreConstants.voteCreatedAt: Timestamp.now(),
-      FirestoreConstants.voteCreatedBy: createdBy,
-      'authorNickname': userData['nickname'] ?? '',
-      'authorProfileUrl': userData['profileImageUrl'] ?? '',
-    });
+    // DTO를 사용하여 투표 데이터 생성
+    final voteDto = VoteDto.save(
+      title: title,
+      artist: artist,
+      youtubeUrl: youtubeUrl,
+      createdBy: createdBy,
+      authorNickname: userData['nickname'] ?? '',
+      authorProfileUrl: userData['profileImageUrl'] ?? '',
+    );
+    
+    // DTO를 Firestore에 저장
+    await _firestore.collection(FirestoreConstants.votesCollection).add(
+      voteDto.toJson(),
+    );
   }
 
   /// 페이징된 상위 곡 조회
   /// @param limit 조회할 개수
   /// @param lastDocumentId 마지막 문서 ID (페이징용)
   /// @return 곡 문서 리스트(Map)
-  Future<List<Map<String, dynamic>>> getTopVotesPaginated({
+  @override
+  Future<List<Map<String, dynamic>>> fetchTopVotesPaginated({
     required int limit,
     String? lastDocumentId,
   }) async {
-    try {
-      AppLogger.d('getTopVotesPaginated 시작: limit=$limit, lastDocumentId=$lastDocumentId');
-      
-      Query<Map<String, dynamic>> query = _firestore
+    Query<Map<String, dynamic>> query = _firestore
+        .collection(FirestoreConstants.votesCollection)
+        .orderBy(FirestoreConstants.voteCount, descending: true)
+        .limit(limit);
+
+    if (lastDocumentId != null) {
+      final lastDoc = await _firestore
           .collection(FirestoreConstants.votesCollection)
-          .orderBy(FirestoreConstants.voteCount, descending: true)
-          .limit(limit);
-
-      if (lastDocumentId != null) {
-        final lastDoc = await _firestore
-            .collection(FirestoreConstants.votesCollection)
-            .doc(lastDocumentId)
-            .get();
-        query = query.startAfterDocument(lastDoc);
-      }
-
-      final QuerySnapshot<Map<String, dynamic>> snapshot = await query.get();
-      final result = snapshot.docs
-          .map((QueryDocumentSnapshot<Map<String, dynamic>> doc) =>
-              {...doc.data(), 'id': doc.id})
-          .toList();
-      
-      AppLogger.d('getTopVotesPaginated 성공: ${result.length}개 문서 조회됨');
-      return result;
-    } catch (e) {
-      AppLogger.e('getTopVotesPaginated 실패', error: e);
-      rethrow;
+          .doc(lastDocumentId)
+          .get();
+      query = query.startAfterDocument(lastDoc);
     }
+
+    final QuerySnapshot<Map<String, dynamic>> snapshot = await query.get();
+    final result = snapshot.docs
+        .map((QueryDocumentSnapshot<Map<String, dynamic>> doc) =>
+            {...doc.data(), 'id': doc.id})
+        .toList();
+    
+    return result;
   }
 
   /// 곡 삭제 (작성자만 가능)
   /// @param voteId 삭제할 곡 ID
   /// @param userId 삭제 요청한 사용자 ID
+  @override
   Future<void> deleteVote({
     required String voteId,
     required String userId,
@@ -181,14 +182,14 @@ class VotingFirestoreDataSource {
         .get();
 
     if (!voteDoc.exists) {
-      throw Exception('곡을 찾을 수 없습니다.');
+      throw Exception(ErrorMessages.votingVoteNotFoundError);
     }
 
     final voteData = voteDoc.data()!;
     final String createdBy = voteData[FirestoreConstants.voteCreatedBy];
 
     if (createdBy != userId) {
-      throw Exception('삭제 권한이 없습니다.');
+      throw Exception(ErrorMessages.votingPermissionDeniedError);
     }
 
     await _firestore

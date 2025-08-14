@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../di/post_detail_module.dart';
 import 'comment_count.dart';
 import 'comment_list.dart';
 import 'comment_input.dart';
-import '../providers/post_detail_provider.dart';
 
 /// 댓글 바텀시트 위젯
 class PostCommentBottomSheet extends ConsumerWidget {

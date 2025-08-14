@@ -1,0 +1,82 @@
+import 'dart:async';
+
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../../notification/presentation/providers/notification_provider.dart';
+import '../../../data/data_sources/profile_firestore_data_source.dart';
+import '../../../data/repositories/profile_repository_impl.dart';
+import '../../../domain/entities/profile.dart';
+import '../../../domain/use_cases/get_my_profile.dart';
+import '../../../domain/use_cases/save_my_profile.dart';
+
+class ProfileNotifier extends AsyncNotifier<Profile?> {
+  late final GetMyProfile _getMyProfile;
+  late final SaveMyProfile _saveMyProfile;
+
+  @override
+  FutureOr<Profile?> build() async {
+    // DI: 실제 구현체 주입
+    final repository = ProfileRepositoryImpl(
+      dataSource: ProfileFirestoreDataSource(),
+    );
+    _getMyProfile = GetMyProfile(repository);
+    _saveMyProfile = SaveMyProfile(repository);
+
+    // 현재 로그인 유저 정보로 프로필 불러오기
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return null;
+
+    final result = await _getMyProfile(uid: user.uid);
+    return result.fold(
+          (failure) {
+        // 프로필이 없는 경우 null 반환 (예외 발생하지 않음)
+        debugPrint('프로필 정보 조회 실패: $failure');
+        return null;
+      },
+          (profile) => profile,
+    );
+  }
+
+  /// 프로필 정보 저장
+  Future<void> saveProfile(Profile profile) async {
+    state = const AsyncValue.loading();
+    final result = await _saveMyProfile(profile: profile);
+    result.fold(
+          (failure) => state = AsyncValue.error(failure, StackTrace.current),
+          (_) async {
+        // 저장 후 최신 정보 다시 불러오기
+        final user = FirebaseAuth.instance.currentUser;
+        if (user == null) return;
+        final newResult = await _getMyProfile(uid: user.uid);
+        newResult.fold(
+              (failure) => state = AsyncValue.error(failure, StackTrace.current),
+              (profile) => state = AsyncValue.data(profile),
+        );
+      },
+    );
+  }
+
+  /// 로그아웃 기능
+  Future<void> logout(BuildContext context) async {
+    try {
+      // FCM 토큰 삭제
+      await ref.read(notificationProvider.notifier).deleteFcmToken();
+
+      // Firebase Auth 로그아웃
+      await FirebaseAuth.instance.signOut();
+
+      if (context.mounted) {
+        Navigator.of(context).popUntil((route) => route.isFirst);
+      }
+    } catch (e) {
+      debugPrint('로그아웃 중 오류 발생: $e');
+      // FCM 토큰 삭제 실패해도 로그아웃은 진행
+      await FirebaseAuth.instance.signOut();
+      if (context.mounted) {
+        Navigator.of(context).popUntil((route) => route.isFirst);
+      }
+    }
+  }
+}

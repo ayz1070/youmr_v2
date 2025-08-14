@@ -6,7 +6,7 @@ import '../repositories/voting_repository.dart';
 class GetDailyPick {
   final VotingRepository repository;
 
-  GetDailyPick(this.repository);
+  GetDailyPick({required this.repository});
 
   Future<Either<VotingFailure, Unit>> call({required String userId}) =>
       repository.getDailyPick(userId: userId);

@@ -7,7 +7,7 @@ import '../repositories/voting_repository.dart';
 class GetTopVotes {
   final VotingRepository repository;
 
-  GetTopVotes(this.repository);
+  GetTopVotes({required this.repository});
 
   Stream<Either<VotingFailure, List<Vote>>> call() => repository.getTopVotes();
 } 

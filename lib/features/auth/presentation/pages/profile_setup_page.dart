@@ -1,12 +1,16 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/auth_provider.dart';
+import '../../di/auth_module.dart';
+import '../providers/notifier/auth_notifier.dart';
 import '../widgets/profile_image_picker.dart';
 import '../widgets/profile_form.dart';
 import '../../../../core/constants/profile_setup_constants.dart';
 import '../../../../core/utils/profile_setup_utils.dart';
+import '../../../../core/utils/onboarding_utils.dart';
+import '../../../../core/widgets/app_snackbar.dart';
 import '../../../main/presentation/pages/main_navigation_page.dart';
+import 'onboarding_page.dart';
 import '../../../../core/widgets/app_button.dart';
 
 /// 회원가입 시 프로필 정보 입력 화면 (Provider 기반)
@@ -118,19 +122,27 @@ class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage> {
     try {
       final uploadedImageUrl = await ref.read(authProvider.notifier).uploadProfileImage(_selectedImageFile!);
       if (uploadedImageUrl != null) {
-        ProfileSetupUtils.showSuccess(context, "회원가입 되었습니다");
+        if (mounted) {
+          ProfileSetupUtils.showSuccess(context, "회원가입 되었습니다");
+        }
         return uploadedImageUrl;
       } else {
-        ProfileSetupUtils.showError(context, ProfileSetupConstants.imageUploadFailed);
+        if (mounted) {
+          ProfileSetupUtils.showError(context, ProfileSetupConstants.imageUploadFailed);
+        }
         return null;
       }
     } catch (e) {
-      ProfileSetupUtils.showError(context, '${ProfileSetupConstants.imageUploadError}$e');
+      if (mounted) {
+        ProfileSetupUtils.showError(context, '${ProfileSetupConstants.imageUploadError}$e');
+      }
       return null;
     } finally {
-      setState(() {
-        _isImageUploading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isImageUploading = false;
+        });
+      }
     }
   }
 
@@ -141,16 +153,17 @@ class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage> {
     
     // 상태 변화 리스너: 저장 성공/실패 분기
     ref.listen(authProvider, (previous, next) {
-      // 저장 성공 시 메인 페이지로 이동
+      // 저장 성공 시 온보딩 여부 확인 후 분기
       if (previous?.isLoading == true && next is AsyncData) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const MainNavigationPage()),
-        );
+        // async 작업을 별도 함수로 분리하여 BuildContext 문제 해결
+        _handleProfileSaveSuccess();
       }
       // 에러 발생 시 스낵바 표시
       if (next is AsyncError) {
         final error = next.error;
-        ProfileSetupUtils.showError(context, '${ProfileSetupConstants.profileSaveFailed}${error.toString()}');
+        if (context.mounted) {
+          AppSnackbar.showError(context, '${ProfileSetupConstants.profileSaveFailed}${error.toString()}');
+        }
       }
     });
 
@@ -189,6 +202,26 @@ class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage> {
               ),
             ),
     );
+  }
+
+  /// 프로필 저장 성공 처리
+  Future<void> _handleProfileSaveSuccess() async {
+    // 온보딩 완료 여부 확인
+    final isOnboardingCompleted = await OnboardingUtils.isOnboardingCompleted();
+    
+    if (mounted) {
+      if (isOnboardingCompleted) {
+        // 온보딩 완료된 경우 메인 페이지로 이동
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const MainNavigationPage()),
+        );
+      } else {
+        // 온보딩이 필요한 경우 온보딩 페이지로 이동
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const OnboardingPage()),
+        );
+      }
+    }
   }
 
   @override

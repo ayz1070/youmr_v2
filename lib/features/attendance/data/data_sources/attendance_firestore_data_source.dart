@@ -1,57 +1,180 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../../../core/constants/firestore_constants.dart';
+import '../dtos/attendance_dto.dart';
+import 'attendance_data_source.dart';
 
-class AttendanceFirestoreDataSource {
+/// 출석 Firestore 데이터 소스 구현체
+/// - Firestore와의 직접적인 통신만 담당
+/// - 예외를 가공하지 않고 그대로 throw
+/// - DTO 변환 로직 포함
+class AttendanceFirestoreDataSource implements AttendanceDataSource {
   /// Firestore 인스턴스 (DI로 주입)
-  final FirebaseFirestore firestore;
+  final FirebaseFirestore _firestore;
 
-  AttendanceFirestoreDataSource({FirebaseFirestore? firestore})
-      : firestore = firestore ?? FirebaseFirestore.instance;
+  /// 생성자
+  /// 
+  /// [firestore] Firestore 인스턴스 (기본값: FirebaseFirestore.instance)
+  AttendanceFirestoreDataSource({
+    FirebaseFirestore? firestore,
+  }) : _firestore = firestore ?? FirebaseFirestore.instance;
 
   /// 내 출석 정보 불러오기
-  Future<Map<String, dynamic>?> fetchMyAttendance({
+  @override
+  Future<AttendanceDto?> fetchMyAttendance({
     required String weekKey,
     required String userId,
   }) async {
-    final doc = await firestore
-        .collection(FirestoreConstants.attendancesCollection)
-        .doc('${weekKey}_$userId')
-        .get();
-    return doc.data();
+    final String documentId = '${weekKey}_$userId';
+    
+    try {
+      final DocumentSnapshot<Map<String, dynamic>> doc = 
+          await _firestore
+              .collection(FirestoreConstants.attendancesCollection)
+              .doc(documentId)
+              .get();
+      
+      if (!doc.exists || doc.data() == null) {
+        return null;
+      }
+      
+      final Map<String, dynamic> data = doc.data()!;
+      return AttendanceDto.fromJson(data);
+    } catch (e) {
+      // DataSource에서는 예외를 그대로 throw
+      rethrow;
+    }
   }
 
   /// 내 출석 정보 저장
+  @override
   Future<void> saveMyAttendance({
     required String weekKey,
     required String userId,
-    required Map<String, dynamic> data,
+    required AttendanceDto data,
   }) async {
-    await firestore
-        .collection(FirestoreConstants.attendancesCollection)
-        .doc('${weekKey}_$userId')
-        .set(data);
+    final String documentId = '${weekKey}_$userId';
+    
+    try {
+      final Map<String, dynamic> jsonData = data.toJson();
+      await _firestore
+          .collection(FirestoreConstants.attendancesCollection)
+          .doc(documentId)
+          .set(jsonData);
+    } catch (e) {
+      // DataSource에서는 예외를 그대로 throw
+      rethrow;
+    }
   }
 
   /// 요일별 참석자 스트림 반환
-  Stream<List<Map<String, dynamic>>> attendeesByDayStream({
+  @override
+  Stream<List<AttendanceDto>> attendeesByDayStream({
     required String weekKey,
     required String day,
   }) {
-    return firestore
-        .collection(FirestoreConstants.attendancesCollection)
-        .where(FirestoreConstants.weekKey, isEqualTo: weekKey)
-        .where(FirestoreConstants.selectedDays, arrayContains: day)
-        .snapshots()
-        .map((snap) => snap.docs.map((d) => d.data()).toList());
+    try {
+      return _firestore
+          .collection(FirestoreConstants.attendancesCollection)
+          .where(FirestoreConstants.weekKey, isEqualTo: weekKey)
+          .where(FirestoreConstants.selectedDays, arrayContains: day)
+          .snapshots()
+          .map((QuerySnapshot<Map<String, dynamic>> snap) => 
+              snap.docs
+                  .map((QueryDocumentSnapshot<Map<String, dynamic>> d) {
+                    final Map<String, dynamic> data = d.data();
+                    return AttendanceDto.fromJson(data);
+                  })
+                  .toList());
+    } catch (e) {
+      // DataSource에서는 예외를 그대로 throw
+      rethrow;
+    }
   }
 
   /// 유저 정보 불러오기
+  @override
   Future<Map<String, dynamic>?> fetchUserData(String userId) async {
-    final doc = await firestore
-        .collection(FirestoreConstants.usersCollection)
-        .doc(userId)
-        .get();
-    return doc.data();
+    try {
+      final DocumentSnapshot<Map<String, dynamic>> doc = 
+          await _firestore
+              .collection(FirestoreConstants.usersCollection)
+              .doc(userId)
+              .get();
+      
+      return doc.data();
+    } catch (e) {
+      // DataSource에서는 예외를 그대로 throw
+      rethrow;
+    }
+  }
+
+  /// 특정 주차의 전체 출석 현황 조회
+  @override
+  Future<List<AttendanceDto>> fetchWeeklyAttendance({
+    required String weekKey,
+  }) async {
+    try {
+      final QuerySnapshot<Map<String, dynamic>> snapshot = 
+          await _firestore
+              .collection(FirestoreConstants.attendancesCollection)
+              .where(FirestoreConstants.weekKey, isEqualTo: weekKey)
+              .get();
+      
+      return snapshot.docs
+          .map((doc) {
+            final Map<String, dynamic> data = doc.data();
+            return AttendanceDto.fromJson(data);
+          })
+          .toList();
+    } catch (e) {
+      // DataSource에서는 예외를 그대로 throw
+      rethrow;
+    }
+  }
+
+  /// 사용자별 출석 이력 조회
+  @override
+  Future<List<AttendanceDto>> fetchUserAttendanceHistory({
+    required String userId,
+    required int limit,
+  }) async {
+    try {
+      final QuerySnapshot<Map<String, dynamic>> snapshot = 
+          await _firestore
+              .collection(FirestoreConstants.attendancesCollection)
+              .where(FirestoreConstants.userId, isEqualTo: userId)
+              .orderBy(FirestoreConstants.weekKey, descending: true)
+              .limit(limit)
+              .get();
+      
+      return snapshot.docs
+          .map((doc) {
+            final Map<String, dynamic> data = doc.data();
+            return AttendanceDto.fromJson(data);
+          })
+          .toList();
+    } catch (e) {
+      // DataSource에서는 예외를 그대로 throw
+      rethrow;
+    }
+  }
+
+  /// 출석 데이터 삭제
+  @override
+  Future<void> deleteAttendance({
+    required String weekKey,
+    required String userId,
+  }) async {
+    try {
+      final String documentId = '${weekKey}_$userId';
+      await _firestore
+          .collection(FirestoreConstants.attendancesCollection)
+          .doc(documentId)
+          .delete();
+    } catch (e) {
+      // DataSource에서는 예외를 그대로 throw
+      rethrow;
+    }
   }
 } 

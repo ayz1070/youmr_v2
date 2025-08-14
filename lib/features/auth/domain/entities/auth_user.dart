@@ -16,6 +16,8 @@ class AuthUser with _$AuthUser {
   /// [userType] 유저 타입(관리자/일반 등, nullable)
   /// [dayOfWeek] 요일 정보(nullable)
   /// [fcmToken] FCM 토큰(푸시용, nullable)
+  /// [pick] 피크 개수 (nullable)
+  /// [lastPickDate] 마지막 피크 획득 날짜 (nullable)
   /// [createdAt] 생성일(nullable)
   /// [updatedAt] 수정일(nullable)
   const factory AuthUser({
@@ -35,6 +37,10 @@ class AuthUser with _$AuthUser {
     String? dayOfWeek,
     /// FCM 토큰(푸시용, nullable)
     String? fcmToken,
+    /// 피크 개수 (nullable)
+    int? pick,
+    /// 마지막 피크 획득 날짜 (nullable)
+    DateTime? lastPickDate,
     /// 생성일(nullable)
     DateTime? createdAt,
     /// 수정일(nullable)

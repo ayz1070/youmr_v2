@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/auth_provider.dart';
+import '../../di/auth_module.dart';
+import '../providers/notifier/auth_notifier.dart';
 import 'splash_page.dart';
 
 /// 구글 로그인 버튼이 있는 로그인 화면 (Provider 기반)
@@ -41,7 +42,7 @@ class LoginPage extends ConsumerWidget {
             height: double.infinity,
             decoration: const BoxDecoration(
               image: DecorationImage(
-                image: AssetImage('assets/images/bg_login.png'),
+                image: AssetImage('assets/images/bg_login.jpg'),
                 fit: BoxFit.cover,
               ),
             ),

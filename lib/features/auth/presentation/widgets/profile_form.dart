@@ -41,6 +41,7 @@ class ProfileForm extends StatelessWidget {
     return Form(
       key: formKey,
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // 닉네임 입력
           TextFormField(
@@ -59,9 +60,9 @@ class ProfileForm extends StatelessWidget {
           TextFormField(
             controller: nameController,
             decoration: const InputDecoration(
-              labelText: '실명 (선택사항)',
+              labelText: '이름',
               border: OutlineInputBorder(),
-              hintText: '실명을 입력하세요',
+              hintText: '이름을 입력하세요',
             ),
           ),
           const SizedBox(height: 24),
@@ -83,6 +84,7 @@ class ProfileForm extends StatelessWidget {
             onChanged: onUserTypeChanged,
             validator: (v) => v == null ? '회원 타입을 선택해 주세요.' : null,
           ),
+          Text("처음 방문하신 회원은 온라인, 여민락 회원은 오프라인 선택 ", style: TextStyle(color: Colors.redAccent, fontSize: 11, fontWeight: FontWeight.w600),),
           const SizedBox(height: 24),
           // 요일 선택 (offline_member만)
           if (userType == 'offline_member') ...[

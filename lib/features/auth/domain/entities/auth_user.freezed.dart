@@ -44,6 +44,12 @@ mixin _$AuthUser {
   /// FCM 토큰(푸시용, nullable)
   String? get fcmToken => throw _privateConstructorUsedError;
 
+  /// 피크 개수 (nullable)
+  int? get pick => throw _privateConstructorUsedError;
+
+  /// 마지막 피크 획득 날짜 (nullable)
+  DateTime? get lastPickDate => throw _privateConstructorUsedError;
+
   /// 생성일(nullable)
   DateTime? get createdAt => throw _privateConstructorUsedError;
 
@@ -74,6 +80,8 @@ abstract class $AuthUserCopyWith<$Res> {
       String? userType,
       String? dayOfWeek,
       String? fcmToken,
+      int? pick,
+      DateTime? lastPickDate,
       DateTime? createdAt,
       DateTime? updatedAt});
 }
@@ -101,6 +109,8 @@ class _$AuthUserCopyWithImpl<$Res, $Val extends AuthUser>
     Object? userType = freezed,
     Object? dayOfWeek = freezed,
     Object? fcmToken = freezed,
+    Object? pick = freezed,
+    Object? lastPickDate = freezed,
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
   }) {
@@ -137,6 +147,14 @@ class _$AuthUserCopyWithImpl<$Res, $Val extends AuthUser>
           ? _value.fcmToken
           : fcmToken // ignore: cast_nullable_to_non_nullable
               as String?,
+      pick: freezed == pick
+          ? _value.pick
+          : pick // ignore: cast_nullable_to_non_nullable
+              as int?,
+      lastPickDate: freezed == lastPickDate
+          ? _value.lastPickDate
+          : lastPickDate // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
       createdAt: freezed == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
@@ -166,6 +184,8 @@ abstract class _$$AuthUserImplCopyWith<$Res>
       String? userType,
       String? dayOfWeek,
       String? fcmToken,
+      int? pick,
+      DateTime? lastPickDate,
       DateTime? createdAt,
       DateTime? updatedAt});
 }
@@ -191,6 +211,8 @@ class __$$AuthUserImplCopyWithImpl<$Res>
     Object? userType = freezed,
     Object? dayOfWeek = freezed,
     Object? fcmToken = freezed,
+    Object? pick = freezed,
+    Object? lastPickDate = freezed,
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
   }) {
@@ -227,6 +249,14 @@ class __$$AuthUserImplCopyWithImpl<$Res>
           ? _value.fcmToken
           : fcmToken // ignore: cast_nullable_to_non_nullable
               as String?,
+      pick: freezed == pick
+          ? _value.pick
+          : pick // ignore: cast_nullable_to_non_nullable
+              as int?,
+      lastPickDate: freezed == lastPickDate
+          ? _value.lastPickDate
+          : lastPickDate // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
       createdAt: freezed == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
@@ -251,6 +281,8 @@ class _$AuthUserImpl implements _AuthUser {
       this.userType,
       this.dayOfWeek,
       this.fcmToken,
+      this.pick,
+      this.lastPickDate,
       this.createdAt,
       this.updatedAt});
 
@@ -289,6 +321,14 @@ class _$AuthUserImpl implements _AuthUser {
   @override
   final String? fcmToken;
 
+  /// 피크 개수 (nullable)
+  @override
+  final int? pick;
+
+  /// 마지막 피크 획득 날짜 (nullable)
+  @override
+  final DateTime? lastPickDate;
+
   /// 생성일(nullable)
   @override
   final DateTime? createdAt;
@@ -299,7 +339,7 @@ class _$AuthUserImpl implements _AuthUser {
 
   @override
   String toString() {
-    return 'AuthUser(uid: $uid, email: $email, nickname: $nickname, name: $name, profileImageUrl: $profileImageUrl, userType: $userType, dayOfWeek: $dayOfWeek, fcmToken: $fcmToken, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'AuthUser(uid: $uid, email: $email, nickname: $nickname, name: $name, profileImageUrl: $profileImageUrl, userType: $userType, dayOfWeek: $dayOfWeek, fcmToken: $fcmToken, pick: $pick, lastPickDate: $lastPickDate, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -320,6 +360,9 @@ class _$AuthUserImpl implements _AuthUser {
                 other.dayOfWeek == dayOfWeek) &&
             (identical(other.fcmToken, fcmToken) ||
                 other.fcmToken == fcmToken) &&
+            (identical(other.pick, pick) || other.pick == pick) &&
+            (identical(other.lastPickDate, lastPickDate) ||
+                other.lastPickDate == lastPickDate) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
@@ -328,8 +371,20 @@ class _$AuthUserImpl implements _AuthUser {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, uid, email, nickname, name,
-      profileImageUrl, userType, dayOfWeek, fcmToken, createdAt, updatedAt);
+  int get hashCode => Object.hash(
+      runtimeType,
+      uid,
+      email,
+      nickname,
+      name,
+      profileImageUrl,
+      userType,
+      dayOfWeek,
+      fcmToken,
+      pick,
+      lastPickDate,
+      createdAt,
+      updatedAt);
 
   /// Create a copy of AuthUser
   /// with the given fields replaced by the non-null parameter values.
@@ -357,6 +412,8 @@ abstract class _AuthUser implements AuthUser {
       final String? userType,
       final String? dayOfWeek,
       final String? fcmToken,
+      final int? pick,
+      final DateTime? lastPickDate,
       final DateTime? createdAt,
       final DateTime? updatedAt}) = _$AuthUserImpl;
 
@@ -394,6 +451,14 @@ abstract class _AuthUser implements AuthUser {
   /// FCM 토큰(푸시용, nullable)
   @override
   String? get fcmToken;
+
+  /// 피크 개수 (nullable)
+  @override
+  int? get pick;
+
+  /// 마지막 피크 획득 날짜 (nullable)
+  @override
+  DateTime? get lastPickDate;
 
   /// 생성일(nullable)
   @override

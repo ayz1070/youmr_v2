@@ -21,22 +21,25 @@ AdminUserDto _$AdminUserDtoFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$AdminUserDto {
   /// 회원 UID
-  String get uid => throw _privateConstructorUsedError;
+  String? get uid => throw _privateConstructorUsedError;
 
   /// 닉네임
-  String get nickname => throw _privateConstructorUsedError;
+  String? get nickname => throw _privateConstructorUsedError;
+
+  /// 이름
+  String? get name => throw _privateConstructorUsedError;
 
   /// 이메일
-  String get email => throw _privateConstructorUsedError;
+  String? get email => throw _privateConstructorUsedError;
 
   /// 회원 유형(admin, user 등)
-  String get userType => throw _privateConstructorUsedError;
+  String? get userType => throw _privateConstructorUsedError;
 
   /// 프로필 이미지 URL
-  String get profileImageUrl => throw _privateConstructorUsedError;
+  String? get profileImageUrl => throw _privateConstructorUsedError;
 
   /// 가입일(생성일)
-  DateTime get createdAt => throw _privateConstructorUsedError;
+  DateTime? get createdAt => throw _privateConstructorUsedError;
 
   /// Serializes this AdminUserDto to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -55,12 +58,13 @@ abstract class $AdminUserDtoCopyWith<$Res> {
       _$AdminUserDtoCopyWithImpl<$Res, AdminUserDto>;
   @useResult
   $Res call(
-      {String uid,
-      String nickname,
-      String email,
-      String userType,
-      String profileImageUrl,
-      DateTime createdAt});
+      {String? uid,
+      String? nickname,
+      String? name,
+      String? email,
+      String? userType,
+      String? profileImageUrl,
+      DateTime? createdAt});
 }
 
 /// @nodoc
@@ -78,38 +82,43 @@ class _$AdminUserDtoCopyWithImpl<$Res, $Val extends AdminUserDto>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? uid = null,
-    Object? nickname = null,
-    Object? email = null,
-    Object? userType = null,
-    Object? profileImageUrl = null,
-    Object? createdAt = null,
+    Object? uid = freezed,
+    Object? nickname = freezed,
+    Object? name = freezed,
+    Object? email = freezed,
+    Object? userType = freezed,
+    Object? profileImageUrl = freezed,
+    Object? createdAt = freezed,
   }) {
     return _then(_value.copyWith(
-      uid: null == uid
+      uid: freezed == uid
           ? _value.uid
           : uid // ignore: cast_nullable_to_non_nullable
-              as String,
-      nickname: null == nickname
+              as String?,
+      nickname: freezed == nickname
           ? _value.nickname
           : nickname // ignore: cast_nullable_to_non_nullable
-              as String,
-      email: null == email
+              as String?,
+      name: freezed == name
+          ? _value.name
+          : name // ignore: cast_nullable_to_non_nullable
+              as String?,
+      email: freezed == email
           ? _value.email
           : email // ignore: cast_nullable_to_non_nullable
-              as String,
-      userType: null == userType
+              as String?,
+      userType: freezed == userType
           ? _value.userType
           : userType // ignore: cast_nullable_to_non_nullable
-              as String,
-      profileImageUrl: null == profileImageUrl
+              as String?,
+      profileImageUrl: freezed == profileImageUrl
           ? _value.profileImageUrl
           : profileImageUrl // ignore: cast_nullable_to_non_nullable
-              as String,
-      createdAt: null == createdAt
+              as String?,
+      createdAt: freezed == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
+              as DateTime?,
     ) as $Val);
   }
 }
@@ -123,12 +132,13 @@ abstract class _$$AdminUserDtoImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {String uid,
-      String nickname,
-      String email,
-      String userType,
-      String profileImageUrl,
-      DateTime createdAt});
+      {String? uid,
+      String? nickname,
+      String? name,
+      String? email,
+      String? userType,
+      String? profileImageUrl,
+      DateTime? createdAt});
 }
 
 /// @nodoc
@@ -144,84 +154,93 @@ class __$$AdminUserDtoImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? uid = null,
-    Object? nickname = null,
-    Object? email = null,
-    Object? userType = null,
-    Object? profileImageUrl = null,
-    Object? createdAt = null,
+    Object? uid = freezed,
+    Object? nickname = freezed,
+    Object? name = freezed,
+    Object? email = freezed,
+    Object? userType = freezed,
+    Object? profileImageUrl = freezed,
+    Object? createdAt = freezed,
   }) {
     return _then(_$AdminUserDtoImpl(
-      uid: null == uid
+      uid: freezed == uid
           ? _value.uid
           : uid // ignore: cast_nullable_to_non_nullable
-              as String,
-      nickname: null == nickname
+              as String?,
+      nickname: freezed == nickname
           ? _value.nickname
           : nickname // ignore: cast_nullable_to_non_nullable
-              as String,
-      email: null == email
+              as String?,
+      name: freezed == name
+          ? _value.name
+          : name // ignore: cast_nullable_to_non_nullable
+              as String?,
+      email: freezed == email
           ? _value.email
           : email // ignore: cast_nullable_to_non_nullable
-              as String,
-      userType: null == userType
+              as String?,
+      userType: freezed == userType
           ? _value.userType
           : userType // ignore: cast_nullable_to_non_nullable
-              as String,
-      profileImageUrl: null == profileImageUrl
+              as String?,
+      profileImageUrl: freezed == profileImageUrl
           ? _value.profileImageUrl
           : profileImageUrl // ignore: cast_nullable_to_non_nullable
-              as String,
-      createdAt: null == createdAt
+              as String?,
+      createdAt: freezed == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
+              as DateTime?,
     ));
   }
 }
 
 /// @nodoc
-
-@JsonSerializable(fieldRename: FieldRename.snake)
+@JsonSerializable()
 class _$AdminUserDtoImpl implements _AdminUserDto {
   const _$AdminUserDtoImpl(
-      {required this.uid,
-      required this.nickname,
-      required this.email,
-      required this.userType,
-      required this.profileImageUrl,
-      required this.createdAt});
+      {this.uid,
+      this.nickname,
+      this.name,
+      this.email,
+      this.userType,
+      this.profileImageUrl,
+      this.createdAt});
 
   factory _$AdminUserDtoImpl.fromJson(Map<String, dynamic> json) =>
       _$$AdminUserDtoImplFromJson(json);
 
   /// 회원 UID
   @override
-  final String uid;
+  final String? uid;
 
   /// 닉네임
   @override
-  final String nickname;
+  final String? nickname;
+
+  /// 이름
+  @override
+  final String? name;
 
   /// 이메일
   @override
-  final String email;
+  final String? email;
 
   /// 회원 유형(admin, user 등)
   @override
-  final String userType;
+  final String? userType;
 
   /// 프로필 이미지 URL
   @override
-  final String profileImageUrl;
+  final String? profileImageUrl;
 
   /// 가입일(생성일)
   @override
-  final DateTime createdAt;
+  final DateTime? createdAt;
 
   @override
   String toString() {
-    return 'AdminUserDto(uid: $uid, nickname: $nickname, email: $email, userType: $userType, profileImageUrl: $profileImageUrl, createdAt: $createdAt)';
+    return 'AdminUserDto(uid: $uid, nickname: $nickname, name: $name, email: $email, userType: $userType, profileImageUrl: $profileImageUrl, createdAt: $createdAt)';
   }
 
   @override
@@ -232,6 +251,7 @@ class _$AdminUserDtoImpl implements _AdminUserDto {
             (identical(other.uid, uid) || other.uid == uid) &&
             (identical(other.nickname, nickname) ||
                 other.nickname == nickname) &&
+            (identical(other.name, name) || other.name == name) &&
             (identical(other.email, email) || other.email == email) &&
             (identical(other.userType, userType) ||
                 other.userType == userType) &&
@@ -243,8 +263,8 @@ class _$AdminUserDtoImpl implements _AdminUserDto {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType, uid, nickname, email, userType, profileImageUrl, createdAt);
+  int get hashCode => Object.hash(runtimeType, uid, nickname, name, email,
+      userType, profileImageUrl, createdAt);
 
   /// Create a copy of AdminUserDto
   /// with the given fields replaced by the non-null parameter values.
@@ -264,39 +284,44 @@ class _$AdminUserDtoImpl implements _AdminUserDto {
 
 abstract class _AdminUserDto implements AdminUserDto {
   const factory _AdminUserDto(
-      {required final String uid,
-      required final String nickname,
-      required final String email,
-      required final String userType,
-      required final String profileImageUrl,
-      required final DateTime createdAt}) = _$AdminUserDtoImpl;
+      {final String? uid,
+      final String? nickname,
+      final String? name,
+      final String? email,
+      final String? userType,
+      final String? profileImageUrl,
+      final DateTime? createdAt}) = _$AdminUserDtoImpl;
 
   factory _AdminUserDto.fromJson(Map<String, dynamic> json) =
       _$AdminUserDtoImpl.fromJson;
 
   /// 회원 UID
   @override
-  String get uid;
+  String? get uid;
 
   /// 닉네임
   @override
-  String get nickname;
+  String? get nickname;
+
+  /// 이름
+  @override
+  String? get name;
 
   /// 이메일
   @override
-  String get email;
+  String? get email;
 
   /// 회원 유형(admin, user 등)
   @override
-  String get userType;
+  String? get userType;
 
   /// 프로필 이미지 URL
   @override
-  String get profileImageUrl;
+  String? get profileImageUrl;
 
   /// 가입일(생성일)
   @override
-  DateTime get createdAt;
+  DateTime? get createdAt;
 
   /// Create a copy of AdminUserDto
   /// with the given fields replaced by the non-null parameter values.

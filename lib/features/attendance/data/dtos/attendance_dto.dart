@@ -1,30 +1,56 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../domain/entities/attendance.dart';
 
-part 'attendance_dto.freezed.dart';
-part 'attendance_dto.g.dart';
-
 /// 출석 DTO (Firestore <-> Domain 변환)
-@freezed
-class AttendanceDto with _$AttendanceDto {
-  const factory AttendanceDto({
-    /// 주차 키
-    required String weekKey,
-    /// 유저 고유 ID
-    required String userId,
-    /// 선택한 요일 리스트
-    required List<String> selectedDays,
-    /// 실명
-    required String name,
-    /// 프로필 이미지 URL
-    required String profileImageUrl,
-    /// 마지막 업데이트 시각
-    @JsonKey(name: 'last_updated', fromJson: _fromTimestamp, toJson: _toTimestamp)
-    DateTime? lastUpdated,
-  }) = _AttendanceDto;
+class AttendanceDto {
+  /// 주차 키
+  final String weekKey;
+  
+  /// 유저 고유 ID
+  final String userId;
+  
+  /// 선택한 요일 리스트
+  final List<String> selectedDays;
+  
+  /// 실명
+  final String name;
+  
+  /// 프로필 이미지 URL
+  final String profileImageUrl;
+  
+  /// 마지막 업데이트 시각
+  final DateTime? lastUpdated;
 
-  factory AttendanceDto.fromJson(Map<String, dynamic> json) => _$AttendanceDtoFromJson(json);
+  /// 생성자
+  const AttendanceDto({
+    required this.weekKey,
+    required this.userId,
+    required this.selectedDays,
+    required this.name,
+    required this.profileImageUrl,
+    this.lastUpdated,
+  });
+
+  /// JSON에서 AttendanceDto 객체 생성
+  factory AttendanceDto.fromJson(Map<String, dynamic> json) => AttendanceDto(
+    weekKey: json['weekKey'] as String,
+    userId: json['userId'] as String,
+    selectedDays: List<String>.from(json['selectedDays'] as List),
+    name: json['name'] as String,
+    profileImageUrl: json['profileImageUrl'] as String,
+    lastUpdated: json['lastUpdated'] != null 
+        ? DateTime.parse(json['lastUpdated'] as String) 
+        : null,
+  );
+
+  /// JSON으로 변환
+  Map<String, dynamic> toJson() => {
+    'weekKey': weekKey,
+    'userId': userId,
+    'selectedDays': selectedDays,
+    'name': name,
+    'profileImageUrl': profileImageUrl,
+    'lastUpdated': lastUpdated?.toIso8601String(),
+  };
 
   /// 도메인 → DTO 변환
   factory AttendanceDto.fromDomain(Attendance attendance) => AttendanceDto(
@@ -47,19 +73,4 @@ extension AttendanceDtoX on AttendanceDto {
     profileImageUrl: profileImageUrl,
     lastUpdated: lastUpdated,
   );
-}
-
-/// Firestore Timestamp → DateTime 변환
-DateTime? _fromTimestamp(dynamic value) {
-  if (value == null) return null;
-  if (value is DateTime) return value;
-  if (value is Timestamp) return value.toDate();
-  if (value is String) return DateTime.tryParse(value);
-  return null;
-}
-
-/// DateTime → Firestore Timestamp 변환
-Object? _toTimestamp(DateTime? value) {
-  if (value == null) return null;
-  return Timestamp.fromDate(value);
 } 

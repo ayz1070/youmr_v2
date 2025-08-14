@@ -5,4 +5,8 @@ class AppConstants {
 
   static const List<String> days = ['월', '화', '수', '목', '금', '토', '일'];
 
+  static const String brandName = 'YouMR';
+
+  static const String address = "서울 도봉구 도당로29길 66";
+
 } 

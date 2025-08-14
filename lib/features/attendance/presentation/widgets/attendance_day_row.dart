@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../di/attendance_module.dart';
 import '../../domain/entities/attendance.dart';
-import '../providers/attendance_provider.dart';
 import 'attendee_avatar.dart';
 
 /// 요일별 참석자 리스트 + 출석 버튼 위젯

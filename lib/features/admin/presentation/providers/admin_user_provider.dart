@@ -4,6 +4,8 @@ import '../../domain/entities/admin_user.dart';
 import '../../domain/use_cases/get_all_users.dart';
 import '../../domain/use_cases/change_user_type.dart';
 import '../../domain/use_cases/remove_user.dart';
+import '../../data/repositories/admin_user_repository_impl.dart';
+import '../../data/data_sources/admin_user_firestore_data_source.dart';
 
 /// 관리자/회원 목록 및 액션 Provider (AsyncNotifier)
 final adminUserProvider = AsyncNotifierProvider<AdminUserNotifier, List<AdminUser>>(
@@ -13,31 +15,35 @@ final adminUserProvider = AsyncNotifierProvider<AdminUserNotifier, List<AdminUse
 /// 관리자/회원 AsyncNotifier
 class AdminUserNotifier extends AsyncNotifier<List<AdminUser>> {
   /// 전체 회원 조회 유즈케이스
-  late final GetAllUsers _getAllUsers;
+  late GetAllUsers _getAllUsers;
   /// 회원 권한 변경 유즈케이스
-  late final ChangeUserType _changeUserType;
+  late ChangeUserType _changeUserType;
   /// 회원 삭제 유즈케이스
-  late final RemoveUser _removeUser;
-
-  /// 생성자(의존성 외부 주입)
-  AdminUserNotifier({
-    GetAllUsers? getAllUsers,
-    ChangeUserType? changeUserType,
-    RemoveUser? removeUser,
-  }) {
-    _getAllUsers = getAllUsers ?? ref.read(getAllUsersProvider);
-    _changeUserType = changeUserType ?? ref.read(changeUserTypeProvider);
-    _removeUser = removeUser ?? ref.read(removeUserProvider);
-  }
+  late RemoveUser _removeUser;
 
   @override
   FutureOr<List<AdminUser>> build() async {
+    // UseCase 초기화 (build 메서드에서 ref 사용 가능)
+    _initializeUseCases();
+    
     // 전체 회원 목록 불러오기 (Either 처리)
     final result = await _getAllUsers();
     return result.fold(
       (failure) => throw Exception(failure.message),
       (users) => users,
     );
+  }
+
+  /// UseCase 초기화 (build 메서드에서 호출)
+  void _initializeUseCases() {
+    // Repository 및 DataSource 생성
+    final dataSource = AdminUserFirestoreDataSource();
+    final repository = AdminUserRepositoryImpl(dataSource: dataSource);
+    
+    // UseCase 생성
+    _getAllUsers = GetAllUsers(repository);
+    _changeUserType = ChangeUserType(repository);
+    _removeUser = RemoveUser(repository);
   }
 
   /// 회원 권한 변경
@@ -71,9 +77,4 @@ class AdminUserNotifier extends AsyncNotifier<List<AdminUser>> {
       (users) => AsyncValue.data(users),
     );
   }
-}
-
-/// Provider DI: UseCase별 Provider 정의(테스트/Mock 주입 용이)
-final getAllUsersProvider = Provider<GetAllUsers>((ref) => throw UnimplementedError());
-final changeUserTypeProvider = Provider<ChangeUserType>((ref) => throw UnimplementedError());
-final removeUserProvider = Provider<RemoveUser>((ref) => throw UnimplementedError()); 
+} 

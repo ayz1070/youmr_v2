@@ -9,6 +9,7 @@ class AdminUser with _$AdminUser {
   /// 생성자
   /// [uid] : 회원 UID
   /// [nickname] : 닉네임
+  /// [name] : 이름
   /// [email] : 이메일
   /// [userType] : 회원 유형(admin, user 등)
   /// [profileImageUrl] : 프로필 이미지 URL
@@ -18,6 +19,8 @@ class AdminUser with _$AdminUser {
     required String uid,
     /// 닉네임
     required String nickname,
+    /// 이름
+    String? name,
     /// 이메일
     required String email,
     /// 회원 유형(admin, user 등)

@@ -13,4 +13,19 @@ class AppFailure implements Exception {
   
   /// 서버 에러
   static AppFailure serverError(String error) => AppFailure('서버 오류: $error');
+
+  /// 유효성 검증 에러
+  static AppFailure validationError(String error) => AppFailure('유효성 검증 실패: $error');
+
+  /// 권한 부족 에러
+  static AppFailure permissionDenied(String error) => AppFailure('권한이 부족합니다: $error');
+
+  /// 리소스 없음 에러
+  static AppFailure notFound(String error) => AppFailure('리소스를 찾을 수 없습니다: $error');
+
+  /// 네트워크 에러
+  static AppFailure networkError(String error) => AppFailure('네트워크 오류: $error');
+
+  /// 캐시 에러
+  static AppFailure cacheError(String error) => AppFailure('캐시 오류: $error');
 } 

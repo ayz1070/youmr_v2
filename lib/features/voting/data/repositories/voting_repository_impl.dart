@@ -1,15 +1,14 @@
 import 'dart:async';
 import 'package:dartz/dartz.dart';
-import '../../domain/entities/vote.dart';
-import '../../../../core/errors/voting_failure.dart';
-import '../../domain/repositories/voting_repository.dart';
-import '../data_sources/voting_firestore_data_source.dart';
-import '../dtos/vote_dto.dart';
-import '../../../../core/constants/app_logger.dart';
+import 'package:youmr_v2/core/errors/voting_failure.dart';
+import 'package:youmr_v2/features/voting/data/data_sources/voting_data_source.dart';
+import 'package:youmr_v2/features/voting/data/dtos/vote_dto.dart';
+import 'package:youmr_v2/features/voting/domain/entities/vote.dart';
+import 'package:youmr_v2/features/voting/domain/repositories/voting_repository.dart';
 
 /// 투표 관련 레포지토리 구현체 (DataSource 위임)
 class VotingRepositoryImpl implements VotingRepository {
-  final VotingFirestoreDataSource dataSource;
+  final VotingDataSource dataSource;
 
   VotingRepositoryImpl({required this.dataSource});
 
@@ -59,7 +58,7 @@ class VotingRepositoryImpl implements VotingRepository {
     required String createdBy,
   }) async {
     try {
-      await dataSource.registerVote(
+      await dataSource.saveVote(
         title: title,
         artist: artist,
         youtubeUrl: youtubeUrl,
@@ -80,16 +79,13 @@ class VotingRepositoryImpl implements VotingRepository {
     String? lastDocumentId,
   }) async {
     try {
-      AppLogger.d('getTopVotesPaginated repository 시작');
-      final voteList = await dataSource.getTopVotesPaginated(
+      final voteList = await dataSource.fetchTopVotesPaginated(
         limit: limit,
         lastDocumentId: lastDocumentId,
       );
       final votes = voteList.map((json) => VoteDto.fromJson(json).toDomain()).toList();
-      AppLogger.d('getTopVotesPaginated repository 성공: ${votes.length}개 투표');
       return Right(votes);
     } catch (e) {
-      AppLogger.e('getTopVotesPaginated repository 실패', error: e);
       return Left(VotingNetworkFailure());
     }
   }

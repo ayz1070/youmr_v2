@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:youmr_v2/core/utils/youtube_utils.dart';
 
 import '../pages/post_detail_page.dart';
 import 'comment_count.dart';
@@ -26,7 +27,9 @@ class PostCard extends StatelessWidget {
   /// 좋아요 UID 리스트
   final List<dynamic> likes;
   /// 좋아요 수
-  final int likesCount;
+  final int likeCount;
+  /// 배경 이미지 URL
+  final String backgroundImage;
 
   /// 생성자
   const PostCard({
@@ -39,34 +42,20 @@ class PostCard extends StatelessWidget {
     this.createdAt,
     this.youtubeUrl,
     this.likes = const [],
-    this.likesCount = 0,
+    this.likeCount = 0,
+    required this.backgroundImage,
   });
 
-  /// 유튜브 썸네일 URL 추출
-  /// [url] : 유튜브 URL
-  /// return : 썸네일 이미지 URL
-  String? getYoutubeThumbnail(String? url) {
-    if (url == null) return null;
-    final Uri? uri = Uri.tryParse(url);
-    if (uri == null || !uri.host.contains('youtu')) return null;
-    final String? videoId = uri.pathSegments.isNotEmpty ? uri.pathSegments.last : null;
-    if (videoId == null || videoId.length < 5) return null;
-    return 'https://img.youtube.com/vi/$videoId/0.jpg';
-  }
+
 
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
-    final String? thumb = getYoutubeThumbnail(youtubeUrl);
-    // 랜덤 이미지 URL (postId 해시 기반)
-    final int picsumId = postId.hashCode.abs() % 1000;
-    final String picsumUrl = 'https://picsum.photos/seed/$picsumId/800/420';
+    final String? thumb = YouTubeUtils.getThumbnailSimple(youtubeUrl);
     return Card(
       elevation: 2,
       margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 0),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(4),
-      ),
+
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
@@ -93,16 +82,47 @@ class PostCard extends StatelessWidget {
                           fit: BoxFit.cover,
                           width: double.infinity,
                           height: double.infinity,
+                          errorBuilder: (context, error, stackTrace) {
+                            // 썸네일 로딩 실패 시 배경 이미지로 fallback
+                            return Image.network(
+                              backgroundImage,
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                              height: double.infinity,
+                              errorBuilder: (context, error, stackTrace) {
+                                // 배경 이미지도 실패 시 기본 이미지
+                                return Container(
+                                  color: Colors.grey[300],
+                                  child: const Icon(
+                                    Icons.image_not_supported,
+                                    size: 32,
+                                    color: Colors.grey,
+                                  ),
+                                );
+                              },
+                            );
+                          },
                         )
                       else
                         Image.network(
-                          picsumUrl,
+                          backgroundImage, // picsumUrl 대신 backgroundImage 사용
                           fit: BoxFit.cover,
                           width: double.infinity,
                           height: double.infinity,
+                          errorBuilder: (context, error, stackTrace) {
+                            // 배경 이미지 로딩 실패 시 기본 이미지
+                            return Container(
+                              color: Colors.grey[300],
+                              child: const Icon(
+                                Icons.image_not_supported,
+                                size: 32,
+                                color: Colors.grey,
+                              ),
+                            );
+                          },
                         ),
                       Container(
-                        color: Colors.black.withOpacity(0.22),
+                        color: Colors.black.withValues(alpha: 0.22),
                       ),
                     ],
                   ),
@@ -168,7 +188,7 @@ class PostCard extends StatelessWidget {
                         children: [
                           Icon(Icons.thumb_up_alt_outlined, size: 15, color: Colors.white),
                           const SizedBox(width: 2),
-                          Text('$likesCount', style: theme.textTheme.bodySmall?.copyWith(color: Colors.white, fontSize: 12)),
+                          Text('$likeCount', style: theme.textTheme.bodySmall?.copyWith(color: Colors.white, fontSize: 12)),
                           const SizedBox(width: 8),
                           Icon(Icons.mode_comment_outlined, size: 15, color: Colors.white),
                           const SizedBox(width: 2),
@@ -187,10 +207,31 @@ class PostCard extends StatelessWidget {
                   ),
                 ),
               ),
-              // 영상 플레이 아이콘(중앙)
+              // YouTube 플레이 아이콘(중앙)
               if (thumb != null)
-                const Center(
-                  child: Icon(Icons.play_circle_fill, color: Colors.white, size: 48),
+                Positioned.fill(
+                  child: Center(
+                    child: Container(
+                      width: 60,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE53E3E), // YouTube 빨간색
+                        borderRadius: BorderRadius.circular(8),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.3),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.play_arrow,
+                        color: Colors.white,
+                        size: 24,
+                      ),
+                    ),
+                  ),
                 ),
             ],
           ),

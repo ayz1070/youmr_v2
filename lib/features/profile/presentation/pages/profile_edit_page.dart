@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/profile_provider.dart';
+import '../../di/profile_module.dart';
 import '../../domain/entities/profile.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/app_dropdown.dart';
@@ -134,12 +134,10 @@ class _ProfileEditPageState extends ConsumerState<ProfileEditPage> {
                     // 회원 타입 선택
                     AppDropdown<String>(
                       value: _userType,
-                      items: const ['admin', 'developer', 'offline_member', 'member'],
+                      items: const ['offline_member', 'member'],
                       labelText: '회원 타입',
                       itemTextBuilder: (type) {
                         switch (type) {
-                          case 'admin': return '관리자';
-                          case 'developer': return '개발자';
                           case 'offline_member': return '오프라인 회원';
                           case 'member': return '일반 회원';
                           default: return type;

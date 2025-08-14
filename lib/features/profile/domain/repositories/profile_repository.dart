@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 import '../entities/profile.dart';
-import '../../core/errors/profile_failure.dart';
+import '../../../../core/errors/profile_failure.dart';
 
 /// 프로필 관련 Repository 인터페이스
 abstract class ProfileRepository {

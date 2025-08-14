@@ -6,7 +6,7 @@ import '../repositories/voting_repository.dart';
 class SubmitVotes {
   final VotingRepository repository;
 
-  SubmitVotes(this.repository);
+  SubmitVotes({required this.repository});
 
   Future<Either<VotingFailure, Unit>> call({required String userId, required List<String> voteIds}) =>
       repository.submitVotes(userId: userId, voteIds: voteIds);

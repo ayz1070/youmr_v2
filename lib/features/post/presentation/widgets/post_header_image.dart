@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 /// 게시글 작성 페이지의 헤더 이미지와 제목 입력 위젯
 class PostHeaderImage extends StatelessWidget {
   final String? youtubeThumb;
-  final String picsumUrl;
+  final String backgroundImage; // picsumUrl을 backgroundImage로 변경
   final TextEditingController titleController;
   final String? Function(String?)? validator;
 
   const PostHeaderImage({
     super.key,
     required this.youtubeThumb,
-    required this.picsumUrl,
+    required this.backgroundImage, // picsumUrl을 backgroundImage로 변경
     required this.titleController,
     this.validator,
   });
@@ -49,7 +49,7 @@ class PostHeaderImage extends StatelessWidget {
                   ),
                 )
               : Image.network(
-                  picsumUrl,
+                  backgroundImage,
                   fit: BoxFit.cover,
                   width: double.infinity,
                   height: 340,

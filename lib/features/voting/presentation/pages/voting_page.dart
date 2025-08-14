@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/widgets/primary_app_bar.dart';
 import '../../../../core/widgets/app_dialog.dart';
-import '../../../auth/presentation/providers/auth_provider.dart';
-import '../providers/voting_pagination_provider.dart';
-import '../providers/voting_provider.dart';
+import '../../../../core/errors/voting_failure.dart';
+import '../../../auth/di/auth_module.dart';
+import '../../di/voting_module.dart';
 import 'voting_write_page.dart';
 import '../widgets/pick_display.dart';
 import '../widgets/voting_list.dart';
@@ -19,35 +19,67 @@ class VotingPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final paginationState = ref.watch(votingPaginationProvider);
     final paginationNotifier = ref.read(votingPaginationProvider.notifier);
-    final pickAsync = ref.watch(pickProvider);
     final authUser = ref.watch(authProvider).value;
     final String userId = authUser?.uid ?? '';
 
     // 선택된 투표는 paginationState에서 가져옴
     final selectedVoteIds = paginationState.selectedVoteIds;
 
-    if (paginationState.isLoading && paginationState.votes.isEmpty) {
-      // 초기 로딩 상태
+    // 디버그 로그 추가
+    print('VotingPage build - isLoading: ${paginationState.isLoading}, votes.length: ${paginationState.votes.length}, error: ${paginationState.error}');
+
+    // Provider가 처음 생성되었을 때 강제로 초기 데이터 로드 시작
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (paginationState.votes.isEmpty && !paginationState.isLoading && paginationState.error == null) {
+        print('VotingPage: 강제로 초기 데이터 로드 시작');
+        paginationNotifier.refresh();
+      }
+    });
+
+    // 초기 로딩 상태 (데이터가 없고 로딩 중일 때)
+    if (paginationState.isLoading && paginationState.votes.isEmpty && paginationState.error == null) {
+      print('VotingPage: 초기 로딩 상태 표시');
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
       );
     }
     
+    // 에러 상태
+    if (paginationState.error != null && paginationState.votes.isEmpty) {
+      print('VotingPage: 에러 상태 표시 - ${paginationState.error}');
+      return Scaffold(
+        appBar: PrimaryAppBar(title: '신청곡'),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('오류가 발생했습니다: ${paginationState.error}'),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () => paginationNotifier.refresh(),
+                child: const Text('다시 시도'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    
     // 데이터가 없을 때도 AppBar와 Scaffold를 보여줌
     if (paginationState.votes.isEmpty && !paginationState.isLoading) {
-      return const NoVoteView();
+      print('VotingPage: 빈 데이터 상태 표시');
+      return Scaffold(
+        appBar: PrimaryAppBar(title: '신청곡'),
+        body: const NoVoteView(),
+      );
     }
 
-    // 피크 상태 처리
-    final int pick = pickAsync.hasValue ? pickAsync.value ?? 0 : 0;
-    final bool isPickLoading = pickAsync.isLoading;
+    // 선택된 투표 개수
     final int selectedCount = selectedVoteIds.length;
-    final bool isVoteButtonEnabled =
-        selectedCount > 0 && selectedCount <= pick && !isPickLoading && userId.isNotEmpty;
 
     return Scaffold(
       appBar: PrimaryAppBar(
-        title: 'Week Of 신청곡',
+        title: '신청곡',
         actions: [
           IconButton(
             icon: const Icon(Icons.add_box_outlined),
@@ -68,7 +100,7 @@ class VotingPage extends ConsumerWidget {
       ),
       body: Column(
         children: [
-          PickDisplay(pick: pick, isLoading: isPickLoading),
+          const PickDisplay(),
           Expanded(
             child: VotingList(
               votes: paginationState.votes,
@@ -108,9 +140,6 @@ class VotingPage extends ConsumerWidget {
 
           VoteActionButtons(
             selectedCount: selectedCount,
-            pick: pick,
-            isPickLoading: isPickLoading,
-            isVoteButtonEnabled: isVoteButtonEnabled,
             onVote: () async {
               final error = await paginationNotifier.submitVotes(userId);
               if (!context.mounted) return;
@@ -121,7 +150,7 @@ class VotingPage extends ConsumerWidget {
                 );
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('에러: ${error.message}')),
+                  SnackBar(content: Text('에러: ${_getErrorMessage(error)}')),
                 );
               }
             },
@@ -135,7 +164,7 @@ class VotingPage extends ConsumerWidget {
                 );
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('에러: ${error.message}')),
+                  SnackBar(content: Text('에러: ${_getErrorMessage(error)}')),
                 );
               }
             },
@@ -143,6 +172,18 @@ class VotingPage extends ConsumerWidget {
           ),
         ],
       ),
+    );
+  }
+
+  /// 에러 메시지 변환
+  String _getErrorMessage(VotingFailure failure) {
+    return failure.when(
+      networkFailure: () => '네트워크 오류가 발생했습니다.',
+      pickExceedFailure: () => '보유 피크보다 많은 곡을 선택할 수 없습니다.',
+      alreadyPickedFailure: () => '이미 오늘 피크를 받았습니다.',
+      alreadyRegisteredFailure: () => '이미 등록된 곡입니다.',
+      permissionFailure: () => '권한이 없습니다.',
+      voteNotFoundFailure: () => '투표를 찾을 수 없습니다.',
     );
   }
 } 

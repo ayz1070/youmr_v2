@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:youmr_v2/core/widgets/primary_app_bar.dart';
 import 'package:youmr_v2/core/widgets/banner_ad_widget.dart';
-import '../providers/post_provider.dart';
+import 'package:youmr_v2/core/constants/post_constants.dart';
+import '../../di/post_module.dart';
 import '../widgets/post_category_tabbar.dart';
 
 import 'post_write_page.dart'; // 글쓰기 페이지 import
-import '../widgets/post_notice_list.dart';
+import '../widgets/simple_notice_widget.dart';
 import '../widgets/post_grid_list.dart';
 import '../widgets/post_error_view.dart';
 import '../widgets/post_loading_view.dart';
@@ -26,7 +27,7 @@ class PostPage extends ConsumerStatefulWidget {
 
 class _PostPageState extends ConsumerState<PostPage> with SingleTickerProviderStateMixin {
   late final TabController _tabController;
-  final List<String> _categories = ['전체', '자유', '밴드', '영상'];
+  final List<String> _categories = PostConstants.categories;
 
   final ScrollController _scrollController = ScrollController();
 
@@ -64,10 +65,10 @@ class _PostPageState extends ConsumerState<PostPage> with SingleTickerProviderSt
     
     return Scaffold(
       appBar: PrimaryAppBar(
-        title: "게시판",
+        title: "홈",
         actions: [
           IconButton(
-            icon: const Icon(Icons.add_box_outlined),
+            icon: const Icon(Icons.post_add),
             tooltip: '글쓰기',
             onPressed: () {
               Navigator.of(context).push(
@@ -99,6 +100,8 @@ class _PostPageState extends ConsumerState<PostPage> with SingleTickerProviderSt
                 categories: _categories,
               ),
             ),
+            // 심플한 공지글 위젯
+            const SimpleNoticeWidget(),
             // 게시글 리스트
             Expanded(
               child: AnimatedSwitcher(
@@ -111,9 +114,9 @@ class _PostPageState extends ConsumerState<PostPage> with SingleTickerProviderSt
                         },
                         theme: theme,
                       )
-                    : postState.isLoading && postState.posts.isEmpty && postState.notices.isEmpty
+                    : postState.isLoading && postState.posts.isEmpty
                         ? PostLoadingView(theme: theme)
-                        : postState.posts.isEmpty && postState.notices.isEmpty
+                        : postState.posts.isEmpty
                             ? PostEmptyView(theme: theme)
                             : RefreshIndicator(
                                 color: theme.colorScheme.primary,
@@ -124,10 +127,6 @@ class _PostPageState extends ConsumerState<PostPage> with SingleTickerProviderSt
                                 child: CustomScrollView(
                                   controller: _scrollController,
                                   slivers: [
-                                    if (postState.notices.isNotEmpty)
-                                      SliverToBoxAdapter(
-                                        child: PostNoticeList(notices: postState.notices, theme: theme),
-                                      ),
                                     // 원래의 PostGridList 사용
                                     PostGridList(
                                       posts: postState.posts,

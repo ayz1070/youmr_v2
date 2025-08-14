@@ -3,6 +3,8 @@ import 'package:flutter/foundation.dart';
 import 'package:youmr_v2/features/notification/data/dtos/fcm_token_dto.dart';
 import 'package:youmr_v2/features/notification/domain/entities/send_notification_params.dart';
 
+import '../../../../core/constants/app_logger.dart';
+
 /// FCM 데이터 소스 인터페이스
 abstract class FcmDataSource {
   /// FCM 토큰 저장
@@ -210,18 +212,19 @@ class FcmFirestoreDataSource implements FcmDataSource {
       }
 
       if (tokens.isEmpty) {
-        debugPrint('전송할 FCM 토큰이 없습니다.');
+        AppLogger.e('전송할 FCM 토큰이 없습니다.');
         return;
       }
 
       // Firestore에 알림 기록 저장
       await _saveNotificationRecord(params, tokens.length);
 
-      // TODO: 실제 FCM 서버로 알림 전송
-      // 현재는 로컬에서만 처리하고, 실제 구현 시에는 Cloud Functions나 서버를 통해 전송
-      debugPrint('푸시 알림 전송 완료: ${tokens.length}개 토큰, 제목: ${params.title}');
+      // Cloud Functions가 자동으로 FCM 서버로 알림을 전송합니다.
+      // Firestore에 저장된 알림 데이터를 기반으로 Cloud Function이 실행됩니다.
+      AppLogger.i('푸시 알림 전송 요청 완료: ${tokens.length}개 토큰, 제목: ${params.title}');
+      AppLogger.i('Cloud Function이 자동으로 FCM 서버로 알림을 전송합니다.');
     } catch (e) {
-      debugPrint('푸시 알림 전송 실패: $e');
+      AppLogger.e('푸시 알림 전송 실패: $e');
       rethrow;
     }
   }
@@ -252,11 +255,12 @@ class FcmFirestoreDataSource implements FcmDataSource {
         userType: userType,
       );
 
-      // TODO: 실제 FCM 서버로 알림 전송
-      // 현재는 로컬에서만 처리하고, 실제 구현 시에는 Cloud Functions나 서버를 통해 전송
-      debugPrint('조건부 푸시 알림 전송 완료: ${tokens.length}개 토큰, 제목: ${params.title}');
+      // Cloud Functions가 자동으로 FCM 서버로 알림을 전송합니다.
+      // Firestore에 저장된 알림 데이터를 기반으로 Cloud Function이 실행됩니다.
+      AppLogger.i('조건부 푸시 알림 전송 요청 완료: ${tokens.length}개 토큰, 제목: ${params.title}');
+      AppLogger.i('Cloud Function이 자동으로 FCM 서버로 알림을 전송합니다.');
     } catch (e) {
-      debugPrint('조건부 푸시 알림 전송 실패: $e');
+      AppLogger.e('조건부 푸시 알림 전송 실패: $e');
       rethrow;
     }
   }
@@ -280,9 +284,9 @@ class FcmFirestoreDataSource implements FcmDataSource {
           .collection('push_notifications')
           .add(notificationData);
 
-      debugPrint('알림 기록 저장 완료');
+      AppLogger.i('알림 기록 저장 완료');
     } catch (e) {
-      debugPrint('알림 기록 저장 실패: $e');
+      AppLogger.e('알림 기록 저장 실패: $e');
     }
   }
 
@@ -313,9 +317,9 @@ class FcmFirestoreDataSource implements FcmDataSource {
           .collection('conditional_notifications')
           .add(notificationData);
 
-      debugPrint('조건부 알림 기록 저장 완료');
+      AppLogger.i('조건부 알림 기록 저장 완료');
     } catch (e) {
-      debugPrint('조건부 알림 기록 저장 실패: $e');
+      AppLogger.e('조건부 알림 기록 저장 실패: $e');
     }
   }
 } 

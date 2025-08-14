@@ -10,6 +10,7 @@ class ProfileDto with _$ProfileDto {
   const factory ProfileDto({
     required String uid,
     required String nickname,
+    String? name, // 실명 (선택사항)
     required String userType,
     String? profileImageUrl,
     String? dayOfWeek,
@@ -20,6 +21,7 @@ class ProfileDto with _$ProfileDto {
   factory ProfileDto.fromDomain(Profile profile) => ProfileDto(
     uid: profile.uid,
     nickname: profile.nickname,
+    name: profile.name,
     userType: profile.userType,
     profileImageUrl: profile.profileImageUrl,
     dayOfWeek: profile.dayOfWeek,
@@ -31,6 +33,7 @@ extension ProfileDtoX on ProfileDto {
   Profile toDomain() => Profile(
     uid: uid,
     nickname: nickname,
+    name: name,
     userType: userType,
     profileImageUrl: profileImageUrl,
     dayOfWeek: dayOfWeek,

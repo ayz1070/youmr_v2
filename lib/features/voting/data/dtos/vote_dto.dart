@@ -47,6 +47,26 @@ class VoteDto with _$VoteDto {
         authorNickname: vote.authorNickname,
         authorProfileUrl: vote.authorProfileUrl,
       );
+
+  /// 새 투표 생성용 DTO (ID 없음, 생성일은 현재 시간)
+  factory VoteDto.save({
+    required String title,
+    required String artist,
+    String? youtubeUrl,
+    required String createdBy,
+    String? authorNickname,
+    String? authorProfileUrl,
+  }) => VoteDto(
+        id: '', // Firestore에서 자동 생성
+        title: title,
+        artist: artist,
+        youtubeUrl: youtubeUrl,
+        voteCount: 0, // 초기 득표수
+        createdAt: DateTime.now(),
+        createdBy: createdBy,
+        authorNickname: authorNickname,
+        authorProfileUrl: authorProfileUrl,
+      );
 }
 
 /// Firestore Timestamp 또는 String을 모두 지원하는 DateTime 컨버터

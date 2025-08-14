@@ -48,8 +48,27 @@ class MemberManagementPage extends ConsumerWidget {
                 // 접근성: 프로필 이미지 대체 텍스트
                 foregroundImage: user.profileImageUrl.isNotEmpty ? null : null,
               ),
-              title: Text(user.nickname, semanticsLabel: '닉네임: ${user.nickname}'),
-              subtitle: Text('이메일: ${user.email}\n권한: ${user.userType}', semanticsLabel: '이메일: ${user.email}, 권한: ${user.userType}'),
+              title: Text(
+                user.nickname, 
+                semanticsLabel: '닉네임: ${user.nickname}',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (user.name != null && user.name!.isNotEmpty)
+                    Text('이름: ${user.name}', style: const TextStyle(fontSize: 12)),
+                  Text('이메일: ${user.email}', style: const TextStyle(fontSize: 12)),
+                  Text(
+                    '권한: ${user.userType}', 
+                    style: TextStyle(
+                      fontSize: 12, 
+                      color: _getUserTypeColor(user.userType),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
               trailing: PopupMenuButton<String>(
                 onSelected: (value) async {
                   if (value.startsWith('type:')) {
@@ -62,10 +81,13 @@ class MemberManagementPage extends ConsumerWidget {
                       context: context,
                       builder: (ctx) => AlertDialog(
                         title: const Text('회원 삭제'),
-                        content: const Text('정말 삭제하시겠습니까?'),
+                        content: const Text('정말 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.'),
                         actions: [
                           TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('취소')),
-                          TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('삭제')),
+                          TextButton(
+                            onPressed: () => Navigator.pop(ctx, true), 
+                            child: const Text('삭제', style: TextStyle(color: Colors.red))
+                          ),
                         ],
                       ),
                     );
@@ -91,5 +113,21 @@ class MemberManagementPage extends ConsumerWidget {
         );
       },
     );
+  }
+
+  /// 사용자 타입에 따른 색상 반환
+  Color _getUserTypeColor(String userType) {
+    switch (userType) {
+      case 'admin':
+        return Colors.red;
+      case 'developer':
+        return Colors.orange;
+      case 'offline_member':
+        return Colors.blue;
+      case 'member':
+        return Colors.green;
+      default:
+        return Colors.grey;
+    }
   }
 } 

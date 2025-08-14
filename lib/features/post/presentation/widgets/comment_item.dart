@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:youmr_v2/features/post/domain/entities/comment.dart';
+import '../../di/comment_module.dart';
 import 'comment_list.dart';
 import 'like_button.dart';
-import '../providers/comment_provider.dart';
 
 /// 개별 댓글 아이템 위젯 (이미지 디자인 기반)
 class CommentItem extends ConsumerWidget {
@@ -231,7 +231,7 @@ class CommentItem extends ConsumerWidget {
                     LikeButton(
                       postId: comment.id,
                       likes: comment.likes,
-                      likesCount: comment.likesCount,
+                      likeCount: comment.likeCount,
                       isComment: true,
                     ),
                   ],
