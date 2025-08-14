@@ -1,5 +1,6 @@
 import '../../../../core/errors/voting_failure.dart';
-import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../../auth/di/auth_module.dart';
+import '../../../auth/presentation/providers/notifier/auth_notifier.dart';
 import '../../domain/entities/vote.dart';
 import '../../domain/repositories/voting_repository.dart';
 import '../../data/repositories/voting_repository_impl.dart';

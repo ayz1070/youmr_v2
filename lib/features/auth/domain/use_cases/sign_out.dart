@@ -1,5 +1,5 @@
 import '../repositories/auth_repository.dart';
-import '../../core/errors/auth_failure.dart';
+import '../../../../core/errors/auth_failure.dart';
 import 'package:dartz/dartz.dart';
 
 /// 로그아웃 유즈케이스
@@ -9,7 +9,7 @@ class SignOut {
   final AuthRepository repository;
 
   /// [repository]: 인증 레포지토리 DI
-  const SignOut(this.repository);
+  const SignOut({required this.repository});
 
   /// 로그아웃 실행
   /// 반환: 성공 시 void, 실패 시 [AuthFailure]

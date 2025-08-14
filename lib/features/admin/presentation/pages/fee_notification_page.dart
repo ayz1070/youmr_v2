@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../../auth/di/auth_module.dart';
+import '../../../auth/presentation/providers/notifier/auth_notifier.dart';
 
 /// 회비 알림 전송 페이지
 class FeeNotificationPage extends ConsumerStatefulWidget {

@@ -1,15 +1,15 @@
 import 'dart:io';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:youmr_v2/core/constants/firestore_constants.dart';
 import 'package:youmr_v2/core/constants/error_messages.dart';
 import 'package:youmr_v2/core/constants/app_logger.dart';
 import '../../domain/entities/auth_user.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../data_sources/auth_firebase_data_source.dart';
-import '../../core/errors/auth_failure.dart';
+import '../dtos/create_user_dto.dart';
+import '../dtos/user_response_dto.dart';
+import '../../../../core/errors/auth_failure.dart';
 
 /// 인증 Repository 구현체
 /// - DataSource/DTO만 의존
@@ -43,19 +43,13 @@ class AuthRepositoryImpl implements AuthRepository {
       if (user == null) {
         return const Left(AuthFirebaseFailure(ErrorMessages.commonError));
       }
+      
       // Firestore에 유저 정보 저장(최초 로그인 시)
-      final Map<String, dynamic>? userDoc = await dataSource.fetchUserProfile(uid: user.uid);
+      final UserResponseDto? userDoc = await dataSource.fetchUserProfile(uid: user.uid);
       if (userDoc == null) {
-        await dataSource.saveUserProfile(uid: user.uid, data: {
-          FirestoreConstants.userId: user.uid,
-          'email': user.email,
-          FirestoreConstants.nickname: user.displayName ?? '',
-          FirestoreConstants.profileImageUrl: user.photoURL ?? '',
-          'userType': '',
-          'dayOfWeek': '',
-          'fcmToken': '',
-          FirestoreConstants.lastUpdated: FieldValue.serverTimestamp(),
-        });
+        // CreateUserDto를 사용하여 사용자 정보 생성
+        final CreateUserDto createUserDto = CreateUserDto.fromFirebaseUser(user);
+        await dataSource.saveUserProfile(uid: user.uid, createUserDto: createUserDto);
       }
       
       // Firestore에서 최신 사용자 정보 가져오기
@@ -64,11 +58,11 @@ class AuthRepositoryImpl implements AuthRepository {
       String? userProfileImageUrl = user.photoURL;
       
       try {
-        final Map<String, dynamic>? latestUserDoc = await dataSource.fetchUserProfile(uid: user.uid);
+        final UserResponseDto? latestUserDoc = await dataSource.fetchUserProfile(uid: user.uid);
         if (latestUserDoc != null) {
-          userNickname = latestUserDoc[FirestoreConstants.nickname] ?? user.displayName ?? '';
-          userName = latestUserDoc[FirestoreConstants.name];
-          userProfileImageUrl = latestUserDoc[FirestoreConstants.profileImageUrl] ?? user.photoURL;
+          userNickname = latestUserDoc.nickname;
+          userName = latestUserDoc.name;
+          userProfileImageUrl = latestUserDoc.profileImageUrl;
         }
       } catch (e) {
         // Firestore 조회 실패 시 Firebase Auth 정보 사용
@@ -115,11 +109,11 @@ class AuthRepositoryImpl implements AuthRepository {
       String? userProfileImageUrl = user.photoURL;
       
       try {
-        final Map<String, dynamic>? userDoc = await dataSource.fetchUserProfile(uid: user.uid);
+        final UserResponseDto? userDoc = await dataSource.fetchUserProfile(uid: user.uid);
         if (userDoc != null) {
-          userNickname = userDoc[FirestoreConstants.nickname] ?? user.displayName ?? '';
-          userName = userDoc[FirestoreConstants.name];
-          userProfileImageUrl = userDoc[FirestoreConstants.profileImageUrl] ?? user.photoURL;
+          userNickname = userDoc.nickname;
+          userName = userDoc.name;
+          userProfileImageUrl = userDoc.profileImageUrl;
         }
       } catch (e) {
         // Firestore 조회 실패 시 Firebase Auth 정보 사용
@@ -144,7 +138,18 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Either<AuthFailure, void>> saveProfile({required AuthUser user}) async {
     try {
-      await dataSource.saveUserProfile(uid: user.uid, data: user.toJson());
+      // AuthUser를 CreateUserDto로 변환하여 저장
+      final CreateUserDto createUserDto = CreateUserDto(
+        uid: user.uid,
+        email: user.email,
+        nickname: user.nickname,
+        name: user.name,
+        profileImageUrl: user.profileImageUrl,
+        userType: user.userType ?? '',
+        dayOfWeek: user.dayOfWeek ?? '',
+        fcmToken: user.fcmToken ?? '',
+      );
+      await dataSource.saveUserProfile(uid: user.uid, createUserDto: createUserDto);
       return const Right(null);
     } catch (e, st) {
       AppLogger.e('프로필 저장 실패', error: e, stackTrace: st);

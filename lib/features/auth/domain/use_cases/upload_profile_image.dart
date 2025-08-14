@@ -1,6 +1,6 @@
 import 'dart:io';
 import '../repositories/auth_repository.dart';
-import '../../core/errors/auth_failure.dart';
+import '../../../../core/errors/auth_failure.dart';
 import 'package:dartz/dartz.dart';
 
 /// 프로필 이미지 업로드 유즈케이스
@@ -10,7 +10,7 @@ class UploadProfileImage {
   final AuthRepository repository;
 
   /// [repository]: 인증 레포지토리 DI
-  const UploadProfileImage(this.repository);
+  const UploadProfileImage({required this.repository});
 
   /// 프로필 이미지 업로드 실행
   /// [uid]: 유저 고유 ID

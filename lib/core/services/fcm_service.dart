@@ -1,6 +1,8 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/foundation.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import '../../firebase_options.dart';
 
 /// FCM 서비스를 관리하는 클래스
 class FcmService {
@@ -154,6 +156,11 @@ class FcmService {
       channelDescription: 'FCM 기본 알림 채널',
       importance: Importance.max,
       priority: Priority.high,
+      icon: '@drawable/ic_notification', // 알림 전용 아이콘 사용
+      color: Color(0xFF2196F3), // 알림 색상 설정 (Material Blue)
+      enableLights: true, // LED 알림 활성화
+      enableVibration: true, // 진동 활성화
+      playSound: true, // 소리 재생
     );
 
     const DarwinNotificationDetails iOSPlatformChannelSpecifics =
@@ -188,6 +195,51 @@ class FcmService {
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   debugPrint('백그라운드 메시지 수신: ${message.messageId}');
-  // 백그라운드에서 메시지 수신 시 처리
-  // 로컬 알림 표시 등
+  
+  // Firebase 초기화 확인
+  if (Firebase.apps.isEmpty) {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  }
+  
+  // 백그라운드에서도 로컬 알림 표시
+  final FlutterLocalNotificationsPlugin localNotifications = 
+      FlutterLocalNotificationsPlugin();
+  
+  // Android 초기화 설정
+  const AndroidInitializationSettings initializationSettingsAndroid =
+      AndroidInitializationSettings('@drawable/ic_notification');
+  
+  const InitializationSettings initializationSettings =
+      InitializationSettings(android: initializationSettingsAndroid);
+  
+  await localNotifications.initialize(initializationSettings);
+  
+  // 알림 표시
+  const AndroidNotificationDetails androidPlatformChannelSpecifics =
+      AndroidNotificationDetails(
+    'fcm_default_channel',
+    'FCM 기본 채널',
+    channelDescription: 'FCM 기본 알림 채널',
+    importance: Importance.max,
+    priority: Priority.high,
+    icon: '@drawable/ic_notification',
+    color: Color(0xFF2196F3),
+    enableLights: true,
+    enableVibration: true,
+    playSound: true,
+  );
+
+  const NotificationDetails platformChannelSpecifics = NotificationDetails(
+    android: androidPlatformChannelSpecifics,
+  );
+
+  await localNotifications.show(
+    message.hashCode,
+    message.notification?.title ?? '알림',
+    message.notification?.body ?? '',
+    platformChannelSpecifics,
+    payload: message.data.toString(),
+  );
 } 

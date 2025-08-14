@@ -1,6 +1,6 @@
 /// 투표 도메인 에러 타입 정의
 /// 모든 메시지는 한글로 작성
-abstract class VotingFailure {
+sealed class VotingFailure {
   final String message;
   const VotingFailure(this.message);
 }

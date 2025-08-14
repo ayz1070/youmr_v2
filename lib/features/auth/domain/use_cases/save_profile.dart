@@ -1,6 +1,6 @@
 import '../entities/auth_user.dart';
 import '../repositories/auth_repository.dart';
-import '../../core/errors/auth_failure.dart';
+import '../../../../core/errors/auth_failure.dart';
 import 'package:dartz/dartz.dart';
 
 /// 프로필 저장 유즈케이스
@@ -10,7 +10,7 @@ class SaveProfile {
   final AuthRepository repository;
 
   /// [repository]: 인증 레포지토리 DI
-  const SaveProfile(this.repository);
+  const SaveProfile({required this.repository});
 
   /// 프로필 저장 실행
   /// [user]: 저장할 유저 정보

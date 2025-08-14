@@ -1,7 +1,8 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/auth_provider.dart';
+import '../../di/auth_module.dart';
+import '../providers/notifier/auth_notifier.dart';
 import '../widgets/profile_image_picker.dart';
 import '../widgets/profile_form.dart';
 import '../../../../core/constants/profile_setup_constants.dart';

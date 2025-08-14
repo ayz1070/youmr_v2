@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:dartz/dartz.dart';
 import '../entities/auth_user.dart';
-import '../../core/errors/auth_failure.dart';
+import '../../../../core/errors/auth_failure.dart';
 
 /// 인증 관련 Repository 인터페이스
 /// - 인증 도메인 기능을 추상화

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:youmr_v2/features/auth/presentation/providers/auth_provider.dart';
+import 'package:youmr_v2/features/auth/presentation/providers/notifier/auth_notifier.dart';
 
+import '../../../auth/di/auth_module.dart';
 import '../../di/post_detail_module.dart';
 import 'comment_count.dart';
 

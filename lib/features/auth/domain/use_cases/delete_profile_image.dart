@@ -1,5 +1,5 @@
 import '../repositories/auth_repository.dart';
-import '../../core/errors/auth_failure.dart';
+import '../../../../core/errors/auth_failure.dart';
 import 'package:dartz/dartz.dart';
 
 /// 프로필 이미지 삭제 유즈케이스
@@ -9,7 +9,7 @@ class DeleteProfileImage {
   final AuthRepository repository;
 
   /// [repository]: 인증 레포지토리 DI
-  const DeleteProfileImage(this.repository);
+  const DeleteProfileImage({required this.repository});
 
   /// 프로필 이미지 삭제 실행
   /// [imageUrl]: 삭제할 이미지 URL
