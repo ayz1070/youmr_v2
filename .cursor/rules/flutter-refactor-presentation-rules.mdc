@@ -20,7 +20,8 @@ alwaysApply: false
 - Provider는 DI/override 가능 구조로 설계(테스트/Mock 주입 용이)
 - Provider 내부에서 직접 구현체 생성 금지, 외부 주입 원칙
 - 상태 클래스는 freezed/sealed class 또는 명확한 상태값(로딩, 성공, 에러, 빈 등) 분리
-- Provider/Notifier/State 클래스/메서드/파라미터에 한글 주석 필수
+- Provider/Notifier/State 클래스/메서드/파라미터에 한글 주석 필수 및 각각은 providers 디렉토리 하에 별도의 파일로 분리
+- 의존성 주입은 기능명/di 디렉토리에 별도로 분리하여 의존성 주입을 수행
 
 ### 예시
 ```dart
