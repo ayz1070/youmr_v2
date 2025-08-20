@@ -13,5 +13,6 @@ class VotingPaginationState with _$VotingPaginationState {
     String? error,
     String? lastDocumentId,
     @Default([]) List<String> selectedVoteIds,
+    @Default(false) bool hasInitialized, // 초기화 완료 여부를 추적하는 플래그
   }) = _VotingPaginationState;
 }

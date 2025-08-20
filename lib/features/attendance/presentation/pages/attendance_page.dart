@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:youmr_v2/core/constants/app_constants.dart';
+import '../../../../core/utils/app_date_utils.dart';
 import '../../di/attendance_module.dart';
 import '../../domain/entities/attendance.dart';
 import '../widgets/attendance_day_row.dart';
@@ -59,7 +60,7 @@ class AttendancePage extends ConsumerWidget {
     Attendance? attendance,
   ) {
     final mySelectedDays = attendance?.selectedDays ?? [];
-    final weekKey = attendance?.weekKey ?? '';
+    final weekKey = attendance?.weekKey ?? AppDateUtils.getCurrentWeekKey();
 
     return ListView(
       padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 0),

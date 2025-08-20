@@ -5,12 +5,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:youmr_v2/core/services/fcm_service.dart';
 import 'package:youmr_v2/core/constants/app_logger.dart';
-import 'package:youmr_v2/core/utils/onboarding_utils.dart';
+
 import 'package:youmr_v2/features/notification/presentation/providers/notification_provider.dart';
 import '../../di/auth_module.dart';
 import 'login_page.dart';
 import 'profile_setup_page.dart';
-import 'onboarding_page.dart';
+
 import '../../../main/presentation/pages/main_navigation_page.dart';
 
 /// 앱 실행 시 최초로 보여지는 스플래시 화면
@@ -87,11 +87,16 @@ class _SplashPageState extends ConsumerState<SplashPage> {
         return;
       }
       
-      // 필수 프로필 정보 확인
-      final hasProfile = (data['nickname'] != null && (data['nickname'] as String).trim().isNotEmpty) &&
-          (data['userType'] != null && (data['userType'] as String).trim().isNotEmpty);
+      // 필수 프로필 정보 확인 - 더 엄격한 검증
+      final nickname = data['nickname'] as String?;
+      final userType = data['userType'] as String?;
       
-      AppLogger.i('프로필 정보 확인: nickname=${data['nickname']}, userType=${data['userType']}, hasProfile=$hasProfile');
+      // 닉네임과 유저타입이 모두 존재하고 의미있는 값인지 확인
+      final hasValidNickname = nickname != null && nickname.trim().isNotEmpty && nickname.trim() != '사용자';
+      final hasValidUserType = userType != null && userType.trim().isNotEmpty;
+      final hasProfile = hasValidNickname && hasValidUserType;
+      
+      AppLogger.i('프로필 정보 확인: nickname="$nickname", userType="$userType", hasValidNickname=$hasValidNickname, hasValidUserType=$hasValidUserType, hasProfile=$hasProfile');
       
       if (!hasProfile) {
         // 프로필 미설정 → 프로필 설정 페이지로 이동
@@ -101,30 +106,16 @@ class _SplashPageState extends ConsumerState<SplashPage> {
             MaterialPageRoute(builder: (_) => const ProfileSetupPage()),
           );
         }
-        return; // 여기에 return 문 추가
+        return;
       } else {
-        // 프로필 설정 완료 → 온보딩 여부 확인 후 분기
-        AppLogger.i('프로필 정보 완료 → 온보딩 여부 확인');
-        
-        // 온보딩 완료 여부 확인
-        final isOnboardingCompleted = await OnboardingUtils.isOnboardingCompleted();
-        
+        // 프로필 설정 완료 → 바로 메인 페이지로 이동
+        AppLogger.i('프로필 정보 완료 → 메인 페이지로 이동');
         if (mounted) {
-          if (isOnboardingCompleted) {
-            // 온보딩 완료된 경우 메인 페이지로 이동
-            AppLogger.i('온보딩 완료 → 메인 페이지로 이동');
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (_) => const MainNavigationPage()),
-            );
-          } else {
-            // 온보딩이 필요한 경우 온보딩 페이지로 이동
-            AppLogger.i('온보딩 필요 → 온보딩 페이지로 이동');
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (_) => const OnboardingPage()),
-            );
-          }
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (_) => const MainNavigationPage()),
+          );
         }
-        return; // 명시적 return 추가
+        return;
       }
     } catch (e) {
       // Firestore 접근 오류 시 → 로그인 페이지로 이동

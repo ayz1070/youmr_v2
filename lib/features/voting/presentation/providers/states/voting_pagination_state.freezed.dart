@@ -22,6 +22,7 @@ mixin _$VotingPaginationState {
   String? get error => throw _privateConstructorUsedError;
   String? get lastDocumentId => throw _privateConstructorUsedError;
   List<String> get selectedVoteIds => throw _privateConstructorUsedError;
+  bool get hasInitialized => throw _privateConstructorUsedError;
 
   /// Create a copy of VotingPaginationState
   /// with the given fields replaced by the non-null parameter values.
@@ -42,7 +43,8 @@ abstract class $VotingPaginationStateCopyWith<$Res> {
       bool hasMore,
       String? error,
       String? lastDocumentId,
-      List<String> selectedVoteIds});
+      List<String> selectedVoteIds,
+      bool hasInitialized});
 }
 
 /// @nodoc
@@ -67,6 +69,7 @@ class _$VotingPaginationStateCopyWithImpl<$Res,
     Object? error = freezed,
     Object? lastDocumentId = freezed,
     Object? selectedVoteIds = null,
+    Object? hasInitialized = null,
   }) {
     return _then(_value.copyWith(
       votes: null == votes
@@ -93,6 +96,10 @@ class _$VotingPaginationStateCopyWithImpl<$Res,
           ? _value.selectedVoteIds
           : selectedVoteIds // ignore: cast_nullable_to_non_nullable
               as List<String>,
+      hasInitialized: null == hasInitialized
+          ? _value.hasInitialized
+          : hasInitialized // ignore: cast_nullable_to_non_nullable
+              as bool,
     ) as $Val);
   }
 }
@@ -112,7 +119,8 @@ abstract class _$$VotingPaginationStateImplCopyWith<$Res>
       bool hasMore,
       String? error,
       String? lastDocumentId,
-      List<String> selectedVoteIds});
+      List<String> selectedVoteIds,
+      bool hasInitialized});
 }
 
 /// @nodoc
@@ -135,6 +143,7 @@ class __$$VotingPaginationStateImplCopyWithImpl<$Res>
     Object? error = freezed,
     Object? lastDocumentId = freezed,
     Object? selectedVoteIds = null,
+    Object? hasInitialized = null,
   }) {
     return _then(_$VotingPaginationStateImpl(
       votes: null == votes
@@ -161,6 +170,10 @@ class __$$VotingPaginationStateImplCopyWithImpl<$Res>
           ? _value._selectedVoteIds
           : selectedVoteIds // ignore: cast_nullable_to_non_nullable
               as List<String>,
+      hasInitialized: null == hasInitialized
+          ? _value.hasInitialized
+          : hasInitialized // ignore: cast_nullable_to_non_nullable
+              as bool,
     ));
   }
 }
@@ -174,7 +187,8 @@ class _$VotingPaginationStateImpl implements _VotingPaginationState {
       this.hasMore = true,
       this.error,
       this.lastDocumentId,
-      final List<String> selectedVoteIds = const []})
+      final List<String> selectedVoteIds = const [],
+      this.hasInitialized = false})
       : _votes = votes,
         _selectedVoteIds = selectedVoteIds;
 
@@ -207,8 +221,12 @@ class _$VotingPaginationStateImpl implements _VotingPaginationState {
   }
 
   @override
+  @JsonKey()
+  final bool hasInitialized;
+
+  @override
   String toString() {
-    return 'VotingPaginationState(votes: $votes, isLoading: $isLoading, hasMore: $hasMore, error: $error, lastDocumentId: $lastDocumentId, selectedVoteIds: $selectedVoteIds)';
+    return 'VotingPaginationState(votes: $votes, isLoading: $isLoading, hasMore: $hasMore, error: $error, lastDocumentId: $lastDocumentId, selectedVoteIds: $selectedVoteIds, hasInitialized: $hasInitialized)';
   }
 
   @override
@@ -224,7 +242,9 @@ class _$VotingPaginationStateImpl implements _VotingPaginationState {
             (identical(other.lastDocumentId, lastDocumentId) ||
                 other.lastDocumentId == lastDocumentId) &&
             const DeepCollectionEquality()
-                .equals(other._selectedVoteIds, _selectedVoteIds));
+                .equals(other._selectedVoteIds, _selectedVoteIds) &&
+            (identical(other.hasInitialized, hasInitialized) ||
+                other.hasInitialized == hasInitialized));
   }
 
   @override
@@ -235,7 +255,8 @@ class _$VotingPaginationStateImpl implements _VotingPaginationState {
       hasMore,
       error,
       lastDocumentId,
-      const DeepCollectionEquality().hash(_selectedVoteIds));
+      const DeepCollectionEquality().hash(_selectedVoteIds),
+      hasInitialized);
 
   /// Create a copy of VotingPaginationState
   /// with the given fields replaced by the non-null parameter values.
@@ -254,7 +275,8 @@ abstract class _VotingPaginationState implements VotingPaginationState {
       final bool hasMore,
       final String? error,
       final String? lastDocumentId,
-      final List<String> selectedVoteIds}) = _$VotingPaginationStateImpl;
+      final List<String> selectedVoteIds,
+      final bool hasInitialized}) = _$VotingPaginationStateImpl;
 
   @override
   List<Vote> get votes;
@@ -268,6 +290,8 @@ abstract class _VotingPaginationState implements VotingPaginationState {
   String? get lastDocumentId;
   @override
   List<String> get selectedVoteIds;
+  @override
+  bool get hasInitialized;
 
   /// Create a copy of VotingPaginationState
   /// with the given fields replaced by the non-null parameter values.

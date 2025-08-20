@@ -2,7 +2,6 @@
 /// - 사용자의 주간 출석 정보를 관리하는 도메인 객체
 /// - weekKey를 기준으로 한 주의 출석 데이터를 저장
 class Attendance {
-  /// 주차 식별자 (예: "2024-W01", "2024-W02")
   final String weekKey;
   
   /// 사용자 고유 식별자
@@ -71,13 +70,6 @@ class Attendance {
     );
   }
 
-  /// 주차 식별자 형식 검증
-  /// - 형식: "YYYY-WNN" (예: "2024-W01", "2024-W52")
-  /// - YYYY: 4자리 연도, W: 고정 문자, NN: 2자리 주차 (01-52)
-  static bool isValidWeekKey(String weekKey) {
-    final regex = RegExp(r'^\d{4}-W(0[1-9]|[1-4][0-9]|5[0-2])$');
-    return regex.hasMatch(weekKey);
-  }
 
   /// 선택된 요일 목록 유효성 검사
   /// - 유효한 요일: ["월", "화", "수", "목", "금", "토", "일"]
@@ -121,8 +113,7 @@ class Attendance {
   /// 현재 객체의 유효성 검사
   /// - 모든 필수 필드의 유효성을 검사하여 도메인 규칙 준수 여부 확인
   bool get isValid {
-    return isValidWeekKey(weekKey) &&
-           userId.isNotEmpty &&
+    return userId.isNotEmpty &&
            isValidSelectedDays(selectedDays) &&
            isValidName(name) &&
            isValidProfileImageUrl(profileImageUrl);
