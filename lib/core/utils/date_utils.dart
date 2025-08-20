@@ -1,5 +1,5 @@
 /// 날짜 관련 유틸리티 클래스
-class DateUtils {
+class AppDateUtils {
   /// weekKey(예: '2025-07-07~2025-07-13')를 '7월 7일~7월 13일'로 가공
   static String formatWeekKey(String weekKey) {
     if (weekKey.isEmpty || !weekKey.contains('~')) return '';
@@ -15,6 +15,14 @@ class DateUtils {
       final day = int.tryParse(dateParts[2]) ?? 0;
       return '${month}월 ${day}일';
     }
+    return '${format(start)}~${format(end)}';
+  }
+
+  static String getCurrentWeekKey() {
+    final now = DateTime.now();
+    final start = now.subtract(Duration(days: now.weekday - 1));
+    final end = start.add(const Duration(days: 6));
+    String format(DateTime d) => '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
     return '${format(start)}~${format(end)}';
   }
 } 
