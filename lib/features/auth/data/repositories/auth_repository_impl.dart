@@ -75,7 +75,7 @@ class AuthRepositoryImpl implements AuthRepository {
         nickname: userNickname,
         name: userName,
         profileImageUrl: userProfileImageUrl,
-        userType: '',
+        userType: '', // 빈 문자열로 설정하여 프로필 미완성 상태로 인식
         dayOfWeek: '',
         fcmToken: '',
         pick: 0, // 신규 사용자는 피크 0개로 시작
