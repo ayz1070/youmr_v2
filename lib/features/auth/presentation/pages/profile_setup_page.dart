@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/constants/app_logger.dart';
 import '../../di/auth_module.dart';
 import '../providers/notifier/auth_notifier.dart';
 import '../widgets/profile_image_picker.dart';
@@ -206,17 +207,19 @@ class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage> {
 
   /// 프로필 저장 성공 처리
   Future<void> _handleProfileSaveSuccess() async {
-    // 온보딩 완료 여부 확인
+    // 프로필 설정 완료 후 온보딩 완료 여부에 따라 분기
     final isOnboardingCompleted = await OnboardingUtils.isOnboardingCompleted();
     
     if (mounted) {
       if (isOnboardingCompleted) {
         // 온보딩 완료된 경우 메인 페이지로 이동
+        AppLogger.i('프로필 설정 완료, 온보딩 완료 → 메인 페이지로 이동');
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (_) => const MainNavigationPage()),
         );
       } else {
         // 온보딩이 필요한 경우 온보딩 페이지로 이동
+        AppLogger.i('프로필 설정 완료, 온보딩 필요 → 온보딩 페이지로 이동');
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (_) => const OnboardingPage()),
         );
