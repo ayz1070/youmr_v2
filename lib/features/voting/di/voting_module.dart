@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../../../core/constants/app_logger.dart';
 
 // Domain imports
 import '../domain/repositories/voting_repository.dart';
@@ -98,14 +99,14 @@ final votingProvider = StateNotifierProvider<VotingNotifier, VotingState>((ref) 
 
 /// 페이징된 투표 목록 Provider
 final votingPaginationProvider = StateNotifierProvider<VotingPaginationNotifier, VotingPaginationState>((ref) {
-  print('votingPaginationProvider 생성 시작');
+  AppLogger.d('votingPaginationProvider 생성 시작');
   
   final submitVotesUseCase = ref.read(submitVotesUseCaseProvider);
   final getDailyPickUseCase = ref.read(getDailyPickUseCaseProvider);
   final getTopVotesPaginatedUseCase = ref.read(getTopVotesPaginatedUseCaseProvider);
   final deleteVoteUseCase = ref.read(deleteVoteUseCaseProvider);
   
-  print('UseCase들 주입 완료');
+  AppLogger.d('UseCase들 주입 완료');
   
   final notifier = VotingPaginationNotifier(
     submitVotesUseCase: submitVotesUseCase,
@@ -115,7 +116,7 @@ final votingPaginationProvider = StateNotifierProvider<VotingPaginationNotifier,
     ref: ref,
   );
   
-  print('VotingPaginationNotifier 생성 완료');
+  AppLogger.d('VotingPaginationNotifier 생성 완료');
   return notifier;
 });
 

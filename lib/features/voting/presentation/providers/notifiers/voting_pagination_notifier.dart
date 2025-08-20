@@ -102,6 +102,7 @@ class VotingPaginationNotifier extends StateNotifier<VotingPaginationState> {
           state = state.copyWith(
             isLoading: false,
             error: _getErrorMessage(failure),
+            hasInitialized: true, // 에러 발생 시에도 초기화 완료 플래그 설정
           );
         },
         (voteList) {
@@ -113,9 +114,10 @@ class VotingPaginationNotifier extends StateNotifier<VotingPaginationState> {
             isLoading: false,
             hasMore: voteList.length == pageSize,
             lastDocumentId: voteList.isNotEmpty ? voteList.last.id : null,
+            hasInitialized: true, // 초기화 완료 플래그 설정
           );
           
-          AppLogger.d('상태 업데이트 완료: isLoading=${state.isLoading}, votes.length=${state.votes.length}');
+          AppLogger.d('상태 업데이트 완료: isLoading=${state.isLoading}, votes.length=${state.votes.length}, hasInitialized=${state.hasInitialized}');
         },
       );
     } catch (e, stackTrace) {
@@ -125,6 +127,7 @@ class VotingPaginationNotifier extends StateNotifier<VotingPaginationState> {
       state = state.copyWith(
         isLoading: false,
         error: '데이터 로드 중 오류가 발생했습니다: $e',
+        hasInitialized: true, // 예외 발생 시에도 초기화 완료 플래그 설정
       );
     }
   }
@@ -156,6 +159,12 @@ class VotingPaginationNotifier extends StateNotifier<VotingPaginationState> {
         );
       },
     );
+  }
+
+  /// 초기 데이터 로드 (한 번만 실행)
+  Future<void> initializeData() async {
+    if (state.hasInitialized) return; // 이미 초기화되었으면 건너뛰기
+    await _loadInitialData();
   }
 
   /// 데이터 새로고침

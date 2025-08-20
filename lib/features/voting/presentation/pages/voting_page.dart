@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/widgets/primary_app_bar.dart';
 import '../../../../core/widgets/app_dialog.dart';
 import '../../../../core/errors/voting_failure.dart';
+import '../../../../core/constants/app_logger.dart';
 import '../../../auth/di/auth_module.dart';
 import '../../di/voting_module.dart';
 import 'voting_write_page.dart';
@@ -26,19 +27,23 @@ class VotingPage extends ConsumerWidget {
     final selectedVoteIds = paginationState.selectedVoteIds;
 
     // 디버그 로그 추가
-    print('VotingPage build - isLoading: ${paginationState.isLoading}, votes.length: ${paginationState.votes.length}, error: ${paginationState.error}');
+    AppLogger.d('VotingPage build - isLoading: ${paginationState.isLoading}, votes.length: ${paginationState.votes.length}, error: ${paginationState.error}');
 
-    // Provider가 처음 생성되었을 때 강제로 초기 데이터 로드 시작
+    // Provider가 처음 생성되었을 때만 초기 데이터 로드 (무한 루프 방지)
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (paginationState.votes.isEmpty && !paginationState.isLoading && paginationState.error == null) {
-        print('VotingPage: 강제로 초기 데이터 로드 시작');
-        paginationNotifier.refresh();
+      // 이미 데이터를 로드했거나 로딩 중이면 건너뛰기
+      if (paginationState.votes.isEmpty && 
+          !paginationState.isLoading && 
+          paginationState.error == null &&
+          !paginationState.hasInitialized) {
+        AppLogger.d('VotingPage: 초기 데이터 로드 시작 (한 번만)');
+        paginationNotifier.initializeData();
       }
     });
 
     // 초기 로딩 상태 (데이터가 없고 로딩 중일 때)
     if (paginationState.isLoading && paginationState.votes.isEmpty && paginationState.error == null) {
-      print('VotingPage: 초기 로딩 상태 표시');
+      AppLogger.d('VotingPage: 초기 로딩 상태 표시');
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
       );
@@ -46,7 +51,7 @@ class VotingPage extends ConsumerWidget {
     
     // 에러 상태
     if (paginationState.error != null && paginationState.votes.isEmpty) {
-      print('VotingPage: 에러 상태 표시 - ${paginationState.error}');
+      AppLogger.d('VotingPage: 에러 상태 표시 - ${paginationState.error}');
       return Scaffold(
         appBar: PrimaryAppBar(title: '신청곡'),
         body: Center(
@@ -67,9 +72,8 @@ class VotingPage extends ConsumerWidget {
     
     // 데이터가 없을 때도 AppBar와 Scaffold를 보여줌
     if (paginationState.votes.isEmpty && !paginationState.isLoading) {
-      print('VotingPage: 빈 데이터 상태 표시');
+      AppLogger.d('VotingPage: 빈 데이터 상태 표시');
       return Scaffold(
-        appBar: PrimaryAppBar(title: '신청곡'),
         body: const NoVoteView(),
       );
     }
