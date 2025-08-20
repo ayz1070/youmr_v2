@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:youmr_v2/core/constants/app_logger.dart';
 
 import '../../../../core/constants/firestore_constants.dart';
 import '../dtos/attendance_dto.dart';
@@ -61,6 +62,8 @@ class AttendanceFirestoreDataSource implements AttendanceDataSource {
           .collection(FirestoreConstants.attendancesCollection)
           .doc(documentId)
           .set(jsonData);
+
+      AppLogger.i("출석 저장 호출 : $documentId");
     } catch (e) {
       // DataSource에서는 예외를 그대로 throw
       rethrow;
