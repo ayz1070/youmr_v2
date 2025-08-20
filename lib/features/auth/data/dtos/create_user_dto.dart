@@ -48,10 +48,10 @@ class CreateUserDto with _$CreateUserDto {
     return CreateUserDto(
       uid: user.uid,
       email: user.email ?? '',
-      nickname: user.displayName ?? defaultNickname ?? '사용자',
+      nickname: user.displayName ?? defaultNickname ?? '', // 빈 문자열로 설정하여 프로필 미완성 상태로 인식
       name: user.displayName,
       profileImageUrl: user.photoURL,
-      userType: '',
+      userType: '', // 빈 문자열로 설정하여 프로필 미완성 상태로 인식
       dayOfWeek: '',
       fcmToken: '',
       pick: 0, // 신규 사용자는 피크 0개로 시작
