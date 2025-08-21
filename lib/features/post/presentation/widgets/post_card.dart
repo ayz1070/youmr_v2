@@ -111,14 +111,7 @@ class PostCard extends StatelessWidget {
                           height: double.infinity,
                           errorBuilder: (context, error, stackTrace) {
                             // 배경 이미지 로딩 실패 시 기본 이미지
-                            return Container(
-                              color: Colors.grey[300],
-                              child: const Icon(
-                                Icons.image_not_supported,
-                                size: 32,
-                                color: Colors.grey,
-                              ),
-                            );
+                            return _buildDefaultImageContainer();
                           },
                         ),
                       Container(
@@ -235,6 +228,21 @@ class PostCard extends StatelessWidget {
                 ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  /// 기본 이미지를 표시하는 컨테이너
+  Widget _buildDefaultImageContainer() {
+    return Container(
+      width: double.infinity,
+      height: 340,
+      decoration: BoxDecoration(
+        color: Colors.grey[300],
+        image: const DecorationImage(
+          image: AssetImage('assets/images/default_post_image.jpg'),
+          fit: BoxFit.cover,
         ),
       ),
     );
