@@ -1,0 +1,73 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+---
+description:
+globs:
+alwaysApply: false
+---
+
+# flutter-refactor-presentation-rules.mdc
+
+## 1. Clean Architecture & 폴더 구조
+- features/feature_name/presentation/pages, providers, widgets 등 계층 분리
+- UI는 상태/로직을 Provider에 위임, DB/비즈니스 로직 직접 접근 금지
+
+## 2. Provider/상태관리
+- Riverpod AsyncNotifierProvider, StateNotifierProvider, NotifierProvider 등 사용
+- Provider는 DI/override 가능 구조로 설계(테스트/Mock 주입 용이)
+- Provider 내부에서 직접 구현체 생성 금지, 외부 주입 원칙
+- 상태 클래스는 freezed/sealed class 또는 명확한 상태값(로딩, 성공, 에러, 빈 등) 분리
+- Provider/Notifier/State 클래스/메서드/파라미터에 한글 주석 필수 및 각각은 providers 디렉토리 하에 별도의 파일로 분리
+- 의존성 주입은 기능명/di 디렉토리에 별도로 분리하여 의존성 주입을 수행
+
+### 예시
+```dart
+final profileProvider = AsyncNotifierProvider<ProfileNotifier, Profile?>(ProfileNotifier.new);
+```
+
+## 3. UI/페이지/위젯
+- 모든 위젯/페이지/컴포넌트에 한글 주석 필수
+- AppBar, 에러, 로딩, 빈 상태 등 공통 위젯(core/widgets) 적극 활용
+- Scaffold, AppBar, body 등 레이아웃 일관성 유지
+- 상태별 분기(로딩/에러/빈/정상) 명확히 구분
+- 컬러/문구/패딩 등은 core/constants로 상수화
+- 접근성(semantic label, 대비, 크기 등) 고려
+- 80자 줄바꿈, const 최적화, 타입 명시 등 flutter-rules.mdc 준수
+
+### 예시
+```dart
+body: profileAsync.when(
+  loading: () => const AppLoadingView(),
+  error: (e, st) => AppErrorView(message: '내 정보 불러오기 실패', errorDetail: e.toString()),
+  data: (profile) {
+    if (profile == null) return const AppEmptyView(message: '내 정보 없음');
+    // ...
+  },
+)
+```
+
+## 4. 에러/로딩/빈 상태 공통화
+- AppErrorView, AppLoadingView, AppEmptyView 등 core/widgets 공통 위젯 사용
+- 에러 메시지, 버튼 텍스트 등은 core/constants/error_messages.dart 등으로 상수화
+- 상황별 메시지/콜백/상세에러 등 파라미터화
+
+## 5. 의존성 주입(DI)
+- Provider, Repository, User 등은 ProviderScope override로 주입 가능하게 설계
+- 테스트/Mock 주입 용이하게 Provider 분리
+
+## 6. 테스트
+- mocktail, Given-When-Then, 한글 주석 필수
+- Provider, 위젯, 페이지 단위 테스트 작성
+- 테스트 코드도 한글 주석, 명확한 Given-When-Then 구조
+
+## 7. 코드 스타일/가독성
+- 한글 주석, 타입 명시, const, 80자 줄바꿈, 불필요한 코드/변수/함수 금지
+- SOLID, 엔터프라이즈 패턴, 유지보수성/확장성/일관성 최우선
+
+## 8. 기타
+- 기능 확장/유지보수/테스트 용이성을 최우선으로 설계
+- 불필요한 import/변수/함수/직접 접근 금지
+- 모든 코드/주석/문서 한글

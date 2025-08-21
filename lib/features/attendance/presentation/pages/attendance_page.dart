@@ -1,278 +1,140 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:youmr_v2/core/constants/app_constants.dart';
+import '../../../../core/utils/app_date_utils.dart';
+import '../../di/attendance_module.dart';
+import '../../domain/entities/attendance.dart';
+import '../widgets/attendance_day_row.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:intl/intl.dart';
+import 'package:youmr_v2/core/widgets/primary_app_bar.dart';
+import 'package:youmr_v2/core/widgets/app_error_view.dart';
+import 'package:youmr_v2/core/widgets/app_loading_view.dart';
+import 'package:youmr_v2/core/constants/error_messages.dart';
+import '../providers/notifier/attendance_notifier.dart';
+import '../providers/state/attendance_state.dart';
 
-/// 출석 탭 페이지
-class AttendancePage extends StatefulWidget {
+/// 출석 탭 페이지 (UI만 담당, 상태/로직은 Provider에서 관리)
+class AttendancePage extends ConsumerWidget {
   const AttendancePage({super.key});
 
   @override
-  State<AttendancePage> createState() => _AttendancePageState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final attendanceAsync = ref.watch(attendanceProvider);
+    final notifier = ref.read(attendanceProvider.notifier);
 
-class _AttendancePageState extends State<AttendancePage> {
-  final List<String> _days = ['월', '화', '수', '목', '금', '토', '일', '불참'];
-  String get _weekKey {
-    final now = DateTime.now();
-    String weekStr = DateFormat('w', 'en_US').format(now);
-    int weekOfYear;
-    try {
-      weekOfYear = int.parse(weekStr);
-    } catch (_) {
-      weekOfYear = 1; // 파싱 실패 시 기본값
-    }
-    return '${now.year}-$weekOfYear';
-  }
-
-  List<String> _mySelectedDays = [];
-  bool _isLoading = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadMyAttendance();
-  }
-
-  /// 내 출석 정보 불러오기
-  Future<void> _loadMyAttendance() async {
-    setState(() => _isLoading = true);
-    try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user == null) return;
-      final doc = await FirebaseFirestore.instance
-          .collection('attendance')
-          .doc('${_weekKey}_${user.uid}')
-          .get();
-      final data = doc.data();
-      if (data != null && data['selectedDays'] != null) {
-        _mySelectedDays = List<String>.from(data['selectedDays']);
-      }
-    } catch (_) {}
-    setState(() => _isLoading = false);
-  }
-
-  /// 출석 선택 BottomSheet
-  void _showAttendanceSheet() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
-    final result = await showModalBottomSheet<List<String>>(
-      context: context,
-      builder: (ctx) {
-        List<String> tempSelected = List.from(_mySelectedDays);
-        return StatefulBuilder(
-          builder: (context, setModalState) => Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text('출석할 요일을 선택하세요', style: TextStyle(fontWeight: FontWeight.bold)),
-                const SizedBox(height: 16),
-                Wrap(
-                  spacing: 8,
-                  children: _days.map((d) => FilterChip(
-                    label: Text(d),
-                    selected: tempSelected.contains(d),
-                    onSelected: (selected) {
-                      setModalState(() {
-                        if (selected) {
-                          if (d == '불참') {
-                            tempSelected = ['불참'];
-                          } else {
-                            tempSelected.remove('불참');
-                            tempSelected.add(d);
-                          }
-                        } else {
-                          tempSelected.remove(d);
-                        }
-                      });
-                    },
-                  )).toList(),
-                ),
-                const SizedBox(height: 24),
-                ElevatedButton(
-                  onPressed: () => Navigator.pop(ctx, tempSelected),
-                  child: const Text('저장'),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
+    return Scaffold(
+      appBar: PrimaryAppBar(
+        title: "출석",
+      ),
+      body: attendanceAsync.when(
+        data: (state) {
+          if (state.isLoading) {
+            return const AppLoadingView();
+          } else if (state.hasError) {
+            return AppErrorView(
+              message: '출석 정보 로드 실패',
+              errorDetail: '상태 오류',
+              onRetry: () => ref.refresh(attendanceProvider),
+            );
+          } else if (state.hasData) {
+            return _buildAttendanceContent(context, ref, notifier, state.attendance);
+          } else {
+            return _buildAttendanceContent(context, ref, notifier, null);
+          }
+        },
+        loading: () => const AppLoadingView(),
+        error: (e, st) => AppErrorView(
+          message: ErrorMessages.attendanceLoadError,
+          errorDetail: e.toString(),
+          onRetry: () => ref.refresh(attendanceProvider),
+        ),
+      ),
     );
-    if (result != null) {
-      await _saveAttendance(result);
-    }
   }
 
-  /// 출석 정보 Firestore에 저장
-  Future<void> _saveAttendance(List<String> days) async {
-    setState(() => _isLoading = true);
+  /// 출석 내용 UI 구성
+  Widget _buildAttendanceContent(
+    BuildContext context,
+    WidgetRef ref,
+    AttendanceNotifier notifier,
+    Attendance? attendance,
+  ) {
+    final mySelectedDays = attendance?.selectedDays ?? [];
+    final weekKey = attendance?.weekKey ?? AppDateUtils.getCurrentWeekKey();
+
+    return ListView(
+      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 0),
+      children: [
+        ...AppConstants.days.asMap().entries.map(
+          (entry) {
+            final index = entry.key;
+            final day = entry.value;
+            final isLastDay = index == AppConstants.days.length - 1;
+            
+            return Padding(
+              padding: const EdgeInsets.only(
+                bottom: 16, left: 16, right: 16,
+              ),
+              child: AttendanceDayRow(
+                day: day,
+                mySelectedDays: mySelectedDays,
+                isLoading: false, // 상태에서 로딩 여부 확인
+                showDivider: !isLastDay,
+                onAttendanceToggle: (selectedDay, checked) async {
+                  await _handleAttendanceToggle(
+                    notifier,
+                    attendance,
+                    weekKey,
+                    selectedDay,
+                    checked,
+                  );
+                },
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  /// 출석 토글 처리
+  Future<void> _handleAttendanceToggle(
+    AttendanceNotifier notifier,
+    Attendance? attendance,
+    String weekKey,
+    String selectedDay,
+    bool checked,
+  ) async {
     try {
+      final newDays = List<String>.from(attendance?.selectedDays ?? []);
+      if (checked) {
+        newDays.add(selectedDay);
+      } else {
+        newDays.remove(selectedDay);
+      }
+      
+      // Provider를 통해 최신 사용자 정보 가져오기
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) return;
-      final userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
-      final userData = userDoc.data() ?? {};
-      await FirebaseFirestore.instance.collection('attendance').doc('${_weekKey}_${user.uid}').set({
-        'weekKey': _weekKey,
-        'userId': user.uid,
-        'nickname': userData['nickname'] ?? '',
-        'profileImageUrl': userData['profileImageUrl'] ?? '',
-        'selectedDays': days,
-        'lastUpdated': FieldValue.serverTimestamp(),
-      });
-      setState(() => _mySelectedDays = days);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('출석 정보가 저장되었습니다.')),
+      
+      final (userName, userProfileImageUrl) = await notifier.getCurrentUserProfile();
+      
+      await notifier.saveAttendance(
+        (attendance ?? Attendance(
+          weekKey: weekKey,
+          userId: user.uid,
+          selectedDays: [],
+          name: userName,
+          profileImageUrl: userProfileImageUrl,
+          lastUpdated: null,
+        )).copyWith(
+          selectedDays: newDays,
+          name: userName,
+          profileImageUrl: userProfileImageUrl,
+        ),
       );
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('출석 저장에 실패했습니다.')),
-      );
-    } finally {
-      setState(() => _isLoading = false);
+      // 에러 처리는 Provider에서 담당
     }
-  }
-
-  /// 요일별 참석자 스트림
-  Stream<List<Map<String, dynamic>>> _attendeesStream(String day) {
-    return FirebaseFirestore.instance
-        .collection('attendance')
-        .where('weekKey', isEqualTo: _weekKey)
-        .where('selectedDays', arrayContains: day)
-        .snapshots()
-        .map((snap) => snap.docs.map((d) => d.data()).toList());
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : ListView(
-              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 0),
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 20, right: 20, bottom: 12, top: 4),
-                  child: Text(_getCurrentWeekText(),
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, fontSize: 18)),
-                ),
-                ..._days.where((d) => d != '불참').map((day) => Padding(
-                  padding: const EdgeInsets.only(bottom: 16, left: 16, right: 16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(left: 2, bottom: 8),
-                        child: Text('$day요일', style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold, fontSize: 14)),
-                      ),
-                      StreamBuilder<List<Map<String, dynamic>>>(
-                        stream: _attendeesStream(day),
-                        builder: (context, snapshot) {
-                          final attendees = snapshot.data ?? [];
-                          final isChecked = _mySelectedDays.contains(day);
-                          return SizedBox(
-                            height: 60,
-                            child: ListView.separated(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: attendees.length + 1,
-                              separatorBuilder: (_, __) => const SizedBox(width: 12),
-                              itemBuilder: (context, idx) {
-                                if (idx == 0) {
-                                  // 출석 버튼 (체크/마이너스)
-                                  return GestureDetector(
-                                    onTap: _isLoading ? null : () async {
-                                      if (!isChecked) {
-                                        await _saveAttendance([..._mySelectedDays, day]);
-                                      } else {
-                                        final newDays = List<String>.from(_mySelectedDays)..remove(day);
-                                        await _saveAttendance(newDays);
-                                      }
-                                      await _loadMyAttendance();
-                                    },
-                                    child: Column(
-                                      children: [
-                                        Container(
-                                          width: 40,
-                                          height: 40,
-                                          decoration: BoxDecoration(
-                                            color: isChecked ? Theme.of(context).colorScheme.primary.withOpacity(0.12) : Theme.of(context).colorScheme.surface,
-                                            shape: BoxShape.circle,
-                                            border: Border.all(
-                                              color: isChecked ? Theme.of(context).colorScheme.primary : Theme.of(context).dividerColor,
-                                              width: 1.5,
-                                            ),
-                                          ),
-                                          child: Center(
-                                            child: Icon(
-                                              isChecked ? Icons.remove : Icons.check,
-                                              size: 22,
-                                              color: isChecked ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurfaceVariant,
-                                            ),
-                                          ),
-                                        ),
-                                        const SizedBox(height: 2),
-                                        Text(
-                                          isChecked ? '불참' : '출석',
-                                          style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 10),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                }
-                                final a = attendees[idx - 1];
-                                return Column(
-                                  children: [
-                                    Container(
-                                      width: 40,
-                                      height: 40,
-                                      decoration: BoxDecoration(
-                                        color: Theme.of(context).colorScheme.surface,
-                                        shape: BoxShape.circle,
-                                        border: Border.all(color: Theme.of(context).dividerColor, width: 1),
-                                      ),
-                                      child: ClipOval(
-                                        child: a['profileImageUrl'] != null && a['profileImageUrl'] != ''
-                                            ? Image.network(a['profileImageUrl'], fit: BoxFit.cover)
-                                            : Image.asset('assets/images/default_profile.png', fit: BoxFit.cover),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 2),
-                                    SizedBox(
-                                      width: 40,
-                                      child: Text(
-                                        a['nickname'] ?? '',
-                                        style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 10),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                                  ],
-                                );
-                              },
-                            ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                )),
-              ],
-            ),
-    );
-  }
-
-  String _getCurrentWeekText() {
-    final now = DateTime.now();
-    final weekStr = DateFormat('w', 'en_US').format(now);
-    int weekOfYear;
-    try {
-      weekOfYear = int.parse(weekStr);
-    } catch (_) {
-      weekOfYear = 1;
-    }
-    final month = now.month;
-    return '$month월 ${weekOfYear}주차';
   }
 } 

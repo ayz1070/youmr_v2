@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-// import 'package:image_picker/image_picker.dart'; // 실제 적용 시 사용
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../di/profile_module.dart';
+import '../../domain/entities/profile.dart';
+import '../../../../core/widgets/app_text_field.dart';
+import '../../../../core/widgets/app_dropdown.dart';
 
-/// 프로필 수정 페이지
-class ProfileEditPage extends StatefulWidget {
+/// 프로필 수정 페이지 (Provider 기반)
+class ProfileEditPage extends ConsumerStatefulWidget {
   const ProfileEditPage({super.key});
 
   @override
-  State<ProfileEditPage> createState() => _ProfileEditPageState();
+  ConsumerState<ProfileEditPage> createState() => _ProfileEditPageState();
 }
 
-class _ProfileEditPageState extends State<ProfileEditPage> {
+class _ProfileEditPageState extends ConsumerState<ProfileEditPage> {
   final _formKey = GlobalKey<FormState>();
   final _nicknameController = TextEditingController();
   String? _profileImageUrl;
@@ -27,36 +29,21 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
     _loadProfile();
   }
 
-  /// 기존 프로필 정보 불러오기
-  Future<void> _loadProfile() async {
-    setState(() => _isLoading = true);
-    try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user == null) return;
-      final doc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
-      final data = doc.data();
-      if (data != null) {
-        _nicknameController.text = data['nickname'] ?? '';
-        _profileImageUrl = data['profileImageUrl'] ?? '';
-        _userType = data['userType'] ?? '';
-        _dayOfWeek = data['dayOfWeek'] ?? '';
-      }
-    } finally {
-      setState(() => _isLoading = false);
+  /// Provider에서 프로필 정보 불러오기
+  void _loadProfile() {
+    final profile = ref.read(profileProvider);
+    if (profile is AsyncData<Profile?> && profile.value != null) {
+      final data = profile.value!;
+      _nicknameController.text = data.nickname;
+      _profileImageUrl = data.profileImageUrl;
+      _userType = data.userType;
+      _dayOfWeek = data.dayOfWeek;
     }
   }
 
   /// 프로필 사진 선택 (예시)
   Future<void> _pickProfileImage() async {
-    // 실제 구현 시 image_picker 사용
-    // final picker = ImagePicker();
-    // final picked = await picker.pickImage(source: ImageSource.gallery);
-    // if (picked != null) {
-    //   // TODO: Firebase Storage 업로드 후 URL 저장
-    //   setState(() => _profileImageUrl = picked.path);
-    // }
-    // 예시: 기본 이미지로 대체
-    setState(() => _profileImageUrl = null);
+    setState(() => _profileImageUrl = null); // 실제 구현 시 image_picker 사용
   }
 
   /// 프로필 정보 저장
@@ -72,15 +59,16 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
     }
     setState(() => _isLoading = true);
     try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user == null) throw Exception('로그인 정보 없음');
-      final userDoc = FirebaseFirestore.instance.collection('users').doc(user.uid);
-      await userDoc.update({
-        'nickname': _nicknameController.text.trim(),
-        'profileImageUrl': _profileImageUrl ?? '',
-        'userType': _userType,
-        'dayOfWeek': _userType == 'offline_member' ? _dayOfWeek : '',
-      });
+      final notifier = ref.read(profileProvider.notifier);
+      final profile = ref.read(profileProvider).value;
+      if (profile == null) throw Exception('프로필 정보 없음');
+      final updated = profile.copyWith(
+        nickname: _nicknameController.text.trim(),
+        profileImageUrl: _profileImageUrl ?? '',
+        userType: _userType!,
+        dayOfWeek: _userType == 'offline_member' ? _dayOfWeek : '',
+      );
+      await notifier.saveProfile(updated);
       if (mounted) {
         Navigator.of(context).pop(true);
         ScaffoldMessenger.of(context).showSnackBar(
@@ -137,43 +125,35 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                     ),
                     const SizedBox(height: 24),
                     // 닉네임 입력
-                    TextFormField(
+                    AppTextField(
                       controller: _nicknameController,
-                      decoration: const InputDecoration(
-                        labelText: '닉네임',
-                        border: OutlineInputBorder(),
-                      ),
+                      labelText: '닉네임',
                       validator: (v) => v == null || v.trim().isEmpty ? '닉네임을 입력해 주세요.' : null,
                     ),
                     const SizedBox(height: 24),
                     // 회원 타입 선택
-                    DropdownButtonFormField<String>(
+                    AppDropdown<String>(
                       value: _userType,
-                      decoration: const InputDecoration(
-                        labelText: '회원 타입',
-                        border: OutlineInputBorder(),
-                      ),
-                      items: const [
-                        DropdownMenuItem(value: 'admin', child: Text('관리자')),
-                        DropdownMenuItem(value: 'developer', child: Text('개발자')),
-                        DropdownMenuItem(value: 'offline_member', child: Text('오프라인 회원')),
-                        DropdownMenuItem(value: 'member', child: Text('일반 회원')),
-                      ],
+                      items: const ['offline_member', 'member'],
+                      labelText: '회원 타입',
+                      itemTextBuilder: (type) {
+                        switch (type) {
+                          case 'offline_member': return '오프라인 회원';
+                          case 'member': return '일반 회원';
+                          default: return type;
+                        }
+                      },
                       onChanged: (v) => setState(() => _userType = v),
                       validator: (v) => v == null ? '회원 타입을 선택해 주세요.' : null,
                     ),
                     const SizedBox(height: 24),
                     // 요일 선택 (offline_member만)
                     if (_userType == 'offline_member')
-                      DropdownButtonFormField<String>(
+                      AppDropdown<String>(
                         value: _dayOfWeek,
-                        decoration: const InputDecoration(
-                          labelText: '요일 선택',
-                          border: OutlineInputBorder(),
-                        ),
-                        items: _days
-                            .map((d) => DropdownMenuItem(value: d, child: Text(d)))
-                            .toList(),
+                        items: _days,
+                        labelText: '요일 선택',
+                        itemTextBuilder: (day) => day,
                         onChanged: (v) => setState(() => _dayOfWeek = v),
                         validator: (v) => v == null ? '요일을 선택해 주세요.' : null,
                       ),

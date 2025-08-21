@@ -46,18 +46,22 @@ app.*.map.json
 
 # Flutter/Android/iOS 민감 정보 및 빌드 산출물
 firebase.json
+lib/firebase_options.dart
+.storage.rules
 pglite-debug.log
 .metadata
 .DS_Store
 .idea/
 .vscode/
-.cursor/
+.cursor/mcp.json
 build/
 .dart_tool/
 android/.gradle/
 android/build/
 android/app/build/
 android/app/google-services.json
+android/app/google-services-dev.json
+android/app/google-services-test.json
 android/local.properties
 android/key.properties
 **/*.keystore

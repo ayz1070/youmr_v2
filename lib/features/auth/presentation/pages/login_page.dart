@@ -1,81 +1,104 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../di/auth_module.dart';
+import '../providers/notifier/auth_notifier.dart';
 import 'splash_page.dart';
 
-/// 구글 로그인 버튼이 있는 로그인 화면
-class LoginPage extends StatelessWidget {
+/// 구글 로그인 버튼이 있는 로그인 화면 (Provider 기반)
+class LoginPage extends ConsumerWidget {
+  /// [key]: 위젯 고유 키
   const LoginPage({super.key});
 
-  /// 구글 로그인 및 Firebase Auth 연동 함수
-  Future<void> _signInWithGoogle(BuildContext context) async {
-    try {
-      // 구글 로그인 계정 선택
-      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-      if (googleUser == null) {
-        // 사용자가 로그인 취소
-        return;
-      }
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-      final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-      // Firebase Auth 로그인
-      final userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
-      final user = userCredential.user;
-      if (user == null) throw Exception('로그인 실패');
-
-      // Firestore에 유저 정보 저장 (최초 로그인 시만)
-      final userDoc = FirebaseFirestore.instance.collection('users').doc(user.uid);
-      final snapshot = await userDoc.get();
-      if (!snapshot.exists) {
-        await userDoc.set({
-          'uid': user.uid,
-          'email': user.email,
-          'nickname': user.displayName ?? '',
-          'profileImageUrl': user.photoURL ?? '',
-          'userType': '', // 최초 로그인 시 미설정
-          'dayOfWeek': '',
-          'fcmToken': '',
-          'createdAt': FieldValue.serverTimestamp(),
-        });
-      }
-
-      // 로그인 성공 → SplashPage로 이동(자동 분기)
-      if (context.mounted) {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    // 인증 상태 구독
+    final authState = ref.watch(authProvider);
+    // 상태 변화 리스너: 로그인 성공/실패 분기
+    ref.listen(authProvider, (previous, next) {
+      // 로그인 성공 시 SplashPage로 이동
+      if (next is AsyncData && next.value != null) {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (_) => const SplashPage()),
         );
       }
-    } catch (e, stack) {
-      // 에러 발생 시 상세한 에러 정보 출력
-      debugPrint('구글 로그인 에러: $e');
-      debugPrint('스택 트레이스: $stack');
-
-      // 에러 메시지를 SnackBar로도 보여주기 (개발 중에만)
-      if (context.mounted) {
+      // 에러 발생 시 스낵바 표시 (실제 앱에서는 AppErrorView 등 공통 위젯 사용 권장)
+      if (next is AsyncError) {
+        final error = next.error;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('구글 로그인 실패: ${e.toString()}'),
+            content: Text('구글 로그인 실패:  ${error.toString()}'), // 문구 상수화 권장
             duration: const Duration(seconds: 5),
           ),
         );
       }
-    }
-  }
+    });
 
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('로그인')),
-      body: Center(
-        child: ElevatedButton.icon(
-          icon: Image.asset('assets/images/google_logo.png', width: 24, height: 24),
-          label: const Text('구글로 시작하기'),
-          onPressed: () => _signInWithGoogle(context),
-        ),
+      body: Stack(
+        children: [
+          // 배경 이미지
+          Container(
+            width: double.infinity,
+            height: double.infinity,
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/images/bg_login.jpg'),
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          // 중앙에 로고나 안내 텍스트 등 필요시 추가 가능
+          const SizedBox.expand(),
+          // 로딩 상태: CircularProgressIndicator 대신 AppLoadingView 등 공통 위젯 사용 권장
+          if (authState.isLoading)
+            const Center(child: CircularProgressIndicator()),
+          // 하단 구글 로그인 버튼
+          if (!authState.isLoading)
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: SafeArea(
+                minimum: const EdgeInsets.only(left: 24, right: 24, bottom: 32),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 56,
+                  child: Material(
+                    color: const Color(0xFFF5F6F8),
+                    elevation: 2,
+                    child: InkWell(
+                      onTap: () {
+                        // 구글 로그인 액션
+                        ref.read(authProvider.notifier).signInWithGoogle();
+                      },
+                      child: Container(
+                        color: Colors.white,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            // 구글 로고 이미지
+                            Image.asset(
+                              'assets/images/google_logo.png',
+                              width: 28,
+                              height: 28,
+                            ),
+                            const SizedBox(width: 24),
+                            // 버튼 텍스트 (상수화 권장)
+                            const Text(
+                              'Google로 로그인',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                color: Color(0xFF222222),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }

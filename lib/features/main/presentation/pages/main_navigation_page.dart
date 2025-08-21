@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import '../../../attendance/presentation/pages/attendance_page.dart';
-import '../../../home/presentation/pages/home_page.dart';
+import '../../../post/presentation/pages/post_page.dart';
 import '../../../profile/presentation/pages/profile_page.dart';
-import '../../../write/presentation/pages/write_page.dart';
+import '../../../voting/presentation/pages/voting_page.dart';
 
-/// 앱의 메인 네비게이션(홈/출석/글쓰기/프로필) 페이지
+/// 앱의 메인 네비게이션(홈/투표/출석/프로필) 페이지
 class MainNavigationPage extends StatefulWidget {
   const MainNavigationPage({super.key});
 
@@ -15,75 +15,97 @@ class MainNavigationPage extends StatefulWidget {
 class _MainNavigationPageState extends State<MainNavigationPage> {
   int _currentIndex = 0;
 
-  // 각 탭별 페이지 위젯 리스트
+  // 각 탭별 페이지 위젯 리스트 (투표 탭 추가)
   final List<Widget> _pages = const [
-    HomePage(),
+    PostPage(),
+    VotingPage(),
     AttendancePage(),
-    WritePage(),
     ProfilePage(),
   ];
 
-  // 탭별 제목
+  // 탭별 제목 (투표 탭 추가)
   final List<String> _titles = [
     'YouMR',
+    '투표',
     '출석',
-    '글쓰기',
     '프로필',
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          _titles[_currentIndex],
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-          ),
-        ),
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        elevation: 0,
-        centerTitle: true,
-        actions: [
-          if (_currentIndex == 0) // 홈 화면에서만 알림 아이콘 표시
-            IconButton(
-              icon: const Icon(Icons.notifications_outlined),
-              onPressed: () {
-                // TODO: 알림 페이지로 이동
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('알림 기능 준비 중입니다.')),
-                );
-              },
-            ),
-        ],
-      ),
       body: _pages[_currentIndex],
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _currentIndex,
-        onDestinationSelected: (index) => setState(() => _currentIndex = index),
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home),
-            label: '홈',
+      bottomNavigationBar: Container(
+        height: 64,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          border: Border(
+            top: BorderSide(
+              color: Color(0x22000000), // 연한 회색 구분선
+              width: 1,
+            ),
           ),
-          NavigationDestination(
-            icon: Icon(Icons.check_circle_outline),
-            selectedIcon: Icon(Icons.check_circle),
-            label: '출석',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.edit_outlined),
-            selectedIcon: Icon(Icons.edit),
-            label: '글쓰기',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.person_outline),
-            selectedIcon: Icon(Icons.person),
-            label: '프로필',
-          ),
-        ],
+          boxShadow: [
+            BoxShadow(
+              color: Color(0x14000000), // 약간 더 진한 그림자
+              blurRadius: 10,
+              offset: Offset(0, -2),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            // 홈 탭
+            IconButton(
+              icon: Icon(
+                _currentIndex == 0 ? Icons.home : Icons.home_outlined,
+                color: _currentIndex == 0 ? Colors.black : Color(0xFFCCCCCC),
+                size: 32,
+              ),
+              onPressed: () => setState(() => _currentIndex = 0),
+              tooltip: '홈',
+              constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+              padding: EdgeInsets.zero,
+            ),
+            // 투표 탭
+            IconButton(
+              icon: Icon(
+                _currentIndex == 1 ? Icons.how_to_vote : Icons.how_to_vote_outlined,
+                color: _currentIndex == 1 ? Colors.black : Color(0xFFCCCCCC),
+                size: 32,
+              ),
+              onPressed: () => setState(() => _currentIndex = 1),
+              tooltip: '신청곡',
+              constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+              padding: EdgeInsets.zero,
+            ),
+            // 출석 탭
+            IconButton(
+              icon: Icon(
+                _currentIndex == 2 ? Icons.check_circle : Icons.check_circle_outline,
+                color: _currentIndex == 2 ? Colors.black : Color(0xFFCCCCCC),
+                size: 32,
+              ),
+              onPressed: () => setState(() => _currentIndex = 2),
+              tooltip: '출석',
+              constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+              padding: EdgeInsets.zero,
+            ),
+            // 프로필 탭
+            IconButton(
+              icon: Icon(
+                _currentIndex == 3 ? Icons.person : Icons.person_outline,
+                color: _currentIndex == 3 ? Colors.black : Color(0xFFCCCCCC),
+                size: 32,
+              ),
+              onPressed: () => setState(() => _currentIndex = 3),
+              tooltip: '프로필',
+              constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+              padding: EdgeInsets.zero,
+            ),
+          ],
+        ),
       ),
     );
   }

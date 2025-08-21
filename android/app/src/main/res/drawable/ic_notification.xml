@@ -1,0 +1,13 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+	android:width="24dp"
+	android:height="24dp"
+	android:viewportWidth="24"
+	android:viewportHeight="24">
+
+	<!-- "Y" 텍스트 디자인 (SVG 스타일 적용) -->
+	<!-- 왼쪽 대각선 -->
+	<path
+		android:fillColor="@android:color/white"
+		android:pathData="M7,6 L10.2,6 L12,10.5 L13.8,6 L17,6 L13.5,13 L13.5,18 L10.5,18 L10.5,13 Z" />
+
+</vector>
