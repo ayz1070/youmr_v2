@@ -47,6 +47,9 @@ app.*.map.json
 # Flutter/Android/iOS 민감 정보 및 빌드 산출물
 firebase.json
 lib/firebase_options.dart
+lib/firebase_options_dev.dart
+lib/firebase_options_test.dart
+
 .storage.rules
 pglite-debug.log
 .metadata
