@@ -110,7 +110,7 @@ class PostHeaderImage extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.grey[300],
         image: const DecorationImage(
-          image: AssetImage('assets/icons/default_post_image.jpg'),
+          image: AssetImage('assets/images/default_post_image.jpg'),
           fit: BoxFit.cover,
         ),
       ),
