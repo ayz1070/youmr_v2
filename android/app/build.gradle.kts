@@ -13,6 +13,10 @@ android {
     compileSdk = flutter.compileSdkVersion
     ndkVersion = "27.0.12077973"
 
+    buildFeatures {
+        buildConfig = true
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -35,10 +39,19 @@ android {
     }
 
     buildTypes {
+        debug {
+            manifestPlaceholders["ADMOB_APPLICATION_ID"] =
+                project.findProperty("ADMOB_APPLICATION_ID_DEV")
+                    ?: throw GradleException("ADMOB_APPLICATION_ID_DEV not set in local.properties")
+
+        }
         release {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.getByName("debug")
+            manifestPlaceholders["ADMOB_APPLICATION_ID"] =
+                project.findProperty("ADMOB_APPLICATION_ID_PROD")
+                    ?: throw GradleException("ADMOB_APPLICATION_ID_PROD not set in local.properties")
         }
     }
 }
