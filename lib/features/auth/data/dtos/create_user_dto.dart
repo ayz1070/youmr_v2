@@ -77,5 +77,6 @@ extension CreateUserDtoExtension on CreateUserDto {
     'pick': pick,
     'lastPickDate': lastPickDate != null ? Timestamp.fromDate(lastPickDate!) : null,
     'lastUpdated': FieldValue.serverTimestamp(),
+    'createdAt': FieldValue.serverTimestamp(),
   };
 }

@@ -1,5 +1,6 @@
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:flutter/foundation.dart';
+import '../constants/app_logger.dart';
+import '../config/env_config.dart';
 
 /// AdMob 서비스를 관리하는 클래스
 class AdMobService {
@@ -10,18 +11,16 @@ class AdMobService {
   /// AdMob 초기화 여부
   bool _isInitialized = false;
 
-  /// AdMob Application ID (AndroidManifest.xml과 동일해야 함)
-  static const String _applicationId = 'ca-app-pub-3940256099942544~3347511713';
+  // AdMob Application ID는 AndroidManifest.xml에서 관리됨
 
-  /// 테스트 광고 ID들
-  static const String _testBannerAdUnitId = 'ca-app-pub-3940256099942544/6300978111';
-  static const String _testInterstitialAdUnitId = 'ca-app-pub-3940256099942544/1033173712';
-  static const String _testRewardedAdUnitId = 'ca-app-pub-3940256099942544/5224354917';
+  /// 배너 광고 ID (환경변수에서 가져옴)
+  String get _bannerAdUnitId => EnvConfig.admobBannerAdUnitId;
 
-  /// 실제 광고 ID들 (배포 시 사용)
-  static const String _bannerAdUnitId = 'YOUR_BANNER_AD_UNIT_ID';
-  static const String _interstitialAdUnitId = 'YOUR_INTERSTITIAL_AD_UNIT_ID';
-  static const String _rewardedAdUnitId = 'YOUR_REWARDED_AD_UNIT_ID';
+  /// 전면 광고 ID (환경변수에서 가져옴)
+  String get _interstitialAdUnitId => EnvConfig.admobInterstitialAdUnitId;
+
+  /// 보상형 광고 ID (환경변수에서 가져옴)
+  String get _rewardedAdUnitId => EnvConfig.admobRewardedAdUnitId;
 
   /// AdMob 초기화
   Future<void> initialize() async {
@@ -30,26 +29,20 @@ class AdMobService {
     try {
       await MobileAds.instance.initialize();
       _isInitialized = true;
-      debugPrint('AdMob 초기화 완료');
+      AppLogger.i('AdMob 초기화 완료');
     } catch (e) {
-      debugPrint('AdMob 초기화 실패: $e');
+      AppLogger.e('AdMob 초기화 실패: $e');
     }
   }
 
   /// 배너 광고 ID 반환
-  String get bannerAdUnitId {
-    return kDebugMode ? _testBannerAdUnitId : _bannerAdUnitId;
-  }
+  String get bannerAdUnitId => _bannerAdUnitId;
 
   /// 전면 광고 ID 반환
-  String get interstitialAdUnitId {
-    return kDebugMode ? _testInterstitialAdUnitId : _interstitialAdUnitId;
-  }
+  String get interstitialAdUnitId => _interstitialAdUnitId;
 
   /// 보상형 광고 ID 반환
-  String get rewardedAdUnitId {
-    return kDebugMode ? _testRewardedAdUnitId : _rewardedAdUnitId;
-  }
+  String get rewardedAdUnitId => _rewardedAdUnitId;
 
   /// 배너 광고 로드
   Future<BannerAd?> loadBannerAd() async {
@@ -64,10 +57,10 @@ class AdMobService {
         request: const AdRequest(),
         listener: BannerAdListener(
           onAdLoaded: (ad) {
-            debugPrint('배너 광고 로드 완료');
+            AppLogger.i('배너 광고 로드 완료');
           },
           onAdFailedToLoad: (ad, error) {
-            debugPrint('배너 광고 로드 실패: $error');
+            AppLogger.e('배너 광고 로드 실패: $error');
             ad.dispose();
           },
         ),
@@ -76,7 +69,7 @@ class AdMobService {
       await bannerAd.load();
       return bannerAd;
     } catch (e) {
-      debugPrint('배너 광고 로드 중 오류: $e');
+      AppLogger.e('배너 광고 로드 중 오류: $e');
       return null;
     }
   }
@@ -94,17 +87,17 @@ class AdMobService {
         request: const AdRequest(),
         adLoadCallback: InterstitialAdLoadCallback(
           onAdLoaded: (ad) {
-            debugPrint('전면 광고 로드 완료');
+            AppLogger.i('전면 광고 로드 완료');
             interstitialAd = ad;
           },
           onAdFailedToLoad: (error) {
-            debugPrint('전면 광고 로드 실패: $error');
+            AppLogger.e('전면 광고 로드 실패: $error');
           },
         ),
       );
       return interstitialAd;
     } catch (e) {
-      debugPrint('전면 광고 로드 중 오류: $e');
+      AppLogger.e('전면 광고 로드 중 오류: $e');
       return null;
     }
   }
@@ -122,17 +115,17 @@ class AdMobService {
         request: const AdRequest(),
         rewardedAdLoadCallback: RewardedAdLoadCallback(
           onAdLoaded: (ad) {
-            debugPrint('보상형 광고 로드 완료');
+            AppLogger.i('보상형 광고 로드 완료');
             rewardedAd = ad;
           },
           onAdFailedToLoad: (error) {
-            debugPrint('보상형 광고 로드 실패: $error');
+            AppLogger.e('보상형 광고 로드 실패: $error');
           },
         ),
       );
       return rewardedAd;
     } catch (e) {
-      debugPrint('보상형 광고 로드 중 오류: $e');
+      AppLogger.e('보상형 광고 로드 중 오류: $e');
       return null;
     }
   }
@@ -158,7 +151,7 @@ class AdMobService {
           ad.dispose();
         },
         onAdFailedToShowFullScreenContent: (ad, error) {
-          debugPrint('보상형 광고 표시 실패: $error');
+          AppLogger.e('보상형 광고 표시 실패: $error');
           ad.dispose();
         },
       );
