@@ -52,6 +52,23 @@ class EnvConfig {
     }
   }
 
+  /// AdMob 출석 배너 광고 ID 반환 (환경에 따라)
+  static String get admobAttendanceBannerAdUnitId {
+    if (kDebugMode) {
+      final devId = dotenv.env['ADMOB_ATTENDANCE_BANNER_AD_UNIT_ID_DEV'];
+      if (devId == null) {
+        throw StateError('ADMOB_ATTENDANCE_BANNER_AD_UNIT_ID_DEV not set in .env file');
+      }
+      return devId;
+    } else {
+      final prodId = dotenv.env['ADMOB_ATTENDANCE_BANNER_AD_UNIT_ID_PROD'];
+      if (prodId == null) {
+        throw StateError('ADMOB_ATTENDANCE_BANNER_AD_UNIT_ID_PROD not set in .env file');
+      }
+      return prodId;
+    }
+  }
+
   /// AdMob 전면 광고 ID 반환 (환경에 따라)
   static String get admobInterstitialAdUnitId {
     if (kDebugMode) {

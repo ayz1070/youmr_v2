@@ -16,6 +16,9 @@ class AdMobService {
   /// 배너 광고 ID (환경변수에서 가져옴)
   String get _bannerAdUnitId => EnvConfig.admobBannerAdUnitId;
 
+  /// 출석 배너 광고 ID (환경변수에서 가져옴)
+  String get _attendanceBannerAdUnitId => EnvConfig.admobAttendanceBannerAdUnitId;
+
   /// 전면 광고 ID (환경변수에서 가져옴)
   String get _interstitialAdUnitId => EnvConfig.admobInterstitialAdUnitId;
 
@@ -70,6 +73,36 @@ class AdMobService {
       return bannerAd;
     } catch (e) {
       AppLogger.e('배너 광고 로드 중 오류: $e');
+      return null;
+    }
+  }
+
+  /// 출석 배너 광고 로드
+  Future<BannerAd?> loadAttendanceBannerAd() async {
+    if (!_isInitialized) {
+      await initialize();
+    }
+
+    try {
+      final BannerAd bannerAd = BannerAd(
+        adUnitId: _attendanceBannerAdUnitId,
+        size: AdSize.banner,
+        request: const AdRequest(),
+        listener: BannerAdListener(
+          onAdLoaded: (ad) {
+            AppLogger.i('출석 배너 광고 로드 완료');
+          },
+          onAdFailedToLoad: (ad, error) {
+            AppLogger.e('출석 배너 광고 로드 실패: $error');
+            ad.dispose();
+          },
+        ),
+      );
+
+      await bannerAd.load();
+      return bannerAd;
+    } catch (e) {
+      AppLogger.e('출석 배너 광고 로드 중 오류: $e');
       return null;
     }
   }
