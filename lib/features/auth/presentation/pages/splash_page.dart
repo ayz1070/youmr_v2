@@ -24,6 +24,7 @@ class SplashPage extends ConsumerStatefulWidget {
 
 /// 스플래시 페이지 상태 클래스
 class _SplashPageState extends ConsumerState<SplashPage> {
+
   @override
   void initState() {
     super.initState();
@@ -34,97 +35,95 @@ class _SplashPageState extends ConsumerState<SplashPage> {
     });
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   /// 로그인 상태 및 프로필 정보 확인 후 분기
   /// Firestore/FirebaseAuth 직접 접근 → 추후 Provider 구조로 개선 권장
   Future<void> _checkAuth() async {
     try {
       // authProvider 초기화 추가 - 사용자 정보 로드
       await ref.read(authProvider.notifier).initialize();
-      
+
       // 딜레이 제거 - 즉시 다음 화면으로 전환
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) {
         // 로그인 X → 로그인 페이지로 이동
         AppLogger.i('사용자 로그인 상태 없음 → 로그인 페이지로 이동');
-        if (mounted) {
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (_) => const LoginPage()),
-          );
-        }
+        _navigateToLogin();
         return;
       }
-      
+
       // 로그인된 사용자의 FCM 토큰 저장 및 FCM 서비스 초기화
       await _saveFcmToken();
       await _initializeFcmService();
-      
+
       // Firestore에서 사용자 프로필 정보 확인
       final userDoc = FirebaseFirestore.instance.collection('users').doc(user.uid);
       final snapshot = await userDoc.get();
-      
-      // 문서 존재 여부 확인
-      if (!snapshot.exists) {
-        AppLogger.w('사용자 프로필 문서가 존재하지 않음: ${user.uid}');
-        // 프로필 문서 없음 → 프로필 설정 페이지로 이동
-        if (mounted) {
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (_) => const ProfileSetupPage()),
-          );
-        }
-        return;
-      }
-      
-      // 문서 데이터 확인
-      final data = snapshot.data();
-      if (data == null) {
-        AppLogger.w('사용자 프로필 데이터가 null: ${user.uid}');
-        // 데이터가 null → 프로필 설정 페이지로 이동
-        if (mounted) {
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (_) => const ProfileSetupPage()),
-          );
-        }
-        return;
-      }
-      
-      // 필수 프로필 정보 확인 - 더 엄격한 검증
-      final nickname = data['nickname'] as String?;
-      final userType = data['userType'] as String?;
-      
-      // 닉네임과 유저타입이 모두 존재하고 의미있는 값인지 확인
-      final hasValidNickname = nickname != null && nickname.trim().isNotEmpty && nickname.trim() != '사용자';
-      final hasValidUserType = userType != null && userType.trim().isNotEmpty;
-      final hasProfile = hasValidNickname && hasValidUserType;
-      
-      AppLogger.i('프로필 정보 확인: nickname="$nickname", userType="$userType", hasValidNickname=$hasValidNickname, hasValidUserType=$hasValidUserType, hasProfile=$hasProfile');
-      
-      if (!hasProfile) {
+
+      if (!snapshot.exists || !_hasValidProfile(snapshot.data())) {
         // 프로필 미설정 → 프로필 설정 페이지로 이동
         AppLogger.i('프로필 정보가 불완전함 → 프로필 설정 페이지로 이동');
-        if (mounted) {
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (_) => const ProfileSetupPage()),
-          );
-        }
-        return;
+        _navigateToProfileSetup();
       } else {
         // 프로필 설정 완료 → 바로 메인 페이지로 이동
         AppLogger.i('프로필 정보 완료 → 메인 페이지로 이동');
-        if (mounted) {
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (_) => const MainNavigationPage()),
-          );
-        }
-        return;
+        _navigateToMain();
       }
     } catch (e) {
       // Firestore 접근 오류 시 → 로그인 페이지로 이동
       AppLogger.e('Firestore 접근 오류: $e');
-      if (mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const LoginPage()),
-        );
-      }
+      _navigateToLogin();
+    }
+  }
+
+  /// 유효한 프로필 정보가 있는지 확인
+  bool _hasValidProfile(Map<String, dynamic>? data) {
+    if (data == null) return false;
+
+    final nickname = data['nickname'] as String?;
+    final userType = data['userType'] as String?;
+
+    // 닉네임과 유저타입이 모두 존재하고 의미있는 값인지 확인
+    final hasValidNickname = nickname != null &&
+                             nickname.trim().isNotEmpty &&
+                             nickname.trim() != '사용자';
+    final hasValidUserType = userType != null &&
+                             userType.trim().isNotEmpty &&
+                             userType.trim() != ''; // 빈 문자열 체크 추가
+
+    AppLogger.i('프로필 정보 확인: nickname="$nickname", userType="$userType", hasValidNickname=$hasValidNickname, hasValidUserType=$hasValidUserType');
+
+    return hasValidNickname && hasValidUserType;
+  }
+
+  /// 로그인 페이지로 이동
+  void _navigateToLogin() {
+    if (mounted) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const LoginPage()),
+      );
+    }
+  }
+
+  /// 프로필 설정 페이지로 이동
+  void _navigateToProfileSetup() {
+    if (mounted) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const ProfileSetupPage()),
+      );
+    }
+  }
+
+  /// 메인 페이지로 이동
+  void _navigateToMain() {
+    if (mounted) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const MainNavigationPage()),
+      );
     }
   }
 
@@ -133,12 +132,12 @@ class _SplashPageState extends ConsumerState<SplashPage> {
     try {
       final fcmService = FcmService();
       final token = await fcmService.getToken();
-      
+
       if (token != null) {
         // Provider를 통해 FCM 토큰 저장
         await ref.read(notificationProvider.notifier).saveFcmToken(token);
         AppLogger.i('FCM 토큰 저장 완료: $token');
-        
+
         // FCM 토큰 갱신 리스너 등록
         fcmService.onTokenRefresh((newToken) async {
           await ref.read(notificationProvider.notifier).saveFcmToken(newToken);
@@ -154,17 +153,17 @@ class _SplashPageState extends ConsumerState<SplashPage> {
   Future<void> _initializeFcmService() async {
     try {
       final fcmService = FcmService();
-      
+
       // 포그라운드 메시지 핸들러 등록
       fcmService.onForegroundMessage((message) {
         AppLogger.i('포그라운드 FCM 메시지 수신: ${message.messageId}');
         // TODO: 필요시 특정 화면으로 네비게이션 처리
         // 예: 투표 알림이면 투표 페이지로, 출석 알림이면 출석 페이지로
       });
-      
+
       // 알림 설정 로드
       await ref.read(notificationProvider.notifier).loadNotificationSettings();
-      
+
       AppLogger.i('FCM 서비스 초기화 완료');
     } catch (e) {
       AppLogger.e('FCM 서비스 초기화 실패: $e');
@@ -176,7 +175,7 @@ class _SplashPageState extends ConsumerState<SplashPage> {
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
-    
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -187,7 +186,7 @@ class _SplashPageState extends ConsumerState<SplashPage> {
               flex: 1,
               child: Container(),
             ),
-            
+
             // 중앙 텍스트 영역
             Expanded(
               flex: 2,
@@ -204,9 +203,9 @@ class _SplashPageState extends ConsumerState<SplashPage> {
                       color: Colors.black,
                     ),
                   ),
-                  
+
                   const SizedBox(height: 8), // 텍스트 간격
-                  
+
                   // Rhythm 텍스트
                   Text(
                     'Rhythm',
@@ -219,7 +218,7 @@ class _SplashPageState extends ConsumerState<SplashPage> {
                 ],
               ),
             ),
-            
+
             // 하단 영역
             Expanded(
               flex: 1,
