@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/config/firebase_config.dart';
 import 'core/config/environment_config.dart';
+import 'core/config/env_config.dart';
 import 'core/constants/app_constants.dart';
 import 'core/constants/app_logger.dart';
 import 'core/theme/app_theme.dart';
@@ -15,6 +16,9 @@ import 'package:youmr_v2/features/notification/data/data_sources/notification_lo
 void main() async {
   // Flutter 위젯 바인딩 초기화
   WidgetsFlutterBinding.ensureInitialized();
+
+  // 환경변수 초기화
+  await EnvConfig.initialize();
 
   // 환경별 Firebase 초기화
   await _initializeFirebase();
@@ -64,6 +68,7 @@ class YouMRApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: _getAppTitle(),
       theme: AppTheme.lightTheme,
       home: const SplashPage(),

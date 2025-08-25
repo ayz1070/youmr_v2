@@ -39,6 +39,7 @@ mixin _$AdminUserDto {
   String? get profileImageUrl => throw _privateConstructorUsedError;
 
   /// 가입일(생성일)
+  @TimestampConverter()
   DateTime? get createdAt => throw _privateConstructorUsedError;
 
   /// Serializes this AdminUserDto to a JSON map.
@@ -64,7 +65,7 @@ abstract class $AdminUserDtoCopyWith<$Res> {
       String? email,
       String? userType,
       String? profileImageUrl,
-      DateTime? createdAt});
+      @TimestampConverter() DateTime? createdAt});
 }
 
 /// @nodoc
@@ -138,7 +139,7 @@ abstract class _$$AdminUserDtoImplCopyWith<$Res>
       String? email,
       String? userType,
       String? profileImageUrl,
-      DateTime? createdAt});
+      @TimestampConverter() DateTime? createdAt});
 }
 
 /// @nodoc
@@ -205,7 +206,7 @@ class _$AdminUserDtoImpl implements _AdminUserDto {
       this.email,
       this.userType,
       this.profileImageUrl,
-      this.createdAt});
+      @TimestampConverter() this.createdAt});
 
   factory _$AdminUserDtoImpl.fromJson(Map<String, dynamic> json) =>
       _$$AdminUserDtoImplFromJson(json);
@@ -236,6 +237,7 @@ class _$AdminUserDtoImpl implements _AdminUserDto {
 
   /// 가입일(생성일)
   @override
+  @TimestampConverter()
   final DateTime? createdAt;
 
   @override
@@ -290,7 +292,7 @@ abstract class _AdminUserDto implements AdminUserDto {
       final String? email,
       final String? userType,
       final String? profileImageUrl,
-      final DateTime? createdAt}) = _$AdminUserDtoImpl;
+      @TimestampConverter() final DateTime? createdAt}) = _$AdminUserDtoImpl;
 
   factory _AdminUserDto.fromJson(Map<String, dynamic> json) =
       _$AdminUserDtoImpl.fromJson;
@@ -321,6 +323,7 @@ abstract class _AdminUserDto implements AdminUserDto {
 
   /// 가입일(생성일)
   @override
+  @TimestampConverter()
   DateTime? get createdAt;
 
   /// Create a copy of AdminUserDto

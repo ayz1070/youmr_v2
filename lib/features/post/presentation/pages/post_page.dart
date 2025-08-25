@@ -138,6 +138,7 @@ class _PostPageState extends ConsumerState<PostPage> with SingleTickerProviderSt
                               ),
               ),
             ),
+            /// TODO 광고 연결 완료 시 배너 열기
             // 배너 광고
             const BannerAdWidget(),
           ],
@@ -145,4 +146,4 @@ class _PostPageState extends ConsumerState<PostPage> with SingleTickerProviderSt
       ),
     );
   }
-} 
+}
