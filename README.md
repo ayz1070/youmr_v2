@@ -1,6 +1,6 @@
-# YouMR v2 📱
+# YouMR 📱
 
-> Flutter 기반의 소셜 미디어 모바일 애플리케이션
+> Flutter 기반의 기타 동호회 여민락의 오프라인 모임과 온라인 콘텐츠를 연결하는 커뮤니티 플랫폼
 
 ![Flutter](https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white)
 ![Firebase](https://img.shields.io/badge/Firebase-039BE5?style=for-the-badge&logo=Firebase&logoColor=white)
@@ -8,7 +8,7 @@
 
 ## 📋 프로젝트 개요
 
-YouMR v2는 Clean Architecture와 현대적인 Flutter 개발 패턴을 적용한 소셜 미디어 모바일 애플리케이션입니다. 사용자들이 게시물을 공유하고, 투표에 참여하며, 출석 체크를 통해 커뮤니티 활동을 할 수 있는 플랫폼을 제공합니다.
+YouMR 은 Clean Architecture와 기타 동호회 여민락의 오프라인 모임과 온라인 콘텐츠를 연결하는 커뮤니티 서비스입니다. 사용자들이 게시물 및 연주 영상, 강의 영상을 공유하고, 투표에 참여하며, 출석 체크를 통해 온, 오프라인 커뮤니티 활동을 할 수 있는 플랫폼을 제공합니다.
 
 ### 🎯 주요 특징
 - **Clean Architecture** 적용으로 유지보수성과 확장성 확보
@@ -25,35 +25,30 @@ YouMR v2는 Clean Architecture와 현대적인 Flutter 개발 패턴을 적용�
 - 자동 로그인 및 세션 관리
 
 ### 📝 게시물 시스템
-- 텍스트, 이미지, 동영상 게시물 작성
+- 텍스트, 동영상 게시물 작성
 - YouTube 동영상 임베딩
-- 실시간 댓글 시스템
-- 게시물 좋아요/공유 기능
-
-### 🗳️ 투표 시스템
-- 다중 선택 투표 생성/참여
-- 실시간 투표 결과 확인
-- 투표 참여 이력 관리
+- 댓글 시스템
+- 게시물 좋아요 기능
 
 ### 📊 출석 체크
-- 일일 출석 체크 기능
-- 출석률 통계 및 분석
-- 출석 보상 시스템
+- 오프라인 회원의 연습실 출석 인원 파악
+
+### 🗳️ 신청곡 투표 시스템
+- 회원들이 원하는 곡을 등록하고 투표를 통해 선택함
+- 선택된 곡을 기반으로 영상 제작
 
 ### 🔔 알림 시스템
 - Firebase Cloud Messaging (FCM) 기반 푸시 알림
-- 로컬 알림 스케줄링
-- 알림 내역 관리
+- 회비 및 출석 체크에 대한 스케줄링된 알림 발송
 
 ### 👨‍💼 관리자 기능
 - 사용자 관리
-- 게시물 관리
-- 시스템 모니터링
+- 공지 등록
+- 커스텀 메시징 전달
 
 ### 💰 광고 시스템
 - Google AdMob 통합
-- 배너, 전면, 보상형 광고
-- 환경별 광고 설정
+- 배너 광고 도입
 
 ## 🏗️ 기술 스택
 
@@ -75,14 +70,12 @@ YouMR v2는 Clean Architecture와 현대적인 Flutter 개발 패턴을 적용�
 - **Architecture**: Clean Architecture
 - **Design Patterns**: Repository Pattern, Provider Pattern
 - **Code Generation**: Freezed, JsonSerializable, Riverpod Generator
-- **Testing**: Unit/Widget/Integration Testing with Mocktail
 
 ### Third-party Integrations
-- **Maps**: Naver Map SDK
 - **Video**: YouTube Player
 - **Ads**: Google AdMob
 - **Social Login**: Google Sign-In
-- **Local Storage**: Hive, SharedPreferences
+- **Local Storage**: SharedPreferences
 
 ## 📁 프로젝트 구조
 
@@ -128,146 +121,8 @@ features/{feature_name}/
     └── {feature_name}_module.dart # 의존성 주입
 ```
 
-## 🔧 개발 환경 설정
-
-### 1. 사전 요구사항
-- Flutter SDK 3.8.0+
-- Dart SDK 3.0.0+
-- Android Studio / VS Code
-- iOS 개발시 Xcode (macOS)
-
-### 2. 프로젝트 설정
-
-```bash
-# 레포지토리 클론
-git clone <repository-url>
-cd youmr_v2
-
-# 의존성 설치
-flutter pub get
-
-# 코드 생성
-dart run build_runner build
-```
-
-### 3. 환경변수 설정
-
-프로젝트 루트에 `.env` 파일을 생성:
-
-```bash
-# AdMob 환경변수 설정
-# 개발용 키값들 (테스트용)
-ADMOB_APPLICATION_ID_DEV=ca-app-pub-3940256099942544~3347511713
-ADMOB_BANNER_AD_UNIT_ID_DEV=ca-app-pub-3940256099942544/6300978111
-ADMOB_INTERSTITIAL_AD_UNIT_ID_DEV=ca-app-pub-3940256099942544/1033173712
-ADMOB_REWARDED_AD_UNIT_ID_DEV=ca-app-pub-3940256099942544/5224354917
-
-# 프로덕션용 키값들 (실제 배포용)
-ADMOB_APPLICATION_ID_PROD=YOUR_ACTUAL_APPLICATION_ID
-ADMOB_BANNER_AD_UNIT_ID_PROD=YOUR_BANNER_AD_UNIT_ID
-ADMOB_INTERSTITIAL_AD_UNIT_ID_PROD=YOUR_INTERSTITIAL_AD_UNIT_ID
-ADMOB_REWARDED_AD_UNIT_ID_PROD=YOUR_REWARDED_AD_UNIT_ID
-```
-
-### 4. Firebase 설정
-1. Firebase Console에서 프로젝트 생성
-2. Android/iOS 앱 추가
-3. `google-services.json` (Android) 및 `GoogleService-Info.plist` (iOS) 다운로드
-4. 각 환경별 Firebase 설정 파일 배치
-
-### 5. 실행
-
-```bash
-# 개발 환경 실행
-./scripts/run_dev.sh
-
-# 테스트 환경 실행
-./scripts/run_test.sh
-
-# 프로덕션 환경 실행
-./scripts/run_prod.sh
-```
-
-## 🚀 배포
-
-### Android
-```bash
-# APK 빌드
-flutter build apk --release
-
-# AAB 빌드 (Google Play Store)
-flutter build appbundle --release
-```
-
-### iOS
-```bash
-# iOS 빌드
-flutter build ios --release
-```
-
-## 🧪 테스트
-
-```bash
-# 단위 테스트 실행
-flutter test
-
-# 통합 테스트 실행
-flutter test integration_test/
-
-# 코드 커버리지 확인
-flutter test --coverage
-```
-
-## 📊 아키텍처 특징
-
-### Clean Architecture 적용
-- **Domain Layer**: 비즈니스 로직과 엔티티
-- **Data Layer**: 데이터 소스와 Repository 구현
-- **Presentation Layer**: UI와 상태 관리
-
-### 의존성 역전 원칙
-- 인터페이스 기반 설계
-- 테스트 가능한 구조
-- 모듈 간 결합도 최소화
-
-### 반응형 상태 관리
-- Riverpod을 통한 선언적 상태 관리
-- 비동기 데이터 처리 최적화
-- 메모리 효율적 상태 업데이트
-
-## 🔐 보안
-
-### 데이터 보안
-- Firebase Security Rules 적용
-- 환경변수를 통한 API 키 관리
-- 사용자 권한 기반 데이터 접근 제어
-
-### 코드 보안
-- API 키 하드코딩 방지
-- ProGuard/R8을 통한 코드 난독화
-- 민감 정보 로컬 저장 시 암호화
-
-## 📈 성능 최적화
-
-### 이미지 최적화
-- 이미지 압축 및 리사이징
-- 캐시를 통한 네트워크 요청 최소화
-- 지연 로딩 구현
-
-### 메모리 관리
-- 위젯 생명주기 최적화
-- 불필요한 리빌드 방지
-- 메모리 누수 방지
-
-### 네트워크 최적화
-- Firebase Offline Persistence
-- 배치 처리를 통한 API 호출 최적화
-- 실시간 리스너 효율적 관리
-
 ## 🚧 향후 개발 계획
 
-- [ ] 다크 모드 지원
-- [ ] 다국어 지원 (i18n)
 - [ ] 웹 플랫폼 지원
 - [ ] AI 기반 콘텐츠 추천
 - [ ] 실시간 채팅 기능
@@ -291,26 +146,10 @@ flutter test --coverage
 - 접근성을 고려한 UI/UX 설계
 - 실시간 데이터 동기화를 통한 반응성 향상
 
-## 👥 기여
 
-프로젝트에 기여를 원하신다면:
+## 📞Contact
 
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
-
-## 📄 라이선스
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 📞 연락처
-
-- **개발자**: YouMR 개발팀
-- **위치**: 서울 도봉구 도당로29길 66
-- **이메일**: [연락처 추가 필요]
+- **이메일**: ayz1070@gmail.com
 
 ---
 
-**Made with ❤️ using Flutter**
