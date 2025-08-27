@@ -49,6 +49,7 @@ firebase.json
 lib/firebase_options.dart
 lib/firebase_options_dev.dart.dart
 lib/firebase_options_test.dart
+
 .storage.rules
 pglite-debug.log
 .metadata
