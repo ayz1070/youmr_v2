@@ -12,7 +12,6 @@ import '../../../auth/presentation/pages/onboarding_page.dart';
 import '../../../auth/presentation/pages/profile_setup_page.dart';
 import '../../../auth/presentation/pages/login_page.dart';
 import '../../../notification/presentation/pages/notification_settings_page.dart';
-import '../../../policy/presentation/pages/terms_of_service_page.dart';
 import '../../../../core/widgets/app_dialog.dart';
 
 /// 프로필 탭 페이지 (Provider 기반)
@@ -214,12 +213,34 @@ class ProfilePage extends ConsumerWidget {
                       ),
                       _buildMenuItem(
                         title: '이용약관',
-                        onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => const TermsOfServicePage(),
-                            ),
-                          );
+                        onTap: () async {
+                          final Uri url = Uri.parse(AppUrls.termsOfService);
+                          try {
+                            if (await canLaunchUrl(url)) {
+                              await launchUrl(
+                                url,
+                                mode: LaunchMode.externalApplication,
+                              );
+                            } else {
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('링크를 열 수 없습니다.'),
+                                    duration: Duration(seconds: 2),
+                                  ),
+                                );
+                              }
+                            }
+                          } catch (e) {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('오류가 발생했습니다: ${e.toString()}'),
+                                  duration: Duration(seconds: 2),
+                                ),
+                              );
+                            }
+                          }
                         },
                       ),
                       _buildMenuItem(
