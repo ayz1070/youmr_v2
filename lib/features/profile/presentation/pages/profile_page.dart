@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:youmr_v2/core/constants/app_urls.dart';
 import 'package:youmr_v2/features/admin/presentation/pages/admin_page.dart';
 import '../../../../core/widgets/primary_app_bar.dart';
 import '../../di/profile_module.dart';
@@ -11,7 +12,6 @@ import '../../../auth/presentation/pages/onboarding_page.dart';
 import '../../../auth/presentation/pages/profile_setup_page.dart';
 import '../../../auth/presentation/pages/login_page.dart';
 import '../../../notification/presentation/pages/notification_settings_page.dart';
-import '../../../policy/presentation/pages/privacy_policy_page.dart';
 import '../../../policy/presentation/pages/terms_of_service_page.dart';
 import '../../../../core/widgets/app_dialog.dart';
 
@@ -182,12 +182,34 @@ class ProfilePage extends ConsumerWidget {
                       ),
                       _buildMenuItem(
                         title: '개인정보처리방침',
-                        onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => const PrivacyPolicyPage(),
-                            ),
-                          );
+                        onTap: () async {
+                          final Uri url = Uri.parse(AppUrls.privacyPolicy);
+                          try {
+                            if (await canLaunchUrl(url)) {
+                              await launchUrl(
+                                url,
+                                mode: LaunchMode.externalApplication,
+                              );
+                            } else {
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('링크를 열 수 없습니다.'),
+                                    duration: Duration(seconds: 2),
+                                  ),
+                                );
+                              }
+                            }
+                          } catch (e) {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('오류가 발생했습니다: ${e.toString()}'),
+                                  duration: Duration(seconds: 2),
+                                ),
+                              );
+                            }
+                          }
                         },
                       ),
                       _buildMenuItem(
