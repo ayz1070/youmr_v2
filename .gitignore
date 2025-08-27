@@ -47,7 +47,7 @@ app.*.map.json
 # Flutter/Android/iOS 민감 정보 및 빌드 산출물
 firebase.json
 lib/firebase_options.dart
-lib/firebase_options_dev.dart
+lib/firebase_options_dev.dart.dart
 lib/firebase_options_test.dart
 
 .storage.rules
@@ -88,3 +88,9 @@ xcuserdata/
 # 기타
 *.log
 *.iml
+
+# 환경변수 파일 (실제 .env는 git에 포함하지 않음)
+.env
+
+# Android 개인 설정 파일
+android/local.properties

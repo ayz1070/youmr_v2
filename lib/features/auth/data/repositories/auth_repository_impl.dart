@@ -56,9 +56,10 @@ class AuthRepositoryImpl implements AuthRepository {
       String userNickname = user.displayName ?? '';
       String? userName;
       String? userProfileImageUrl = user.photoURL;
+      UserResponseDto? latestUserDoc;
       
       try {
-        final UserResponseDto? latestUserDoc = await dataSource.fetchUserProfile(uid: user.uid);
+        latestUserDoc = await dataSource.fetchUserProfile(uid: user.uid);
         if (latestUserDoc != null) {
           userNickname = latestUserDoc.nickname;
           userName = latestUserDoc.name;
@@ -75,13 +76,13 @@ class AuthRepositoryImpl implements AuthRepository {
         nickname: userNickname,
         name: userName,
         profileImageUrl: userProfileImageUrl,
-        userType: '', // 빈 문자열로 설정하여 프로필 미완성 상태로 인식
-        dayOfWeek: '',
-        fcmToken: '',
-        pick: 0, // 신규 사용자는 피크 0개로 시작
-        lastPickDate: null, // 신규 사용자는 피크 획득 이력 없음
-        createdAt: null,
-        updatedAt: null,
+        userType: latestUserDoc?.userType ?? '', // Firestore 데이터 사용, 없으면 빈 문자열
+        dayOfWeek: latestUserDoc?.dayOfWeek ?? '',
+        fcmToken: latestUserDoc?.fcmToken ?? '',
+        pick: latestUserDoc?.pick ?? 0, // Firestore 데이터 사용, 없으면 0
+        lastPickDate: latestUserDoc?.lastPickDate,
+        createdAt: latestUserDoc?.createdAt,
+        updatedAt: latestUserDoc?.updatedAt,
       ));
     } catch (e, st) {
       AppLogger.e('구글 로그인 실패', error: e, stackTrace: st);

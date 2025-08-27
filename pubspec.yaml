@@ -44,6 +44,9 @@ dependencies:
   
   # AdMob 관련 의존성
   google_mobile_ads: ^6.0.0
+  
+  # 환경변수 관리
+  flutter_dotenv: ^6.0.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -64,6 +67,7 @@ flutter:
   assets:
     - assets/images/
     - assets/icons/
+    - .env
 
 # Flutter 런처 아이콘 설정
 flutter_icons:

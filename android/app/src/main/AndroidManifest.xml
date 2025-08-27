@@ -12,10 +12,10 @@
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
 
-        <!-- AdMob Application ID 추가 -->
+        <!-- AdMob Application ID (BuildConfig에서 환경별로 설정) -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-6067395853079938~1077730566"/>
+            android:value="${ADMOB_APPLICATION_ID}"/>
 
         <activity
             android:name=".MainActivity"

@@ -9,6 +9,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:youmr_v2/core/widgets/primary_app_bar.dart';
 import 'package:youmr_v2/core/widgets/app_error_view.dart';
 import 'package:youmr_v2/core/widgets/app_loading_view.dart';
+import 'package:youmr_v2/features/attendance/presentation/widgets/attendance_banner_ad_widget.dart';
 import 'package:youmr_v2/core/constants/error_messages.dart';
 import '../providers/notifier/attendance_notifier.dart';
 import '../providers/state/attendance_state.dart';
@@ -92,6 +93,11 @@ class AttendancePage extends ConsumerWidget {
               ),
             );
           },
+        ),
+        // 출석 체크 목록 하단에 출석 전용 배너 광고 추가
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+          child: AttendanceBannerAdWidget(),
         ),
       ],
     );

@@ -11,6 +11,8 @@ import '../../../auth/presentation/pages/onboarding_page.dart';
 import '../../../auth/presentation/pages/profile_setup_page.dart';
 import '../../../auth/presentation/pages/login_page.dart';
 import '../../../notification/presentation/pages/notification_settings_page.dart';
+import '../../../policy/presentation/pages/privacy_policy_page.dart';
+import '../../../policy/presentation/pages/terms_of_service_page.dart';
 import '../../../../core/widgets/app_dialog.dart';
 
 /// 프로필 탭 페이지 (Provider 기반)
@@ -174,6 +176,26 @@ class ProfilePage extends ConsumerWidget {
                           Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (_) => const ProfileEditPage(),
+                            ),
+                          );
+                        },
+                      ),
+                      _buildMenuItem(
+                        title: '개인정보처리방침',
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => const PrivacyPolicyPage(),
+                            ),
+                          );
+                        },
+                      ),
+                      _buildMenuItem(
+                        title: '이용약관',
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => const TermsOfServicePage(),
                             ),
                           );
                         },
