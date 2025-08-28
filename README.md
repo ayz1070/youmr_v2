@@ -23,6 +23,9 @@
 
 
 
+
+
+
 ## 공식 유튜브
 
 [![YouMR 공식 유튜브 채널](https://img.youtube.com/vi/YOUR_VIDEO_ID/0.jpg)](https://www.youtube.com/@YouMRTheMusic)
@@ -33,19 +36,25 @@
 <table>
   <tr>
     <td align="center">
-      <b>스플래시</b><br>
-      <img src="https://via.placeholder.com/200x400/4285f4/ffffff?text=Splash" alt="스플래시 화면" width="180"/>
+      <b>스플래쉬</b><br>
       <br>
-      앱 시작 화면
+      <img width="150" height="" alt="splash_1" src="https://github.com/user-attachments/assets/b72c740f-98ed-4bc1-bdaf-3519de52ad33" />
+      <img width="150" height="" alt="splash_2" src="https://github.com/user-attachments/assets/ea85deea-96ae-49bd-a314-fb7e4cfff7e1" />
+      <br>
     </td>
     <td align="center">
       <b>로그인</b><br>
-      <img src="https://via.placeholder.com/200x400/34a853/ffffff?text=Login" alt="로그인 화면" width="180"/>
+      <img src="https://github.com/user-attachments/assets/8f1b9473-cf71-4c83-8f7f-ad857f2df374" alt="로그인 화면" width="150"/>
+      <img width="150" height="" alt="login_1" src="https://github.com/user-attachments/assets/ea85deea-96ae-49bd-a314-fb7e4cfff7e1" />
       <br>
-      Google 소셜 로그인
     </td>
     <td align="center">
-      <b>홈 (메인)</b><br>
+      <b>커뮤니티</b><br>
+      <img src="https://github.com/user-attachments/assets/45918c1e-f241-4711-9cbd-68ac2f78a3ab" alt="post_1" width="150"/>
+      <img src="https://github.com/user-attachments/assets/1967161d-536a-4c9a-be8a-b2b1e2328f43"alt="post_2" width="150"/>
+      <img src="https://github.com/user-attachments/assets/8f1b9473-cf71-4c83-8f7f-ad857f2df374" alt="로그인 화면" width="150"/>
+
+      
       <img src="https://via.placeholder.com/200x400/ea4335/ffffff?text=Home" alt="홈 화면" width="180"/>
       <br>
       메인 대시보드
