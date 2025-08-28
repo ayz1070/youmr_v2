@@ -1,13 +1,27 @@
-# (기타 이모지) YouMR 
-> Flutter 기반의 기타 동호회 여민락의 오프라인 모임과 온라인 콘텐츠를 연결하는 커뮤니티 플랫폼
+# YouMR 
+> 우리의 연주가 콘텐츠가 되는 곳, 음악 커뮤니티 YouMR
+
+<img width="1024" height="500" alt="youmr_graphic" src="https://github.com/user-attachments/assets/946cd8d5-d06b-4ada-becb-c9f080ea3632" />
+
+
 
 ![Flutter](https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white)
 ![Firebase](https://img.shields.io/badge/Firebase-039BE5?style=for-the-badge&logo=Firebase&logoColor=white)
 ![Dart](https://img.shields.io/badge/Dart-0175C2?style=for-the-badge&logo=dart&logoColor=white)
 
-## 프로젝트 설명
+## 프로젝트 소개
 
-YouMR은 기타 동호회 여민락의 오프라인 모임과 온라인 콘텐츠를 연결하는 커뮤니티 서비스입니다. 사용자들이 게시물 및 연주 영상, 강의 영상을 공유하고, 투표에 참여하며, 출석 체크를 통해 온, 오프라인 커뮤니티 활동을 할 수 있는 플랫폼을 제공합니다.
+> YouMR은 기타 동호회 여민락의 오프라인 모임과 온라인 콘텐츠를 연결하는 커뮤니티 서비스입니다. 사용자들이 게시물 및 연주 영상, 강의 영상을 공유하고, 투표에 참여하며, 출석 체크를 통해 온, 오프라인 커뮤니티 활동을 할 수 있는 플랫폼을 제공합니다.
+
+
+<img width="150" height="" alt="SC 13" src="https://github.com/user-attachments/assets/da7de366-93c8-422c-aeec-d15c668ba7bc" />
+<img width="150" height="" alt="SC 14" src="https://github.com/user-attachments/assets/1383dfad-ba19-4ff3-b8ac-af98d54bf015" />
+<img width="150" height="" alt="SC 15" src="https://github.com/user-attachments/assets/ae169494-e1ec-4060-b50c-972a632fea46" />
+<img width="150" height="" alt="SC 16" src="https://github.com/user-attachments/assets/a2c88d77-0962-4665-9ef4-4aa59a1264d5" />
+<img width="150" height="" alt="SC 17" src="https://github.com/user-attachments/assets/b20c67f9-f6a9-4411-b20f-5e5a84b48d04" />
+<img width="150" height="" alt="SC 18" src="https://github.com/user-attachments/assets/f9a47ec6-5e69-49d4-85d1-efe4d48a96d3" />
+
+
 
 ## 공식 유튜브
 
