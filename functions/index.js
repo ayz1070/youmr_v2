@@ -747,28 +747,26 @@ exports.sendAttendanceReminderNotification = onSchedule({
       .collection('users')
       .where('dayOfWeek', '==', tomorrowDayName)
       .get();
-    
-    // dayOfWeek 필드가 없는 admin과 offline_member 사용자들도 조회
-    const usersWithoutDayOfWeek = await db
+
+    // admin과 offline_member 사용자들도 조회
+    const specialUsers = await db
       .collection('users')
       .where('userType', 'in', ['admin', 'offline_member'])
       .get();
-    
+
     // 두 결과를 합치고 중복 제거
     const allUsers = new Map();
-    
+
     // dayOfWeek가 설정된 사용자들 추가
     dayOfWeekUsers.docs.forEach(doc => {
       allUsers.set(doc.id, doc);
     });
-    
-    // dayOfWeek가 없는 admin/offline_member 사용자들 추가
-    usersWithoutDayOfWeek.docs.forEach(doc => {
-      const userData = doc.data();
-      if (!userData.dayOfWeek) {
-        allUsers.set(doc.id, doc);
-      }
+
+    // admin/offline_member 사용자들 추가 (중복 시 덮어쓰기)
+    specialUsers.docs.forEach(doc => {
+      allUsers.set(doc.id, doc);
     });
+
     
     // Map의 값들을 배열로 변환
     const userSnapshot = {
@@ -971,36 +969,31 @@ exports.sendManualAttendanceNotification = onRequest(async (req, res) => {
       console.log('테스트 모드: 모든 사용자에게 전송');
       userSnapshot = await db.collection('users').get();
     } else {
-      // 해당 요일에 맞는 사용자들 조회 (dayOfWeek 필드 기준)
-      console.log(`${dayOfWeek}요일 사용자 조회 (dayOfWeek 필드 기준)`);
-      
       // 해당 요일에 맞는 사용자들 조회
       const dayOfWeekUsers = await db
         .collection('users')
         .where('dayOfWeek', '==', dayOfWeek)
         .get();
-      
-      // dayOfWeek 필드가 없는 admin과 offline_member 사용자들도 조회
-      const usersWithoutDayOfWeek = await db
+
+      // admin과 offline_member 사용자들도 조회
+      const specialUsers = await db
         .collection('users')
         .where('userType', 'in', ['admin', 'offline_member'])
         .get();
-      
+
       // 두 결과를 합치고 중복 제거
       const allUsers = new Map();
-      
+
       // dayOfWeek가 설정된 사용자들 추가
       dayOfWeekUsers.docs.forEach(doc => {
         allUsers.set(doc.id, doc);
       });
-      
-      // dayOfWeek가 없는 admin/offline_member 사용자들 추가
-      usersWithoutDayOfWeek.docs.forEach(doc => {
-        const userData = doc.data();
-        if (!userData.dayOfWeek) {
-          allUsers.set(doc.id, doc);
-        }
+
+      // admin/offline_member 사용자들 추가 (중복 시 덮어쓰기)
+      specialUsers.docs.forEach(doc => {
+        allUsers.set(doc.id, doc);
       });
+
       
       // Map의 값들을 배열로 변환
       userSnapshot = {
