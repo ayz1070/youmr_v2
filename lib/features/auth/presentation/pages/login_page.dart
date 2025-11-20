@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:youmr_v2/features/auth/presentation/pages/profile_setup_page.dart';
+import '../../../../core/constants/app_logger.dart';
+import '../../../main/presentation/pages/main_navigation_page.dart';
 import '../../di/auth_module.dart';
 import '../providers/notifier/auth_notifier.dart';
 import 'splash_page.dart';
@@ -15,12 +18,22 @@ class LoginPage extends ConsumerWidget {
     final authState = ref.watch(authProvider);
     // 상태 변화 리스너: 로그인 성공/실패 분기
     ref.listen(authProvider, (previous, next) {
-      // 로그인 성공 시 SplashPage로 이동
+      // 로그인 성공 시 프로필 완성도에 따라 직접 분기
       if (next is AsyncData && next.value != null) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const SplashPage()),
-        );
+        final user = next.value!;
+        if (user.userType != null && user.userType!.trim().isNotEmpty) {
+          // 프로필 완성 → 메인 페이지로 이동
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (_) => const MainNavigationPage()),
+          );
+        } else {
+          // 프로필 미완성 → 프로필 설정 페이지로 이동
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (_) => const ProfileSetupPage()),
+          );
+        }
       }
+
       // 에러 발생 시 스낵바 표시 (실제 앱에서는 AppErrorView 등 공통 위젯 사용 권장)
       if (next is AsyncError) {
         final error = next.error;
@@ -66,7 +79,7 @@ class LoginPage extends ConsumerWidget {
                     elevation: 2,
                     child: InkWell(
                       onTap: () {
-                        // 구글 로그인 액션
+                        // 구글 로그인 액션 (ref.listen에서 성공/실패 처리)
                         ref.read(authProvider.notifier).signInWithGoogle();
                       },
                       child: Container(

@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 /// 날짜 관련 유틸리티 클래스
 class AppDateUtils {
   /// weekKey(예: '2025-07-07~2025-07-13')를 '7월 7일~7월 13일'로 가공
@@ -27,4 +29,14 @@ class AppDateUtils {
         '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
     return '${format(start)}~${format(end)}';
   }
-} 
+
+  /// Firestore Timestamp 변환 헬퍼 함수들
+  static DateTime? timestampFromJson(dynamic timestamp) {
+    if (timestamp is Timestamp) {
+      return timestamp.toDate();
+    }
+    return null;
+  }
+
+}
+

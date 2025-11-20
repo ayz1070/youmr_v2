@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:youmr_v2/core/constants/app_logger.dart';
 import 'package:youmr_v2/core/constants/firestore_constants.dart';
 
 /// 관리자/회원 Firestore 데이터 소스
@@ -22,7 +23,12 @@ class AdminUserFirestoreDataSource {
         .collection(FirestoreConstants.usersCollection)
         .orderBy(FirestoreConstants.createdAt, descending: true)
         .get();
-    return snap.docs.map((d) => d.data()).toList();
+
+    final users = snap.docs.map((d) => d.data()).toList();
+
+    AppLogger.i("Admin fetchAllUsers : ${users}");
+
+    return users;
   }
 
   /// 회원 권한 변경

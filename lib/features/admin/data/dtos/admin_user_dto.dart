@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../domain/entities/admin_user.dart';
 
 part 'admin_user_dto.freezed.dart';
@@ -26,7 +27,7 @@ class AdminUserDto with _$AdminUserDto {
     /// 프로필 이미지 URL
     String? profileImageUrl,
     /// 가입일(생성일)
-    DateTime? createdAt,
+    @TimestampConverter() DateTime? createdAt,
   }) = _AdminUserDto;
 
   /// JSON → DTO 변환
@@ -56,4 +57,23 @@ extension AdminUserDtoX on AdminUserDto {
     profileImageUrl: profileImageUrl ?? '',
     createdAt: createdAt ?? DateTime.now(),
   );
-} 
+}
+
+
+/// Firestore Timestamp를 DateTime으로 변환하는 컨버터
+class TimestampConverter implements JsonConverter<DateTime?, Object?> {
+  const TimestampConverter();
+
+  @override
+  DateTime? fromJson(Object? json) {
+    if (json == null) return null;
+    if (json is Timestamp) return json.toDate();
+    if (json is String) return DateTime.tryParse(json);
+    return null;
+  }
+
+  @override
+  Object? toJson(DateTime? object) {
+    return object != null ? Timestamp.fromDate(object) : null;
+  }
+}

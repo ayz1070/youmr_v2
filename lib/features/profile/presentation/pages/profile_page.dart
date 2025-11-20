@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:youmr_v2/core/constants/app_urls.dart';
 import 'package:youmr_v2/features/admin/presentation/pages/admin_page.dart';
 import '../../../../core/widgets/primary_app_bar.dart';
 import '../../di/profile_module.dart';
@@ -176,6 +177,70 @@ class ProfilePage extends ConsumerWidget {
                               builder: (_) => const ProfileEditPage(),
                             ),
                           );
+                        },
+                      ),
+                      _buildMenuItem(
+                        title: '개인정보처리방침',
+                        onTap: () async {
+                          final Uri url = Uri.parse(AppUrls.privacyPolicy);
+                          try {
+                            if (await canLaunchUrl(url)) {
+                              await launchUrl(
+                                url,
+                                mode: LaunchMode.externalApplication,
+                              );
+                            } else {
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('링크를 열 수 없습니다.'),
+                                    duration: Duration(seconds: 2),
+                                  ),
+                                );
+                              }
+                            }
+                          } catch (e) {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('오류가 발생했습니다: ${e.toString()}'),
+                                  duration: Duration(seconds: 2),
+                                ),
+                              );
+                            }
+                          }
+                        },
+                      ),
+                      _buildMenuItem(
+                        title: '이용약관',
+                        onTap: () async {
+                          final Uri url = Uri.parse(AppUrls.termsOfService);
+                          try {
+                            if (await canLaunchUrl(url)) {
+                              await launchUrl(
+                                url,
+                                mode: LaunchMode.externalApplication,
+                              );
+                            } else {
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('링크를 열 수 없습니다.'),
+                                    duration: Duration(seconds: 2),
+                                  ),
+                                );
+                              }
+                            }
+                          } catch (e) {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('오류가 발생했습니다: ${e.toString()}'),
+                                  duration: Duration(seconds: 2),
+                                ),
+                              );
+                            }
+                          }
                         },
                       ),
                       _buildMenuItem(

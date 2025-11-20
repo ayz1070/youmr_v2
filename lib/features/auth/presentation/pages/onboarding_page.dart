@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/utils/onboarding_utils.dart';
+import '../../../../core/constants/app_logger.dart';
 import '../../../main/presentation/pages/main_navigation_page.dart';
 import 'onboarding/onboarding_chat_page.dart';
 import 'onboarding/onboarding_greeting_page.dart';
@@ -50,12 +51,10 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
     // 온보딩 완료 상태 저장
     await OnboardingUtils.setOnboardingCompleted(true);
     
-    // context를 로컬 변수에 저장하여 async gap 문제 해결
-    final currentContext = context;
-    
     // 온보딩 완료 후 메인 페이지로 이동
-    if (currentContext.mounted) {
-      Navigator.of(currentContext).pushReplacement(
+    if (mounted) {
+      AppLogger.i('온보딩 완료 → 메인 페이지로 이동');
+      Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => const MainNavigationPage()),
       );
     }

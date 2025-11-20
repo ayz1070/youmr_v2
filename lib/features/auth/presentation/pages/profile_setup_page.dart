@@ -150,20 +150,27 @@ class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage> {
   @override
   Widget build(BuildContext context) {
     // 인증 상태 구독
-    final authState = ref.watch(authProvider);
+    final authState = ref.read(authProvider);
     
     // 상태 변화 리스너: 저장 성공/실패 분기
     ref.listen(authProvider, (previous, next) {
-      // 저장 성공 시 온보딩 여부 확인 후 분기
-      if (previous?.isLoading == true && next is AsyncData) {
-        // async 작업을 별도 함수로 분리하여 BuildContext 문제 해결
-        _handleProfileSaveSuccess();
-      }
       // 에러 발생 시 스낵바 표시
       if (next is AsyncError) {
         final error = next.error;
         if (context.mounted) {
           AppSnackbar.showError(context, '${ProfileSetupConstants.profileSaveFailed}${error.toString()}');
+        }
+      }
+      // 프로필 저장 성공 시 메인 페이지로 이동
+      else if (next is AsyncData && next.value != null) {
+        final user = next.value!;
+        // 프로필이 완성되었는지 확인 (userType이 설정되어 있으면 완성)
+        if (user.userType != null && user.userType!.trim().isNotEmpty) {
+          if (context.mounted) {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (_) => const MainNavigationPage()),
+            );
+          }
         }
       }
     });
@@ -205,27 +212,6 @@ class _ProfileSetupPageState extends ConsumerState<ProfileSetupPage> {
     );
   }
 
-  /// 프로필 저장 성공 처리
-  Future<void> _handleProfileSaveSuccess() async {
-    // 프로필 설정 완료 후 온보딩 완료 여부에 따라 분기
-    final isOnboardingCompleted = await OnboardingUtils.isOnboardingCompleted();
-    
-    if (mounted) {
-      if (isOnboardingCompleted) {
-        // 온보딩 완료된 경우 메인 페이지로 이동
-        AppLogger.i('프로필 설정 완료, 온보딩 완료 → 메인 페이지로 이동');
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const MainNavigationPage()),
-        );
-      } else {
-        // 온보딩이 필요한 경우 온보딩 페이지로 이동
-        AppLogger.i('프로필 설정 완료, 온보딩 필요 → 온보딩 페이지로 이동');
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const OnboardingPage()),
-        );
-      }
-    }
-  }
 
   @override
   void dispose() {

@@ -14,9 +14,7 @@ _$AdminUserDtoImpl _$$AdminUserDtoImplFromJson(Map<String, dynamic> json) =>
       email: json['email'] as String?,
       userType: json['userType'] as String?,
       profileImageUrl: json['profileImageUrl'] as String?,
-      createdAt: json['createdAt'] == null
-          ? null
-          : DateTime.parse(json['createdAt'] as String),
+      createdAt: const TimestampConverter().fromJson(json['createdAt']),
     );
 
 Map<String, dynamic> _$$AdminUserDtoImplToJson(_$AdminUserDtoImpl instance) =>
@@ -27,5 +25,5 @@ Map<String, dynamic> _$$AdminUserDtoImplToJson(_$AdminUserDtoImpl instance) =>
       'email': instance.email,
       'userType': instance.userType,
       'profileImageUrl': instance.profileImageUrl,
-      'createdAt': instance.createdAt?.toIso8601String(),
+      'createdAt': const TimestampConverter().toJson(instance.createdAt),
     };
