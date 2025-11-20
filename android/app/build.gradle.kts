@@ -1,6 +1,15 @@
 import java.util.Properties
 import java.io.FileInputStream
 
+
+val localProps = Properties()
+val localPropsFile = rootProject.file("local.properties")
+if (localPropsFile.exists()) {
+    localProps.load(FileInputStream(localPropsFile))
+}
+val admobAppIdDev = localProps.getProperty("ADMOB_APPLICATION_ID_DEV") ?: ""
+val admobAppIdProd = localProps.getProperty("ADMOB_APPLICATION_ID_PROD") ?: ""
+
 plugins {
     id("com.android.application")
     // START: FlutterFire Configuration
@@ -58,25 +67,29 @@ android {
 
     buildTypes {
         debug {
-            manifestPlaceholders["ADMOB_APPLICATION_ID"] =
-                project.findProperty("ADMOB_APPLICATION_ID_DEV")
-                    ?: throw GradleException("ADMOB_APPLICATION_ID_DEV not set in local.properties")
-
+            if (admobAppIdDev.isBlank()) {
+                throw GradleException("ADMOB_APPLICATION_ID_DEV not set in local.properties")
+            }
+            manifestPlaceholders["ADMOB_APPLICATION_ID"] = admobAppIdDev
         }
         release {
             signingConfig = if (keystorePropertiesFile.exists()) {
                 signingConfigs.getByName("release")
             } else {
-                signingConfigs.getByName("debug") // 로컬 개발용 fallback
+                signingConfigs.getByName("debug")
             }
-            manifestPlaceholders["ADMOB_APPLICATION_ID"] =
-                project.findProperty("ADMOB_APPLICATION_ID_PROD")
-                    ?: throw GradleException("ADMOB_APPLICATION_ID_PROD not set in local.properties")
-            
-            // 프로덕션 최적화 설정
+
+            if (admobAppIdProd.isBlank()) {
+                throw GradleException("ADMOB_APPLICATION_ID_PROD not set in local.properties")
+            }
+            manifestPlaceholders["ADMOB_APPLICATION_ID"] = admobAppIdProd
+
             isMinifyEnabled = true
             isShrinkResources = true
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
 }
@@ -88,3 +101,5 @@ dependencies {
 flutter {
     source = "../.."
 }
+
+
