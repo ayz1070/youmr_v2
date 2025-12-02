@@ -1,3 +1,5 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -23,6 +25,12 @@ void main() async {
   // 환경별 Firebase 초기화
   await _initializeFirebase();
 
+  // FirebaseCrashlytics 초기화
+  await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
+
+  // FirebaseAnalytics 초기화
+  await FirebaseAnalytics.instance.logAppOpen();
+
   // Hive 초기화
   await NotificationHiveDataSource.initialize();
 
@@ -47,12 +55,14 @@ Future<void> _initializeFirebase() async {
   try {
     // 현재 환경 정보 로그 출력
     FirebaseConfig.logCurrentEnvironment();
-    
+
     final options = FirebaseConfig.currentOptions;
     
     AppLogger.i('🚀 Firebase 초기화 시작...');
     
     await Firebase.initializeApp(options: options);
+
+    FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
 
     AppLogger.i('Firebase 초기화 완료');
   } catch (e) {

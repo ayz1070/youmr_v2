@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../domain/entities/auth_user.dart';
@@ -87,14 +88,18 @@ class AuthNotifier extends StateNotifier<AsyncValue<AuthUser?>> {
       final result = await _signInWithGoogle();
       result.fold(
         (failure) {
-          state = AsyncValue.error(failure, StackTrace.current);
+          final stackTrace = StackTrace.current;
+          unawaited(_recordLoginFailure(failure, stackTrace));
+          state = AsyncValue.error(failure, stackTrace);
         },
         (user) {
           state = AsyncValue.data(user);
         },
       );
     } catch (e) {
-      state = AsyncValue.error(e, StackTrace.current);
+      final stackTrace = StackTrace.current;
+      unawaited(_recordLoginFailure(e, stackTrace));
+      state = AsyncValue.error(e, stackTrace);
     }
   }
 
@@ -260,4 +265,21 @@ class AuthNotifier extends StateNotifier<AsyncValue<AuthUser?>> {
       state = AsyncValue.data(updatedUser);
     }
   }
-} 
+
+  /// 로그인 실패 정보를 Crashlytics에 보고
+  Future<void> _recordLoginFailure(
+    Object error,
+    StackTrace stackTrace,
+  ) async {
+    try {
+      await FirebaseCrashlytics.instance.recordError(
+        error,
+        stackTrace,
+        reason: 'Google 로그인 실패',
+        fatal: false,
+      );
+    } catch (e) {
+      debugPrint('Crashlytics 기록 실패: $e');
+    }
+  }
+}
