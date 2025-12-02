@@ -1,3 +1,4 @@
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:youmr_v2/features/auth/presentation/pages/profile_setup_page.dart';
@@ -80,6 +81,7 @@ class LoginPage extends ConsumerWidget {
                     child: InkWell(
                       onTap: () {
                         // 구글 로그인 액션 (ref.listen에서 성공/실패 처리)
+                        FirebaseCrashlytics.instance.log("구글 로그인 시도");
                         ref.read(authProvider.notifier).signInWithGoogle();
                       },
                       child: Container(

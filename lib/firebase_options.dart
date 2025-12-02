@@ -70,6 +70,9 @@ class DefaultFirebaseOptions {
     messagingSenderId: '756931774464',
     projectId: 'youmr-v2',
     storageBucket: 'youmr-v2.firebasestorage.app',
+    androidClientId: '756931774464-2qgsifaut0q7o090859eb8r4u3e8k78q.apps.googleusercontent.com',
+    iosClientId: '756931774464-tf362vuia4s44ra4snltp86ke9a99vq5.apps.googleusercontent.com',
     iosBundleId: 'com.youmr.youmrV2',
   );
+
 }
