@@ -94,3 +94,4 @@ xcuserdata/
 
 # Android 개인 설정 파일
 android/local.properties
+/lib/firebase_options_dev.dart

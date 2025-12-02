@@ -47,6 +47,10 @@ dependencies:
   
   # 환경변수 관리
   flutter_dotenv: ^6.0.0
+
+  firebase_crashlytics: ^4.3.10
+  firebase_analytics: ^11.6.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
