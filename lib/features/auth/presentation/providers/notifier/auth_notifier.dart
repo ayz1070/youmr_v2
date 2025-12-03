@@ -49,27 +49,27 @@ class AuthNotifier extends StateNotifier<AsyncValue<AuthUser?>> {
     required DeleteProfileImage deleteProfileImage,
     required dynamic notificationProvider,
   }) : _signInWithGoogle = signInWithGoogle,
-       _signOut = signOut,
-       _getCurrentUser = getCurrentUser,
-       _saveProfile = saveProfile,
-       _uploadProfileImage = uploadProfileImage,
-       _deleteProfileImage = deleteProfileImage,
-       _notificationProvider = notificationProvider,
-       super(const AsyncValue.loading());
+        _signOut = signOut,
+        _getCurrentUser = getCurrentUser,
+        _saveProfile = saveProfile,
+        _uploadProfileImage = uploadProfileImage,
+        _deleteProfileImage = deleteProfileImage,
+        _notificationProvider = notificationProvider,
+        super(const AsyncValue.loading());
 
   /// 초기화
   /// - 앱 시작 시 현재 사용자 정보 조회
   Future<void> initialize() async {
     state = const AsyncValue.loading();
-    
+
     try {
       final result = await _getCurrentUser();
       result.fold(
-        (failure) {
+            (failure) {
           // 사용자 정보 조회 실패 시 null 상태로 설정
           state = const AsyncValue.data(null);
         },
-        (user) {
+            (user) {
           // 사용자 정보가 있으면 해당 정보로, 없으면 null로 설정
           state = AsyncValue.data(user);
         },
@@ -83,16 +83,16 @@ class AuthNotifier extends StateNotifier<AsyncValue<AuthUser?>> {
   /// 반환: Future<void>
   Future<void> signInWithGoogle() async {
     state = const AsyncValue.loading();
-    
+
     try {
       final result = await _signInWithGoogle();
       result.fold(
-        (failure) {
+            (failure) {
           final stackTrace = StackTrace.current;
           unawaited(_recordLoginFailure(failure, stackTrace));
           state = AsyncValue.error(failure, stackTrace);
         },
-        (user) {
+            (user) {
           state = AsyncValue.data(user);
         },
       );
@@ -107,7 +107,7 @@ class AuthNotifier extends StateNotifier<AsyncValue<AuthUser?>> {
   /// 반환: Future<void>
   Future<void> signOut() async {
     state = const AsyncValue.loading();
-    
+
     // FCM 토큰 삭제
     try {
       await _notificationProvider.deleteFcmToken();
@@ -115,14 +115,14 @@ class AuthNotifier extends StateNotifier<AsyncValue<AuthUser?>> {
       // FCM 토큰 삭제 실패는 로그아웃을 막지 않음
       debugPrint('FCM 토큰 삭제 실패: $e');
     }
-    
+
     try {
       final result = await _signOut();
       result.fold(
-        (failure) {
+            (failure) {
           state = AsyncValue.error(failure, StackTrace.current);
         },
-        (_) {
+            (_) {
           // 로그아웃 성공 시 null 상태로 설정
           state = const AsyncValue.data(null);
         },
@@ -137,21 +137,21 @@ class AuthNotifier extends StateNotifier<AsyncValue<AuthUser?>> {
   /// 반환: Future<void>
   Future<void> saveProfile(AuthUser user) async {
     state = const AsyncValue.loading();
-    
+
     try {
       final result = await _saveProfile(user: user);
       result.fold(
-        (failure) {
+            (failure) {
           state = AsyncValue.error(failure, StackTrace.current);
         },
-        (_) async {
+            (_) async {
           // 저장 후 최신 정보 다시 불러오기
           final newResult = await _getCurrentUser();
           newResult.fold(
-            (failure) {
+                (failure) {
               state = AsyncValue.error(failure, StackTrace.current);
             },
-            (updatedUser) {
+                (updatedUser) {
               state = AsyncValue.data(updatedUser);
             },
           );
@@ -174,13 +174,13 @@ class AuthNotifier extends StateNotifier<AsyncValue<AuthUser?>> {
         uid: currentUser.uid,
         imageFile: imageFile,
       );
-      
+
       return result.fold(
-        (failure) {
+            (failure) {
           // 에러 발생 시 현재 상태 유지
           return null;
         },
-        (imageUrl) {
+            (imageUrl) {
           // 성공 시 유저 정보 업데이트
           final updatedUser = currentUser.copyWith(profileImageUrl: imageUrl);
           state = AsyncValue.data(updatedUser);
@@ -203,13 +203,13 @@ class AuthNotifier extends StateNotifier<AsyncValue<AuthUser?>> {
       final result = await _deleteProfileImage(
         imageUrl: currentUser!.profileImageUrl!,
       );
-      
+
       return result.fold(
-        (failure) {
+            (failure) {
           // 에러 발생 시 현재 상태 유지
           return false;
         },
-        (_) {
+            (_) {
           // 성공 시 유저 정보에서 이미지 URL 제거
           final updatedUser = currentUser.copyWith(profileImageUrl: null);
           state = AsyncValue.data(updatedUser);
@@ -268,9 +268,9 @@ class AuthNotifier extends StateNotifier<AsyncValue<AuthUser?>> {
 
   /// 로그인 실패 정보를 Crashlytics에 보고
   Future<void> _recordLoginFailure(
-    Object error,
-    StackTrace stackTrace,
-  ) async {
+      Object error,
+      StackTrace stackTrace,
+      ) async {
     try {
       await FirebaseCrashlytics.instance.recordError(
         error,
